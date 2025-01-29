@@ -1,0 +1,122 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #9fa7b5; /* Blue background */
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+ /* Main container */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Form wrapper */
+.login-form {
+  display: flex;
+  flex-direction: row;
+  background-color: #4a5f95; /* Dark blue */
+  border-radius: 20px; /* Rounded corners */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+  max-width: 700px; /* Reduce the maximum width */
+  width: 100%; /* Make it responsive */
+  overflow: hidden;
+}
+
+/* Form Section */
+.form-container {
+  width: 100%; /* Make it 100% width for smaller screens */
+  max-width: 400px; /* Restrict the maximum width */
+  padding: 1.5rem; /* Reduce padding slightly */
+  box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+/* Adjust the video container */
+.video-container {
+  width: 100%; /* Responsive */
+  max-width: 300px; /* Restrict video width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.video-container video {
+  max-width: 100%; /* Ensure video fits within the container */
+  border-radius: 20px; /* Rounded corners for video */
+}
+
+  
+  .form-heading {
+    font-weight: bold;
+    font-size: 1.8rem;
+    color: #bfdbfe; /* Light blue text */
+    margin-bottom: 1.5rem;
+    text-align: center; /* Center align heading */
+  }
+  
+  .input-field {
+    width: 100%;
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 1.2rem;
+    color: #1e3a8a;
+    font-size: 1rem;
+  }
+  
+  .forgot-password-button {
+    font-size: 0.9rem;
+    background-color: transparent;
+    color: #ffffff;
+    text-align: left;
+    border: none;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+  
+  .forgot-password-button:hover {
+    text-decoration: underline;
+  }
+  
+  .button {
+    background-color: #2563eb; /* Bright blue */
+    color: white;
+    padding: 0.8rem 1.5rem;
+    font-size: 1.1rem;
+    width: 100%;
+    border-radius: 8px;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .button:hover {
+    background-color: #1d4ed8;
+  }
+  
+  /* Image Section */
+  .image-container {
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f1f5f9; /* Light background for contrast */
+    border-radius: 0 20px 20px 0; /* Rounded corners only on the right */
+  }
+  
+  .image-container img {
+    max-width: 90%;
+    border-radius: 15px; /* Slight rounding for the image */
+    object-fit: cover;
+  }
+  
