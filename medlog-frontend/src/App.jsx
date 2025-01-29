@@ -1,35 +1,63 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import React, { useState } from "react";
+// import Sidebar from "./Components/Sidebar";
+// import Navbar from "./Components/Navbar";
+// import LogbookPage from "./pages/LogbookPage";
+// import LogbookPopup from "./Components/LogbookPopup"; // Import popup
+
+// function App() {
+//   const [isPopupOpen, setPopupOpen] = useState(false);
+
+//   return (
+//     <div className="app-container">
+//       <Sidebar />
+//       <div className="main-content">
+//         <Navbar onAddEntryClick={() => setPopupOpen(true)} />
+//         <LogbookPage />
+//       </div>
+
+//       {/* Popup */}
+//       {isPopupOpen && <LogbookPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />}
+//     </div>
+//   );
+// }
+
+// export default App;
+
+import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./Components/Sidebar";
+import Navbar from "./Components/Navbar";
+import LogbookPage from "./pages/LogbookPage";
+import LogbookPopup from "./Components/LogbookPopup";
+import AdmissionsPage from "./pages/AdmissionsPage";
+import CPDPage from "./pages/CPDPage";
+import POCUSPage from "./pages/POCUSPage";
+import ProceduresPage from "./pages/ProceduresPage";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isPopupOpen, setPopupOpen] = useState(false);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app-container">
+        <Sidebar />
+        <div className="main-content">
+          <Navbar onAddEntryClick={() => setPopupOpen(true)} />
+
+          <Routes>
+            <Route path="/" element={<LogbookPage />} />
+            <Route path="/admissions" element={<AdmissionsPage />} />
+            <Route path="/cpd" element={<CPDPage />} />
+            <Route path="/pocus" element={<POCUSPage />} />
+            <Route path="/procedures" element={<ProceduresPage />} />
+          </Routes>
+        </div>
+
+        {/* Popup */}
+        {isPopupOpen && <LogbookPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
