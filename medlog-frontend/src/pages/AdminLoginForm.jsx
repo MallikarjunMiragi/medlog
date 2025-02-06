@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
-import { useNavigate } from 'react-router-dom';
-import Image from "../../assets/photo/login.mp4";
-import '../../styles.css';  
+import { useNavigate } from "react-router-dom";
+import Image from "../assets/photo/login.mp4";
+import "../styles.css";  
 
 const AdminLoginForm = () => {
   const [formData, setFormData] = useState({
@@ -17,7 +17,9 @@ const AdminLoginForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: null });
 
-    if ((e.target.name === 'emailId' || e.target.name === 'password') && videoRef.current) {
+    if ((e.target.name === "emailId" || e.target.name === "password") && videoRef.current) {
+      videoRef.current.muted = false;  // Ensure audio is on
+      videoRef.current.volume = 1.0;   // Set max volume
       videoRef.current.play();
     }
   };
@@ -27,28 +29,22 @@ const AdminLoginForm = () => {
       videoRef.current.pause();
     }
   };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const { emailId } = formData;
-  
-    // Retrieve user details from local storage
-    const userDetails = JSON.parse(localStorage.getItem('userDetails'));
-  
+
+    const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+
     if (userDetails && userDetails.email === emailId) {
-      // If the user is registered, navigate to the welcome page
-      navigate('/welcome');
+      navigate("/logbookpage");
     } else {
-      // Save email in local storage for registration
-      localStorage.setItem('userEmail', emailId);
-      // Redirect to the registration page
-      navigate('/register');
+      localStorage.setItem("userEmail", emailId);
+      navigate("/register");
     }
   };
-  
 
   const isForgotPasswordVisible = formData.emailId.toLowerCase() !== "admin@gmail.com";
-
- 
 
   return (
     <section className="login-container">
@@ -81,24 +77,18 @@ const AdminLoginForm = () => {
             {errors.password && <div className="error">{errors.password}</div>}
 
             {isForgotPasswordVisible && (
-              <button
-                type="button"
-                className="forgot-password-button"
-              >
-                Forgot Password
+              <button type="button" className="forgot-password-button">
+                Forgot Password?
               </button>
             )}
 
-            <button
-              type="submit"
-              className="button"
-            >
+            <button type="submit" className="button">
               Login
             </button>
           </form>
         </div>
         <div className="video-container">
-          <video ref={videoRef} className="video" autoPlay volume={1}>
+          <video ref={videoRef} className="video" autoPlay loop>
             <source src={Image} type="video/mp4" />
           </video>
         </div>

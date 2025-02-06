@@ -1,47 +1,49 @@
-import React, { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Sidebar from "./Components/Sidebar";
-import Navbar from "./Components/Navbar";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
+import AdminLoginForm from "./pages/AdminLoginForm";
+import RegistrationPage from "./pages/RegistrationPage";
 import LogbookPage from "./pages/LogbookPage";
-import LogbookPopup from "./Components/LogbookPopup";
-import AdmissionsPage from "./pages/AdmissionsPage";
-import CPDPage from "./pages/CPDPage";
+import AdmissionsForm from "./pages/AdmissionsForm";
+import ReportsPage from "./pages/ReportsPage"; 
+import AccountPage from "./pages/AccountPage";
+import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
-import ProceduresPage from "./pages/ProceduresPage";
-import AdminLoginForm from "./components/pages/AdminLoginForm";
-import RegistrationPage from "./components/pages/RegistrationPage";
-import WelcomePage from "./components/pages/WelcomePage";
 
-function App() {
-  const [isPopupOpen, setPopupOpen] = useState(false);
+
+
+const AppLayout = () => {
+  const location = useLocation();
+  const hideNavbarSidebar = location.pathname === "/";
 
   return (
-    <Router>
-      <div className="app-container">
-        <Sidebar />
-        <div className="main-content">
-          <Navbar onAddEntryClick={() => setPopupOpen(true)} />
-
+    <div className="app-layout">
+      {!hideNavbarSidebar && <Navbar />}
+      <div className="main-content">
+        {!hideNavbarSidebar && <Sidebar />}
+        <div className="page-content">
           <Routes>
-            {/* Logbook & Medical Pages */}
-            <Route path="/" element={<LogbookPage />} />
-            <Route path="/admissions" element={<AdmissionsPage />} />
-            <Route path="/cpd" element={<CPDPage />} />
-            <Route path="/pocus" element={<POCUSPage />} />
-            <Route path="/procedures" element={<ProceduresPage />} />
-
-            {/* Admin & User Pages */}
-            <Route path="/login" element={<AdminLoginForm />} />
+            <Route path="/" element={<AdminLoginForm />} />
             <Route path="/register" element={<RegistrationPage />} />
-            <Route path="/welcome" element={<WelcomePage />} />
+            <Route path="/logbookpage" element={<LogbookPage />} />
+            <Route path="/admissions" element={<AdmissionsForm />} />
+            <Route path="/reports" element={<ReportsPage />} /> 
+            <Route path="/account" element={<AccountPage />} />
+            <Route path="/cpd-entry" element={<CPDEntry />} />
+            <Route path="/pocus" element={<POCUSPage />} />
           </Routes>
         </div>
-
-        {/* Popup */}
-        {isPopupOpen && <LogbookPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />}
       </div>
+    </div>
+  );
+};
+
+const App = () => {
+  return (
+    <Router>
+      <AppLayout />
     </Router>
   );
-}
+};
 
 export default App;
