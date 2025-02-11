@@ -826,7 +826,7 @@ textarea {
 
 
 
-.file-upload {
+/* .file-upload {
   position: absolute;
   left: 0;
   top: 0;
@@ -859,6 +859,112 @@ textarea {
   border-radius: 5px;
   cursor: pointer;
 }
+
+
+.procedures-page {
+  padding: 20px;
+}
+
+.procedure-selection div {
+  margin-bottom: 10px;
+}
+
+.procedure-selection button {
+  display: block;
+  margin: 5px 0;
+}
+
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+.row div {
+  flex: 1;
+}
+
+textarea {
+  width: 100%;
+  height: 80px;
+}
+
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+} */
+
+
+/* Dropdown Styling */
+.dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.dropdown select {
+  width: 100%;
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #100d0d;
+  background-color: rgba(255, 255, 255, 0.1);;
+}
+
+/* Custom Procedure Input (Appears when 'Add Option' is selected) */
+.custom-procedure {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.custom-procedure input {
+  flex-grow: 1;
+}
+
+.custom-procedure button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.custom-procedure button:hover {
+  background-color: #0056b3;
+}
+
+/* Row Layout for Fields */
+.row {
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.row div {
+  flex: 1;
+}
+
+/* Buttons */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.buttons button {
+  padding: 10px 15px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.buttons button:hover {
+  opacity: 0.8;
+}
+
+
 
 
 /* 

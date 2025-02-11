@@ -9,6 +9,7 @@ import ReportsPage from "./pages/ReportsPage";
 import AccountPage from "./pages/AccountPage";
 import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
+import ProceduresEntry from "./pages/ProceduresEntry";
 
 
 
@@ -31,6 +32,7 @@ const AppLayout = () => {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/cpd-entry" element={<CPDEntry />} />
             <Route path="/pocus" element={<POCUSPage />} />
+            <Route path="/procedures-entry" element={<ProceduresEntry />} />
           </Routes>
         </div>
       </div>

@@ -20,7 +20,7 @@ const LogbookPage = () => {
         <LogbookCategory icon={<FaHospital />} title="Admissions" description="Add Admissions" route="/admissions" />
         <LogbookCategory icon={<FaClipboardList />} title="CPD" description="CPD" route="/cpd-entry" />
         <LogbookCategory icon={<FaStethoscope />} title="POCUS" description="POCUS" route="/pocus" />
-        <LogbookCategory icon={<FaProcedures />} title="Procedures" description="Procedures" route="/procedures" />
+        <LogbookCategory icon={<FaProcedures />} title="Procedures" description="Procedures" route="/procedures-entry" />
       </div>
 
       {/* Clickable Manage Logbook Categories Section */}
