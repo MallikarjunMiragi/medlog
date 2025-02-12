@@ -10,6 +10,7 @@ import AccountPage from "./pages/AccountPage";
 import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
 import ProceduresEntry from "./pages/ProceduresEntry";
+import JobsPage from "./pages/JobsPage"; 
 
 import ManageLogbook from "./pages/ManageLogbook";
 import AddCategory from "./pages/AddCategory";
@@ -42,6 +43,7 @@ const AppLayout = () => {
             <Route path="/generated-form/:category" element={<GeneratedForm />} /> 
             <Route path="/support" element={<Support />} />
             <Route path="/procedures-entry" element={<ProceduresEntry />} />
+            <Route path="/jobs" element={<JobsPage />} /> 
 
           </Routes>
         </div>
