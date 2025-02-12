@@ -9,7 +9,7 @@ const predefinedCategories = [
   { name: "Admissions", description: "Add Admissions", icon: <FaHospital />, route: "/admissions" },
   { name: "CPD", description: "CPD", icon: <FaClipboardList />, route: "/cpd-entry" },
   { name: "POCUS", description: "POCUS", icon: <FaStethoscope />, route: "/pocus" },
-  { name: "Procedures", description: "Procedures", icon: <FaProcedures />, route: "/procedures" },
+  { name: "Procedures", description: "Procedures", icon: <FaProcedures />, route: "/procedures-entry" },
 ];
 
 const LogbookPage = () => {
@@ -50,10 +50,6 @@ const LogbookPage = () => {
           />
         ))}
 
-        <LogbookCategory icon={<FaHospital />} title="Admissions" description="Add Admissions" route="/admissions" />
-        <LogbookCategory icon={<FaClipboardList />} title="CPD" description="CPD" route="/cpd-entry" />
-        <LogbookCategory icon={<FaStethoscope />} title="POCUS" description="POCUS" route="/pocus" />
-        <LogbookCategory icon={<FaProcedures />} title="Procedures" description="Procedures" route="/procedures-entry" />
 
       </div>
 
