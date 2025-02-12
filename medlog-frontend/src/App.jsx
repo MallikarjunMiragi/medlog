@@ -9,6 +9,7 @@ import ReportsPage from "./pages/ReportsPage";
 import AccountPage from "./pages/AccountPage";
 import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
+import ProceduresEntry from "./pages/ProceduresEntry";
 
 import ManageLogbook from "./pages/ManageLogbook";
 import AddCategory from "./pages/AddCategory";
@@ -33,10 +34,14 @@ const AppLayout = () => {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/cpd-entry" element={<CPDEntry />} />
             <Route path="/pocus" element={<POCUSPage />} />
+
             <Route path="/manage-logbook" element={<ManageLogbook />} />
             <Route path="/add-category" element={<AddCategory />} />
             <Route path="/category-form/:category" element={<CategoryForm />} />
             <Route path="/generated-form/:category" element={<GeneratedForm />} /> 
+
+            <Route path="/procedures-entry" element={<ProceduresEntry />} />
+
           </Routes>
         </div>
       </div>
