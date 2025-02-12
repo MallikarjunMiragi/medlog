@@ -51,6 +51,7 @@ const LogbookPage = () => {
         ))}
 
 
+    
       </div>
 
       {/* Clickable Manage Logbook Categories Section */}
