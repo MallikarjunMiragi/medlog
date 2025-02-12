@@ -16,6 +16,7 @@ import AddCategory from "./pages/AddCategory";
 import CategoryForm from "./pages/CategoryForm";
 import GeneratedForm from "./pages/GeneratedForm";
 import Support from "./pages/Support"; 
+import GoalProgression from "./pages/GoalProgression";
 const AppLayout = () => {
   const location = useLocation();
   const hideNavbarSidebar = location.pathname === "/";
@@ -41,6 +42,7 @@ const AppLayout = () => {
             <Route path="/category-form/:category" element={<CategoryForm />} />
             <Route path="/generated-form/:category" element={<GeneratedForm />} /> 
             <Route path="/support" element={<Support />} />
+            <Route path="/goal-progression" element={<GoalProgression />} />
             <Route path="/procedures-entry" element={<ProceduresEntry />} />
 
           </Routes>
