@@ -1,11 +1,32 @@
-import React from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LogbookCategory from "../components/logbookCategory";
 import { FaHospital, FaClipboardList, FaStethoscope, FaProcedures, FaChevronRight } from "react-icons/fa"; 
 import "../styles.css";
 
+const predefinedCategories = [
+  { name: "Admissions", description: "Add Admissions", icon: <FaHospital />, route: "/admissions" },
+  { name: "CPD", description: "CPD", icon: <FaClipboardList />, route: "/cpd-entry" },
+  { name: "POCUS", description: "POCUS", icon: <FaStethoscope />, route: "/pocus" },
+  { name: "Procedures", description: "Procedures", icon: <FaProcedures />, route: "/procedures" },
+];
+
 const LogbookPage = () => {
   const navigate = useNavigate();
+  const [categoryList, setCategoryList] = useState(predefinedCategories);
+
+  // ✅ Fetch categories from localStorage when page loads
+  useEffect(() => {
+    const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
+    const newCategories = storedCategories.map((name) => ({
+      name,
+      description: `Manage ${name}`,
+      icon: <FaClipboardList />, // Default icon for new categories
+      route: `/generated-form/${name}`, // Navigate to dynamically generated form
+    }));
+    setCategoryList([...predefinedCategories, ...newCategories]);
+  }, []);
 
   return (
     <div className="logbook-container w-full max-w-4xl bg-white p-6 rounded-lg shadow-md">
@@ -16,11 +37,17 @@ const LogbookPage = () => {
         clinical activities in your logbook associated with this job.
       </p>
 
+      {/* ✅ Dynamically List Categories (Including New Ones) */}
       <div className="logbook-list grid grid-cols-2 gap-4">
-        <LogbookCategory icon={<FaHospital />} title="Admissions" description="Add Admissions" route="/admissions" />
-        <LogbookCategory icon={<FaClipboardList />} title="CPD" description="CPD" route="/cpd-entry" />
-        <LogbookCategory icon={<FaStethoscope />} title="POCUS" description="POCUS" route="/pocus" />
-        <LogbookCategory icon={<FaProcedures />} title="Procedures" description="Procedures" route="/procedures" />
+        {categoryList.map((category, index) => (
+          <LogbookCategory
+            key={index}
+            icon={category.icon}
+            title={category.name}
+            description={category.description}
+            route={category.route} // ✅ Now routes to the correct form
+          />
+        ))}
       </div>
 
       {/* Clickable Manage Logbook Categories Section */}

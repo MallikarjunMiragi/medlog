@@ -10,8 +10,10 @@ import AccountPage from "./pages/AccountPage";
 import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
 
-
-
+import ManageLogbook from "./pages/ManageLogbook";
+import AddCategory from "./pages/AddCategory";
+import CategoryForm from "./pages/CategoryForm";
+import GeneratedForm from "./pages/GeneratedForm";
 const AppLayout = () => {
   const location = useLocation();
   const hideNavbarSidebar = location.pathname === "/";
@@ -31,6 +33,10 @@ const AppLayout = () => {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/cpd-entry" element={<CPDEntry />} />
             <Route path="/pocus" element={<POCUSPage />} />
+            <Route path="/manage-logbook" element={<ManageLogbook />} />
+            <Route path="/add-category" element={<AddCategory />} />
+            <Route path="/category-form/:category" element={<CategoryForm />} />
+            <Route path="/generated-form/:category" element={<GeneratedForm />} /> 
           </Routes>
         </div>
       </div>
