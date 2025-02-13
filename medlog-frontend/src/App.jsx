@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import AdminLoginForm from "./pages/AdminLoginForm";
+import LoginPage from "./pages/LoginPage";
 import RegistrationPage from "./pages/RegistrationPage";
 import LogbookPage from "./pages/LogbookPage";
 import AdmissionsForm from "./pages/AdmissionsForm";
@@ -18,6 +18,7 @@ import CategoryForm from "./pages/CategoryForm";
 import GeneratedForm from "./pages/GeneratedForm";
 import Support from "./pages/Support"; 
 import GoalProgression from "./pages/GoalProgression";
+
 const AppLayout = () => {
   const location = useLocation();
   const hideNavbarSidebar = location.pathname === "/";
@@ -29,7 +30,8 @@ const AppLayout = () => {
         {!hideNavbarSidebar && <Sidebar />}
         <div className="page-content">
           <Routes>
-            <Route path="/" element={<AdminLoginForm />} />
+          <Route path="/" element={<LoginPage />} />
+           
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/logbookpage" element={<LogbookPage />} />
             <Route path="/admissions" element={<AdmissionsForm />} />

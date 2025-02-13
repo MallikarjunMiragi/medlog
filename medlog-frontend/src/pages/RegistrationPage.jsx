@@ -15,6 +15,9 @@ const RegistrationPage = () => {
   const specialtiesOther = ["Oncology", "Pediatrics", "Neurology"];
 
   // State variables
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [trainingYears, setTrainingYears] = useState([]);
   const [selectedTrainingYear, setSelectedTrainingYear] = useState("");
@@ -22,8 +25,6 @@ const RegistrationPage = () => {
   const [selectedHospital, setSelectedHospital] = useState("");
   const [specialties, setSpecialties] = useState([]);
   const [selectedSpecialty, setSelectedSpecialty] = useState("");
-  const [newHospital, setNewHospital] = useState("");
-  const [newSpecialty, setNewSpecialty] = useState("");
 
   // Handle country selection
   const handleCountryChange = (event) => {
@@ -44,29 +45,17 @@ const RegistrationPage = () => {
     setSelectedSpecialty("");
   };
 
-  // Add hospital & specialty dynamically
-  const handleAddHospital = () => {
-    if (newHospital.trim()) {
-      setHospitals([...hospitals, newHospital]);
-      setNewHospital("");
-    }
-  };
-
-  const handleAddSpecialty = () => {
-    if (newSpecialty.trim()) {
-      setSpecialties([...specialties, newSpecialty]);
-      setNewSpecialty("");
-    }
-  };
-
   // Form submission
   const handleSubmit = () => {
-    const email = localStorage.getItem("userEmail");
-    if (!selectedCountry || !selectedTrainingYear || !selectedHospital || !selectedSpecialty) {
+    if (!email || !password || !confirmPassword || !selectedCountry || !selectedTrainingYear || !selectedHospital || !selectedSpecialty) {
       alert("Please fill in all required fields.");
       return;
     }
-    const registrationDetails = { email, selectedCountry, selectedTrainingYear, selectedHospital, selectedSpecialty };
+    if (password !== confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+    const registrationDetails = { email, password, selectedCountry, selectedTrainingYear, selectedHospital, selectedSpecialty };
     localStorage.setItem("userDetails", JSON.stringify(registrationDetails));
     navigate("/logbookpage");
   };
@@ -74,10 +63,26 @@ const RegistrationPage = () => {
   return (
     <div className="registration-container">
       <h1 className="title">Welcome to MedicalLogBook!</h1>
-      <p className="subtitle">
-        To configure your account, please provide details about your current medical training.
-      </p>
+      <p className="subtitle">To configure your account, please provide details about your current medical training.</p>
       
+      {/* Email Input */}
+      <div className="form-group">
+        <label>Email <span className="required">*</span></label>
+        <input type="email" className="form-control" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+
+      {/* Password Input */}
+      <div className="form-group">
+        <label>Password <span className="required">*</span></label>
+        <input type="password" className="form-control" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+
+      {/* Confirm Password Input */}
+      <div className="form-group">
+        <label>Confirm Password <span className="required">*</span></label>
+        <input type="password" className="form-control" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+      </div>
+
       {/* Country Selection */}
       <div className="form-group">
         <label>Country <span className="required">*</span></label>
@@ -89,42 +94,44 @@ const RegistrationPage = () => {
         </select>
       </div>
 
-      {/* Training Year Selection */}
-      <div className="form-group">
-        <label>Training Year <span className="required">*</span></label>
-        <select className="form-control" value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)} disabled={!selectedCountry}>
-          <option value="">Select a training year</option>
-          {trainingYears.map((year, index) => (
-            <option key={index} value={year}>{year}</option>
-          ))}
-        </select>
-      </div>
+      {/* Training Year */}
+      {selectedCountry && (
+        <div className="form-group">
+          <label>Training Year <span className="required">*</span></label>
+          <select className="form-control" value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)}>
+            <option value="">Select your training year</option>
+            {trainingYears.map((year, index) => (
+              <option key={index} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      {/* Hospitals Section */}
-      <div className="form-group">
-        <label>Hospital <span className="required">*</span></label>
-        <select className="form-control" value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)} disabled={!selectedCountry}>
-          <option value="">Select a hospital</option>
-          {hospitals.map((hospital, index) => (
-            <option key={index} value={hospital}>{hospital}</option>
-          ))}
-        </select>
-        <input type="text" className="form-control small-input" placeholder="Add a hospital" value={newHospital} onChange={(e) => setNewHospital(e.target.value)} />
-        <button className="btn" onClick={handleAddHospital}>+ Add</button>
-      </div>
+      {/* Hospital Selection */}
+      {selectedCountry && (
+        <div className="form-group">
+          <label>Hospital <span className="required">*</span></label>
+          <select className="form-control" value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)}>
+            <option value="">Select a hospital</option>
+            {hospitals.map((hospital, index) => (
+              <option key={index} value={hospital}>{hospital}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
-      {/* Specialties Section */}
-      <div className="form-group">
-        <label>Specialty <span className="required">*</span></label>
-        <select className="form-control" value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)} disabled={!selectedCountry}>
-          <option value="">Select a specialty</option>
-          {specialties.map((specialty, index) => (
-            <option key={index} value={specialty}>{specialty}</option>
-          ))}
-        </select>
-        <input type="text" className="form-control small-input" placeholder="Add a specialty" value={newSpecialty} onChange={(e) => setNewSpecialty(e.target.value)} />
-        <button className="btn" onClick={handleAddSpecialty}>+ Add</button>
-      </div>
+      {/* Specialty Selection */}
+      {selectedCountry && (
+        <div className="form-group">
+          <label>Specialty <span className="required">*</span></label>
+          <select className="form-control" value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)}>
+            <option value="">Select a specialty</option>
+            {specialties.map((specialty, index) => (
+              <option key={index} value={specialty}>{specialty}</option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {/* Submit Button */}
       <button className="btn-submit" onClick={handleSubmit} disabled={!selectedCountry}>Set up Logbook!</button>
