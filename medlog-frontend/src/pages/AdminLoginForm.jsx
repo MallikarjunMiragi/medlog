@@ -1,7 +1,9 @@
 import { useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../reducers/authReducer";
 import Image from "../assets/photo/login.mp4";
-import "../styles.css";  
+import "../styles.css";
 
 const AdminLoginForm = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +13,8 @@ const AdminLoginForm = () => {
 
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user, error, isLoading } = useSelector((state) => state.auth); // Get auth state
   const videoRef = useRef(null);
 
   const handleChange = (e) => {
@@ -18,8 +22,8 @@ const AdminLoginForm = () => {
     setErrors({ ...errors, [e.target.name]: null });
 
     if ((e.target.name === "emailId" || e.target.name === "password") && videoRef.current) {
-      videoRef.current.muted = false;  // Ensure audio is on
-      videoRef.current.volume = 1.0;   // Set max volume
+      videoRef.current.muted = false;
+      videoRef.current.volume = 1.0;
       videoRef.current.play();
     }
   };
@@ -30,17 +34,14 @@ const AdminLoginForm = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { emailId } = formData;
+    const result = await dispatch(loginUser(formData)); // Dispatch login action
 
-    const userDetails = JSON.parse(localStorage.getItem("userDetails"));
-
-    if (userDetails && userDetails.email === emailId) {
-      navigate("/logbookpage");
+    if (loginUser.fulfilled.match(result)) {
+      navigate("/logbookpage"); // Navigate to LogbookPage on successful login
     } else {
-      localStorage.setItem("userEmail", emailId);
-      navigate("/register");
+      setErrors({ login: "Invalid email or password. Please register." }); // Show error message
     }
   };
 
@@ -76,14 +77,16 @@ const AdminLoginForm = () => {
             />
             {errors.password && <div className="error">{errors.password}</div>}
 
+            {errors.login && <div className="error">{errors.login}</div>} {/* Display error message */}
+
             {isForgotPasswordVisible && (
               <button type="button" className="forgot-password-button">
                 Forgot Password?
               </button>
             )}
 
-            <button type="submit" className="button">
-              Login
+            <button type="submit" className="button" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
             </button>
           </form>
         </div>
