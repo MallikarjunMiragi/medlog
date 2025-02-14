@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
-import LoginPage from "./pages/LoginPage";
+import LoginPage from "./pages/AdminLoginForm";
 import RegistrationPage from "./pages/RegistrationPage";
 import LogbookPage from "./pages/LogbookPage";
 import AdmissionsForm from "./pages/AdmissionsForm";

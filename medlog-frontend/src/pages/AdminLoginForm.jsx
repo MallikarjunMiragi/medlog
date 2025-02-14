@@ -35,7 +35,9 @@ const AdminLoginForm = () => {
   };
 
   const handleSubmit = async (e) => {
+   alert("Submit clicked")
     e.preventDefault();
+    console.log("Submit clicked")
     const result = await dispatch(loginUser(formData)); // Dispatch login action
 
     if (loginUser.fulfilled.match(result)) {
@@ -85,7 +87,7 @@ const AdminLoginForm = () => {
               </button>
             )}
 
-            <button type="submit" className="button" disabled={isLoading}>
+            <button  onClick={handleSubmit} className="button" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
             </button>
           </form>

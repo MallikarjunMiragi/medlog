@@ -5,7 +5,6 @@ import "../styles.css"; // Ensure correct path to styles.css
 const RegistrationPage = () => {
   const navigate = useNavigate();
 
-  // Static dropdown data
   const countries = ["India", "United States", "United Kingdom", "Australia", "Canada", "Germany"];
   const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer","Postgraduate year 2","Postgraduate year 3","Postgraduate year 4","Postgraduate year 5","Consultant"];
   const trainingYearsOther = ["Medical Year 1", "Medical Year 2", "Medical Year 3"];
@@ -14,7 +13,6 @@ const RegistrationPage = () => {
   const specialtiesIndia = ["Allergy", "Cardiology", "Dermatology", "Emergency medicine"];
   const specialtiesOther = ["Oncology", "Pediatrics", "Neurology"];
 
-  // State variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
