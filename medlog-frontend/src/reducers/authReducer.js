@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const API_URL = "http://localhost:5000/api/auth";
 
-// Login User
+
 export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAPI) => {
     console.log(userData)
   try {
@@ -28,7 +28,6 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
   }
 });
 
-// Signup User
 export const signupUser = createAsyncThunk("auth/signup", async (userData, thunkAPI) => {
   try {
     const response = await fetch(`${API_URL}/signup`, {
