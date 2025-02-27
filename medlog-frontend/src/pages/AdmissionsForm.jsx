@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+import { useDispatch, useSelector } from "react-redux";
+import { addLogEntry } from "../reducers/logentryReducer";
 import { useNavigate } from "react-router-dom";
 import { FaUpload } from "react-icons/fa";
 import "../styles.css";
@@ -31,49 +34,112 @@ const specialtyAreas = [
 const outcomeOptions = ["Admitted", "Coronary care Unit", "Died", "Discharged", "Intensive care", "Other Specialty Unit", "Referred on", "Theatre", "Ward Care"];
 
 const AdmissionsForm = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
-  
+  const user = useSelector((state) => state.auth.user);
+console.log("User from Redux:", user); 
+
+
+  const [categories, setCategories] = useState([]); 
+  const [selectedCategory, setSelectedCategory] = useState(""); 
+
   const [formData, setFormData] = useState({
-    logbookCategory: "Admissions",
     date: today,
     hospital: "",
     location: "",
-    referralSource: "",
-    reference: "",
+    referral_source: "", 
+    your_reference: "",
     gender: "",
-    dob: "",
     age: "",
     role: "",
-    specialtyArea: "",
+    speciality_area: "", 
     problem: "",
     outcome: "",
     notes: "",
-    attachment: null
+    attachments: null, 
   });
+  
+
+   
+    useEffect(() => {
+      fetch("http://localhost:5000/api/category/all")
+        .then((response) => response.json())
+        .then((data) => {
+          setCategories(data);
+          if (data.length > 0) setSelectedCategory(data[0].name);
+        })
+        .catch((error) => console.error("Error fetching categories:", error));
+    }, []);
+
+    
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value); 
+  };
+
 
   const handleFileChange = (e) => {
     setFormData({ ...formData, attachment: e.target.files[0] });
   };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+  
+    console.log("User from Redux:", user);
+  
+    if (!user || !user.email) {
+      alert("Please log in to submit the form.");
+      return;
+    }
+  
+    console.log("Submitting form with Email:", user.email);
+  
+   
+    const selectedCategoryObj = categories.find((cat) => cat.name === selectedCategory);
+    if (!selectedCategoryObj) {
+      alert("Selected category not found.");
+      return;
+    }
 
-  const handleCancel = () => {
-    navigate("/logbookpage");
+    const categoryId = selectedCategoryObj._id;
+
+   
+
+    dispatch(addLogEntry({ email: user.email, categoryId, formData }))
+      .unwrap()
+      .then((response) => {
+        console.log("Success:", response);
+        navigate("/logbookpage");
+      })
+      .catch((error) => {
+        console.error("Error adding log entry:", error);
+        alert("Failed to add log entry. Check console for details.");
+      });
   };
+  
+  
+  
+
+const handleCancel = () => {
+  navigate("/logbookpage");
+};
+
 
   return (
     <div className="admissions-container">
       
       <div className="form-container">
         <h2 className="form-title">Admissions Form</h2>
-        <form>
-          <label>Logbook Category</label>
-          <select name="logbookCategory" value={formData.logbookCategory} onChange={handleChange}>
-            {logbookCategories.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
+        <form onSubmit={handleSubmit}>
+
+           <label>Category</label>
+          <select name="category" value={selectedCategory} onChange={handleCategoryChange}>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat.name}>{cat.name}</option> 
             ))}
           </select>
 
@@ -144,6 +210,7 @@ const AdmissionsForm = () => {
           <div className="button-group">
             <button type="button" className="cancel-btn" onClick={handleCancel}>Cancel</button>
             <button type="submit" className="save-btn">Save</button>
+
           </div>
         </form>
       </div>

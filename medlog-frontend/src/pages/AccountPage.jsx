@@ -7,8 +7,8 @@ import "../styles.css";
 
 const AccountPage = () => {
   const [userEmail, setUserEmail] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [surname, setSurname] = useState("");
+  const [firstName, setFirstName] = useState(""); // ✅ Fix: Properly storing first name
+  const [surname, setSurname] = useState(""); // ✅ Fix: Properly storing surname
   const [country, setCountry] = useState(""); 
   const [profileImage, setProfileImage] = useState(null);
   const [memberSince] = useState(new Date().toLocaleDateString());
@@ -16,9 +16,9 @@ const AccountPage = () => {
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("userDetails"));
     if (storedUser) {
-      setUserEmail(storedUser.email || "");
-      setFirstName(storedUser.firstName || "");
-      setSurname(storedUser.surname || "");
+      setUserEmail(storedUser.email || ""); 
+      setFirstName(storedUser.firstName || ""); // ✅ Ensure first name is set
+      setSurname(storedUser.surname || ""); // ✅ Ensure surname is set
       setCountry(storedUser.country || "");
     }
   }, []);
@@ -93,7 +93,7 @@ const AccountPage = () => {
           <label>First Name*</label>
           <input
             type="text"
-            value={userEmail}
+            value={firstName} // ✅ Fix: Use firstName instead of userEmail
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
@@ -101,7 +101,7 @@ const AccountPage = () => {
           <label>Surname*</label>
           <input
             type="text"
-            value={userEmail}
+            value={surname} // ✅ Fix: Use surname instead of userEmail
             onChange={(e) => setSurname(e.target.value)}
             required
           />
