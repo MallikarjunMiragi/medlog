@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../reducers/authReducer";
+import { loginUser } from "../reducers/authReducer"; // Ensure the correct import path
 import Image from "../assets/photo/login.mp4";
 import "../styles.css";
 
@@ -14,13 +14,14 @@ const AdminLoginForm = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { user, error, isLoading } = useSelector((state) => state.auth); // Get auth state
+  const { user, error, loading } = useSelector((state) => state.auth);
   const videoRef = useRef(null);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: null });
 
+    // Play video when user starts typing
     if ((e.target.name === "emailId" || e.target.name === "password") && videoRef.current) {
       videoRef.current.muted = false;
       videoRef.current.volume = 1.0;
@@ -35,16 +36,27 @@ const AdminLoginForm = () => {
   };
 
   const handleSubmit = async (e) => {
-   alert("Submit clicked")
     e.preventDefault();
-    console.log("Submit clicked")
-    const result = await dispatch(loginUser(formData)); // Dispatch login action
+
+    if (!formData.emailId || !formData.password) {
+      setErrors({ login: "Email and Password are required." });
+      return;
+    }
+
+    const result = await dispatch(loginUser(formData));
 
     if (loginUser.fulfilled.match(result)) {
-      navigate("/logbookpage"); // Navigate to LogbookPage on successful login
+      console.log("correct user");
+//new
+      navigate("/logbookpage"); // Navigate to the logbook page upon successful login
     } else {
-      setErrors({ login: "Invalid email or password. Please register." }); // Show error message
+      console.log("incorrect");
+      setErrors("Invalid email or password. Please register." );
     }
+  };
+
+  const handleRegister = () => {
+    navigate("/register"); // Navigate to RegistrationPage
   };
 
   const isForgotPasswordVisible = formData.emailId.toLowerCase() !== "admin@gmail.com";
@@ -54,16 +66,19 @@ const AdminLoginForm = () => {
       <div className="login-form">
         <div className="form-container">
           <h2 className="form-heading">Login</h2>
+          {error && <p>{error?.message || JSON.stringify(error)}</p>
+        }
           <form onSubmit={handleSubmit}>
             <label className="label">Email</label>
             <input
               className="input-field"
-              type="text"
+              type="email"
               placeholder="Enter your email"
               name="emailId"
               value={formData.emailId}
               onChange={handleChange}
               onBlur={handleBlur}
+              required
             />
             {errors.emailId && <div className="error">{errors.emailId}</div>}
 
@@ -76,10 +91,11 @@ const AdminLoginForm = () => {
               value={formData.password}
               onChange={handleChange}
               onBlur={handleBlur}
+              required
             />
             {errors.password && <div className="error">{errors.password}</div>}
 
-            {errors.login && <div className="error">{errors.login}</div>} {/* Display error message */}
+            {errors.login && <div className="error">{errors.login}</div>}
 
             {isForgotPasswordVisible && (
               <button type="button" className="forgot-password-button">
@@ -87,13 +103,18 @@ const AdminLoginForm = () => {
               </button>
             )}
 
-            <button  onClick={handleSubmit} className="button" disabled={isLoading}>
-              {isLoading ? "Logging in..." : "Login"}
-            </button>
+            <div className="button-group">
+              <button type="submit" className="button" disabled={loading}>
+                {loading ? "Logging in..." : "Login"}
+              </button>
+              <button type="button" onClick={handleRegister} className="register-button">
+                Register
+              </button>
+            </div>
           </form>
         </div>
         <div className="video-container">
-          <video ref={videoRef} className="video" autoPlay loop>
+          <video ref={videoRef} className="video" autoPlay loop muted>
             <source src={Image} type="video/mp4" />
           </video>
         </div>
