@@ -29,6 +29,7 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
 });
 
 export const signupUser = createAsyncThunk("auth/signup", async (userData, thunkAPI) => {
+  console.log("Signup Data Sent:", userData); 
   try {
     const response = await fetch(`${API_URL}/signup`, {
       method: "POST",
@@ -39,12 +40,14 @@ export const signupUser = createAsyncThunk("auth/signup", async (userData, thunk
     });
 
     const data = await response.json();
+    console.log("Signup Response Data:", data);
     if (!response.ok) {
       throw new Error(data.error || "Something went wrong");
     }
 
     return data;
   } catch (error) {
+    console.error("Signup Error:", error.message);
     return thunkAPI.rejectWithValue({ error: error.message });
   }
 });
