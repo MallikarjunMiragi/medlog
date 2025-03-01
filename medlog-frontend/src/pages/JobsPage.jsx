@@ -71,14 +71,14 @@ const JobsPage = () => {
                     </div>
                   </div>
                   <div className="job-actions">
-                    <button className="view-entries-btn" onClick={() => navigate("/logbookpage")}>
+                    <button className="view-entries-btn" onClick={() => navigate("/view-entries")}>
                       View entries
                     </button>
                     <FaDownload className="icon-btn" />
                     <FaTrash className="icon-btn" />
                   </div>
                 </div>
-              ))}
+              ))} 
           </div>
 
           <div className="job-section">
