@@ -96,8 +96,9 @@ console.log("User from Redux:", user);
       return;
     }
   
-    console.log("Submitting form with Email:", user.email);
-  
+    //console.log("Submitting form with Email:", user.email);
+    console.log("Submitting form with Email:", user.email.email);  // ✅ Extract actual email
+
    
     const selectedCategoryObj = categories.find((cat) => cat.name === selectedCategory);
     if (!selectedCategoryObj) {
@@ -109,8 +110,10 @@ console.log("User from Redux:", user);
 
    
 
-    dispatch(addLogEntry({ email: user.email, categoryId, formData }))
-      .unwrap()
+    //dispatch(addLogEntry({ email: user.email, categoryId, formData }))
+    dispatch(addLogEntry({ email: user.email.email, categoryId, formData })) // ✅ Fix email format
+  
+    .unwrap()
       .then((response) => {
         console.log("Success:", response);
         navigate("/logbookpage");
