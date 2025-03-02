@@ -54,7 +54,7 @@ const RegistrationPage = () => {
     }
 
     const userData = { fullName, email, password, country: selectedCountry, trainingYear: selectedTrainingYear, hospital: selectedHospital, specialty: selectedSpecialty };
-    
+
     try {
       console.log("Sending Registration Data:", userData);
       await dispatch(signupUser(userData)).unwrap();
@@ -68,7 +68,7 @@ const RegistrationPage = () => {
     <div className="registration-container">
       <h1 className="title">Welcome to MedicalLogBook!</h1>
       <p className="subtitle">To configure your account, please provide details about your current medical training.</p>
-      
+
       <div className="form-group">
         <label>Full Name <span className="required">*</span></label>
         <input type="text" className="form-control" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
@@ -134,7 +134,11 @@ const RegistrationPage = () => {
       )}
 
       {error && <p className="error-message">{error}</p>}
+
       <button className="btn-submit" onClick={handleSubmit} disabled={isLoading || !selectedCountry}>{isLoading ? "Registering..." : "Set up Logbook!"}</button>
+
+      {/* Go Back Button */}
+      <button className="btn-back" onClick={() => navigate("/")}>Go Back</button>
     </div>
   );
 };
