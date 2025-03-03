@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import logbookCategories from "../components/logbookCategory"; 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import logbookCategories from "../Components/logbookCategory";
 import "../styles.css";
 
 const ReportsPage = () => {
-  const navigate = useNavigate();
-
-  // Fetch user details from local storage or set defaults
   const [userDetails, setUserDetails] = useState({
-    firstName: "",
-    lastName: "",
+    email: "",
     selectedHospital: "",
     selectedSpecialty: "",
     selectedTrainingYear: "",
@@ -23,18 +20,12 @@ const ReportsPage = () => {
     }));
   }, []);
 
-  // State for form fields
-  const [firstName, setFirstName] = useState(userDetails.email);
-  const [surname, setSurname] = useState(userDetails.lastName);
   const [fromDate, setFromDate] = useState(new Date().toISOString().split("T")[0]);
   const [toDate, setToDate] = useState(new Date().toISOString().split("T")[0]);
   const [reportFormat, setReportFormat] = useState("Summary report");
   const [reportFileType, setReportFileType] = useState("PDF (non-editable format)");
 
-  // Ensure logbookCategories is an array before using reduce
   const categoriesArray = Array.isArray(logbookCategories) ? logbookCategories : Object.values(logbookCategories);
-
-  // State for toggles
   const [mainToggle, setMainToggle] = useState(true);
   const [categoryToggles, setCategoryToggles] = useState(
     categoriesArray.reduce((acc, category) => {
@@ -43,7 +34,6 @@ const ReportsPage = () => {
     }, {})
   );
 
-  // Handle category toggle
   const handleCategoryToggle = (category) => {
     setCategoryToggles((prev) => ({
       ...prev,
@@ -51,7 +41,6 @@ const ReportsPage = () => {
     }));
   };
 
-  // Handle main toggle (toggle all categories)
   const handleMainToggle = () => {
     const newState = !mainToggle;
     setMainToggle(newState);
@@ -63,22 +52,91 @@ const ReportsPage = () => {
     );
   };
 
+  // Generate PDF Report with multiple pages
+  const generatePDF = () => {
+    const doc = new jsPDF();
+
+    // Cover Page
+    doc.setFontSize(20);
+    doc.text("Medical Logbook Report", 10, 20);
+    doc.setFontSize(14);
+    doc.text(`Prepared for: ${userDetails.email}`, 10, 30);
+    doc.text(`Hospital: ${userDetails.selectedHospital}`, 10, 40);
+    doc.text(`Specialty: ${userDetails.selectedSpecialty}`, 10, 50);
+    doc.text(`Training Year: ${userDetails.selectedTrainingYear}`, 10, 60);
+    doc.text(`Reporting Period: ${fromDate} - ${toDate}`, 10, 70);
+    doc.addPage();
+
+    // Table of Contents
+    const sections = [
+      "Jobs",
+      "Procedures",
+      "Performed by Training Year",
+      "Performed by Supervision Level",
+      "Procedure Records",
+      "Admissions",
+      "Specialties Seen",
+      "Referral Sources",
+      "Location Settings",
+      "Patient Summaries",
+      "Admission Records",
+      "Ultrasounds",
+      "Point-of-Care Ultrasound Performed by Training Year",
+      "Point-of-Care Ultrasound Records",
+      "Continued Professional Development",
+      "Academia",
+      "Audit & Quality Improvement",
+      "Publications",
+      "Conferences",
+      "Courses",
+      "Seminars",
+      "Teaching and Training",
+      "Other Activities",
+    ];
+
+    doc.setFontSize(16);
+    doc.text("Table of Contents", 10, 20);
+    const tocData = sections.map((section, index) => [section, index + 2]);
+    autoTable(doc, {
+      startY: 30,
+      head: [["Section", "Page"]],
+      body: tocData,
+    });
+    doc.addPage();
+
+    // Add Sections
+    sections.forEach((section, index) => {
+      if (index > 0) doc.addPage();
+      doc.setFontSize(16);
+      doc.text(section, 10, 20);
+      doc.setFontSize(12);
+      doc.text("No activities have been performed that relate to this report section", 10, 30);
+    });
+
+    // Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(10);
+      doc.text(`Page ${i} of ${pageCount}`, 180, 290);
+    }
+
+    doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+  };
+
   return (
     <div className="reports-container">
       <div className="reports-content">
         <h2>Create Report</h2>
-        <p>You can download preformatted logbook reports for use in training reviews, interviews and other professional settings. 
-            Reports are available in either pdf or docx formats. Simply select the date range, 
-            jobs and logbook categories you want the report to cover and hit download.</p>
+        <p>
+          You can download preformatted logbook reports for use in training reviews, interviews, and other professional settings.
+          Reports are available in either PDF or DOCX formats.
+        </p>
 
         <div className="report-form">
           <div className="form-group">
-            <label>First Name *</label>
-            <input type="text" value={userDetails.email} onChange={(e) => setFirstName(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>Surname *</label>
-            <input type="text" value={userDetails.email} onChange={(e) => setSurname(e.target.value)} />
+            <label>Name *</label>
+            <input type="text" value={userDetails.email} readOnly />
           </div>
           <div className="form-group">
             <label>From Date *</label>
@@ -88,15 +146,7 @@ const ReportsPage = () => {
             <label>To Date *</label>
             <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </div>
-          <div className="form-group">
-            <label>Report *</label>
-            <select>
-              <option>Logbook report</option>
-            </select>
-            <p className="warning">
-              Please select the type of report you want to generate. Some reports are only available to specific logbook categories.
-            </p>
-          </div>
+
           <div className="form-group">
             <label>Report Format *</label>
             <select value={reportFormat} onChange={(e) => setReportFormat(e.target.value)}>
@@ -112,10 +162,9 @@ const ReportsPage = () => {
             </select>
           </div>
 
-          <button className="download-btn">Download Report</button>
-        </div>
-        <br />
-        <div className="training-info">
+          <button className="download-btn" onClick={generatePDF}>Download Report</button>
+
+          <div className="training-info">
           <h3>{userDetails.selectedTrainingYear} {userDetails.selectedSpecialty}</h3>
           <p>{userDetails.selectedHospital}</p>
           <label className="toggle-switch">
@@ -134,6 +183,8 @@ const ReportsPage = () => {
               </label>
             </div>
           ))}
+        </div>
+
         </div>
       </div>
     </div>
