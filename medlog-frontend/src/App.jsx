@@ -21,7 +21,7 @@ import GoalProgression from "./pages/GoalProgression";
 
 const AppLayout = () => {
   const location = useLocation();
-  const hideNavbarSidebar = location.pathname === "/";
+  const hideNavbarSidebar = location.pathname === "/" || location.pathname === "/register";
 
   return (
     <div className="app-layout">
