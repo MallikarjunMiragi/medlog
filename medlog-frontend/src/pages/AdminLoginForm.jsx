@@ -36,17 +36,46 @@ const AdminLoginForm = () => {
       videoRef.current.pause();
     }
   };
+//original code
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+//     if (!formData.emailId || !formData.password) {
+//       setErrors({ login: "Email and Password are required." });
+//       return;
+//     }
 
-    if (!formData.emailId || !formData.password) {
-      setErrors({ login: "Email and Password are required." });
-      setNotification({ isOpen: true, title: "Error", message: "Email and Password are required.", type: "error" });
-      return;
-    }
+//     const result = await dispatch(loginUser(formData));
 
-    const result = await dispatch(loginUser(formData));
+//     if (loginUser.fulfilled.match(result)) {
+//       console.log("correct user");
+// //new
+//       navigate("/logbookpage"); // Navigate to the logbook page upon successful login
+//     } else {
+//       console.log("incorrect");
+//       setErrors("Invalid email or password. Please register." );
+//     }
+//   };
+
+//below is added for dummy login
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.emailId || !formData.password) {
+    setErrors({ login: "Email and Password are required." });
+     setNotification({ isOpen: true, title: "Error", message: "Email and Password are required.", type: "error" });
+    return;
+  }
+
+  // ✅ Check if the user is a doctor (hardcoded login)
+  if (formData.emailId === "doctor@gmail.com" && formData.password === "doctor") {
+    console.log("Doctor logged in.");
+    navigate("/doctor-logbook"); // ✅ Redirect doctor to DoctorLogbookPage
+    return; // ✅ Stop further execution
+  }
+
+  // ✅ Proceed with normal user login
+  const result = await dispatch(loginUser(formData));
 
     if (loginUser.fulfilled.match(result)) {
       console.log("correct user");
@@ -56,8 +85,10 @@ const AdminLoginForm = () => {
       console.log("incorrect");
       setErrors({ login: "Invalid email or password. Please register." });
       setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
-    }
-  };
+  }
+};
+
+
 
   const handleRegister = () => {
     navigate("/register");

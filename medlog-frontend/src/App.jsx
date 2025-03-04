@@ -11,7 +11,8 @@ import CPDEntry from "./pages/CPDEntryPage";
 import POCUSPage from "./pages/POCUSPage";
 import ProceduresEntry from "./pages/ProceduresEntry";
 import JobsPage from "./pages/JobsPage"; 
-
+import ViewEntriesPage from "./pages/ViewEntriesPage";
+import DoctorLogbook from "./pages/DoctorLogbook";
 import ManageLogbook from "./pages/ManageLogbook";
 import AddCategory from "./pages/AddCategory";
 import CategoryForm from "./pages/CategoryForm";
@@ -21,7 +22,7 @@ import GoalProgression from "./pages/GoalProgression";
 
 const AppLayout = () => {
   const location = useLocation();
-  const hideNavbarSidebar = location.pathname === "/" || location.pathname === "/register";
+  const hideNavbarSidebar = location.pathname === "/" || location.pathname === "/register" || location.pathname === "/doctor-logbook";
 
   return (
     <div className="app-layout">
@@ -48,7 +49,8 @@ const AppLayout = () => {
             <Route path="/goal-progression" element={<GoalProgression />} />
             <Route path="/procedures-entry" element={<ProceduresEntry />} />
             <Route path="/jobs" element={<JobsPage />} /> 
-
+            <Route path="/view-entries" element={<ViewEntriesPage />} />
+            <Route path="/doctor-logbook" element={<DoctorLogbook />} />
           </Routes>
         </div>
       </div>
