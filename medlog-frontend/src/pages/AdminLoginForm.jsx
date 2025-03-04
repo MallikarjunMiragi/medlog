@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../reducers/authReducer"; // Ensure the correct import path
+import { loginUser } from "../reducers/authReducer";
 import Image from "../assets/photo/login.mp4";
+import Notification from "../Components/Notification";
 import "../styles.css";
 
 const AdminLoginForm = () => {
@@ -12,6 +13,8 @@ const AdminLoginForm = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [notification, setNotification] = useState({ isOpen: false, title: "", message: "", type: "info" });
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, error, loading } = useSelector((state) => state.auth);
@@ -21,7 +24,6 @@ const AdminLoginForm = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: null });
 
-    // Play video when user starts typing
     if ((e.target.name === "emailId" || e.target.name === "password") && videoRef.current) {
       videoRef.current.muted = false;
       videoRef.current.volume = 1.0;
@@ -61,6 +63,7 @@ const handleSubmit = async (e) => {
 
   if (!formData.emailId || !formData.password) {
     setErrors({ login: "Email and Password are required." });
+     setNotification({ isOpen: true, title: "Error", message: "Email and Password are required.", type: "error" });
     return;
   }
 
@@ -74,18 +77,21 @@ const handleSubmit = async (e) => {
   // ✅ Proceed with normal user login
   const result = await dispatch(loginUser(formData));
 
-  if (loginUser.fulfilled.match(result)) {
-    console.log("correct user");
-    navigate("/logbookpage"); // ✅ Normal users go to LogbookPage
-  } else {
-    console.log("incorrect");
-    setErrors("Invalid email or password. Please register.");
+    if (loginUser.fulfilled.match(result)) {
+      console.log("correct user");
+      setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
+      setTimeout(() => navigate("/logbookpage"), 2000);
+    } else {
+      console.log("incorrect");
+      setErrors({ login: "Invalid email or password. Please register." });
+      setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
   }
 };
 
 
+
   const handleRegister = () => {
-    navigate("/register"); // Navigate to RegistrationPage
+    navigate("/register");
   };
 
   const isForgotPasswordVisible = formData.emailId.toLowerCase() !== "admin@gmail.com";
@@ -95,8 +101,6 @@ const handleSubmit = async (e) => {
       <div className="login-form">
         <div className="form-container">
           <h2 className="form-heading">Login</h2>
-          {error && <p>{error?.message || JSON.stringify(error)}</p>
-        }
           <form onSubmit={handleSubmit}>
             <label className="label">Email</label>
             <input
@@ -122,9 +126,8 @@ const handleSubmit = async (e) => {
               onBlur={handleBlur}
               required
             />
-            {errors.password && <div className="error">{errors.password}</div>}
-
-            {errors.login && <div className="error">{errors.login}</div>}
+            {/* {errors.password && <div className="error">{errors.password}</div>}
+            {errors.login && <div className="error">{errors.login}</div>} */}
 
             {isForgotPasswordVisible && (
               <button type="button" className="forgot-password-button">
@@ -148,6 +151,15 @@ const handleSubmit = async (e) => {
           </video>
         </div>
       </div>
+
+      {/* Notification Modal */}
+      <Notification
+        isOpen={notification.isOpen}
+        onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+        title={notification.title}
+        message={notification.message}
+        type={notification.type}
+      />
     </section>
   );
 };

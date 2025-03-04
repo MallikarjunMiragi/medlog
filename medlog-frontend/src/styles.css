@@ -1062,4 +1062,102 @@ textarea {
   margin-top: 10px;
 }
 
+.title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Modal Overlay */
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Content */
+.ReactModal__Content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+}
+
+/* Header Styling */
+.notification-header {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  text-transform: uppercase;
+}
+
+
+
+/* Success, Error, Info Styles */
+.success {
+  color: #155724;
+  background: #d4edda;
+  border-left: 5px solid #28a745;
+}
+
+.error {
+  color: #721c24;
+  background: #f8d7da;
+  border-left: 5px solid #dc3545;
+}
+
+.info {
+  color: #0c5460;
+  background: #d1ecf1;
+  border-left: 5px solid #17a2b8;
+}
+
+/* Message Text */
+.notification-message {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Close Button */
+.notification-close-btn {
+  background: #00796b;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+  width: 100%;
+}
+
+.notification-close-btn:hover {
+  background: #004d40;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 

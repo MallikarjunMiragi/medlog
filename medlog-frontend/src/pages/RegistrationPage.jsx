@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { signupUser } from "../reducers/authReducer";
+import Notification from "../Components/Notification"; // Import Notification Component
 import "../styles.css"; // Ensure correct path to styles.css
 
 const RegistrationPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isLoading, error } = useSelector((state) => state.auth);
+
+  const [notification, setNotification] = useState({ isOpen: false, title: "", message: "" });
 
   const countries = ["India", "United States", "United Kingdom", "Australia", "Canada", "Germany"];
   const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer", "Postgraduate year 2", "Postgraduate year 3", "Postgraduate year 4", "Postgraduate year 5", "Consultant"];
@@ -48,19 +51,24 @@ const RegistrationPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!fullName || !email || !password || !confirmPassword || !selectedCountry || !selectedTrainingYear || !selectedHospital || !selectedSpecialty) {
+      setNotification({ isOpen: true, title: "Error", message: "Please fill in all required fields." });
+      return;
+    }
     if (password !== confirmPassword) {
-      alert("Passwords do not match.");
+      setNotification({ isOpen: true, title: "Error", message: "Passwords do not match." });
       return;
     }
 
     const userData = { fullName, email, password, country: selectedCountry, trainingYear: selectedTrainingYear, hospital: selectedHospital, specialty: selectedSpecialty };
-
+    
     try {
       console.log("Sending Registration Data:", userData);
       await dispatch(signupUser(userData)).unwrap();
-      navigate("/logbookpage");
+      setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
+      setTimeout(() => navigate("/logbookpage"), 2000);
     } catch (err) {
-      alert(err.error || "Registration failed");
+      setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
   };
 
@@ -68,6 +76,14 @@ const RegistrationPage = () => {
     <div className="registration-container">
       <h1 className="title">Welcome to MedicalLogBook!</h1>
       <p className="subtitle">To configure your account, please provide details about your current medical training.</p>
+
+      {/* Notification Modal */}
+      <Notification 
+        isOpen={notification.isOpen} 
+        onRequestClose={() => setNotification({ isOpen: false })} 
+        title={notification.title} 
+        message={notification.message} 
+      />
 
       <div className="form-group">
         <label>Full Name <span className="required">*</span></label>
@@ -133,12 +149,13 @@ const RegistrationPage = () => {
         </>
       )}
 
-      {error && <p className="error-message">{error}</p>}
-
-      <button className="btn-submit" onClick={handleSubmit} disabled={isLoading || !selectedCountry}>{isLoading ? "Registering..." : "Set up Logbook!"}</button>
+      <button className="btn-submit" onClick={handleSubmit} disabled={isLoading || !selectedCountry}>
+        {isLoading ? "Registering..." : "Set up Logbook!"}
+      </button>
 
       {/* Go Back Button */}
       <button className="btn-back" onClick={() => navigate("/")}>Go Back</button>
+
     </div>
   );
 };
