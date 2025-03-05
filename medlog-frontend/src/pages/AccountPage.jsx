@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { FaTrash, FaCheckCircle } from "react-icons/fa";
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast, ToastContainer } from "react-toastify";
@@ -6,123 +8,205 @@ import "react-toastify/dist/ReactToastify.css";
 import "../styles.css"; 
 
 const AccountPage = () => {
-  const [userEmail, setUserEmail] = useState("");
-  const [firstName, setFirstName] = useState(""); // ✅ Fix: Properly storing first name
-  const [surname, setSurname] = useState(""); // ✅ Fix: Properly storing surname
-  const [country, setCountry] = useState(""); 
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+
+  // ✅ Extract user email properly
+  const userEmail = user?.email?.email || user?.email || "";
+
+  // ✅ Initial State for Prefilled Data
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    country: "",
+    trainingYear: "",
+    hospital: "",
+    specialty: "",
+  });
+
   const [profileImage, setProfileImage] = useState(null);
-  const [memberSince] = useState(new Date().toLocaleDateString());
+  const [memberSince, setMemberSince] = useState("");
 
+  // ✅ Training Year, Hospitals, Specialties Lists
+  const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer"];
+  const trainingYearsOther = ["Medical Year 1", "Medical Year 2", "Medical Year 3"];
+  const hospitalsIndia = ["KMC Manipal", "AIIMS Delhi", "Fortis Hospital"];
+  const hospitalsOther = ["Mayo Clinic", "Cleveland Clinic", "Johns Hopkins Hospital"];
+  const specialtiesIndia = ["Allergy", "Cardiology", "Dermatology", "Emergency medicine"];
+  const specialtiesOther = ["Oncology", "Pediatrics", "Neurology"];
+
+  const [availableTrainingYears, setAvailableTrainingYears] = useState([]);
+  const [availableHospitals, setAvailableHospitals] = useState([]);
+  const [availableSpecialties, setAvailableSpecialties] = useState([]);
+
+  // ✅ Fetch Logged-in User Details
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userDetails"));
-    if (storedUser) {
-      setUserEmail(storedUser.email || ""); 
-      setFirstName(storedUser.firstName || ""); // ✅ Ensure first name is set
-      setSurname(storedUser.surname || ""); // ✅ Ensure surname is set
-      setCountry(storedUser.country || "");
-    }
-  }, []);
+    if (!userEmail) return;
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setProfileImage(URL.createObjectURL(file));
+    fetch(`http://localhost:5000/api/auth/user/${encodeURIComponent(userEmail)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data || data.error) {
+          console.error("User data fetch failed:", data?.error || "Unknown error");
+          return;
+        }
+
+        setFormData({
+          fullName: data.fullName || "",
+          email: data.email || "", // ✅ Non-editable
+          password:data.password, // Do not prefill password for security reasons
+          country: data.country || "",
+          trainingYear: data.trainingYear || "",
+          hospital: data.hospital || "",
+          specialty: data.specialty || "",
+        });
+
+        setMemberSince(new Date(data.createdAt).toLocaleDateString());
+
+        if (data.country === "India") {
+          setAvailableTrainingYears(trainingYearsIndia);
+          setAvailableHospitals(hospitalsIndia);
+          setAvailableSpecialties(specialtiesIndia);
+        } else {
+          setAvailableTrainingYears(trainingYearsOther);
+          setAvailableHospitals(hospitalsOther);
+          setAvailableSpecialties(specialtiesOther);
+        }
+      })
+      .catch((error) => console.error("Error fetching user details:", error));
+  }, [userEmail]);
+
+  // ✅ Handle Input Changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // ✅ Handle Country Selection (Updates Dropdowns)
+  const handleCountryChange = (event) => {
+    const selectedCountry = event.target.value;
+    setFormData({ ...formData, country: selectedCountry });
+
+    if (selectedCountry === "India") {
+      setAvailableTrainingYears(trainingYearsIndia);
+      setAvailableHospitals(hospitalsIndia);
+      setAvailableSpecialties(specialtiesIndia);
+    } else {
+      setAvailableTrainingYears(trainingYearsOther);
+      setAvailableHospitals(hospitalsOther);
+      setAvailableSpecialties(specialtiesOther);
     }
   };
 
-  const handleUpdate = () => {
-    localStorage.setItem(
-      "userDetails",
-      JSON.stringify({ email: userEmail, firstName, surname, country })
-    );
+  const handleUpdate = async () => {
+    const updatedUser = { ...formData };
 
-    toast.success("Everything was saved successfully!", {
-      position: "top-center",
-      autoClose: 3000,
-      hideProgressBar: true,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
+    fetch("http://localhost:5000/api/auth/user/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedUser),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          toast.error(data.error);
+        } else {
+          toast.success("Profile updated successfully!");
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating profile:", error);
+        toast.error("Failed to update profile.");
+      });
+};
+
+const handleDelete = async () => {
+  if (!formData.email) {
+    toast.error("No user found to delete.");
+    return;
+  }
+
+  const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+  if (!confirmDelete) return;
+
+  fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
+    method: "DELETE",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Account deleted successfully!");
+        setTimeout(() => {
+          navigate("/"); // ✅ Redirect to login page after deletion
+        }, 2000);
+      }
+    })
+    .catch((error) => {
+      console.error("Error deleting account:", error);
+      toast.error("Failed to delete account.");
     });
-  };
+};
+
 
   return (
     <div className="account-container">
       <ToastContainer />
+      <h2>Account Information</h2>
 
-      {/* Header */}
-      <div className="account-header">
-        <h2>Account Information</h2>
-        <button className="delete-btn">
-          <FaTrash /> Delete Account
-        </button>
-      </div>
+      <p><strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" /></p>
 
-      {/* Main Content */}
-      <div className="account-content">
-        {/* Profile Picture Upload */}
-        <div className="profile-section">
-          <label className="profile-picture">
-            {profileImage ? (
-              <img src={profileImage} alt="Profile" className="profile-img" />
-            ) : (
-              <div className="upload-icon">
-                <IoCloudUploadOutline />
-              </div>
-            )}
-            <input type="file" accept="image/*" onChange={handleImageUpload} />
-          </label>
-          <p>Click to upload</p>
-        </div>
 
-        {/* Account Details */}
-        <div className="details-section">
-          <p><strong>Member Since:</strong> {memberSince}</p>
-          <p>
-            <strong>Email:</strong> {userEmail} 
-            <span className="badge verified"><FaCheckCircle /> Verified</span>
-          </p>
-          <p>
-            <strong>Account Status:</strong>
-            <span className="badge active"><FaCheckCircle /> Active</span>
-          </p>
-          <p><strong>Subscription Tier:</strong> Free</p>
-          <p><strong>Subscription Renews:</strong> —</p>
+      <label>Full Name*</label>
+      <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
 
-          {/* Editable Fields */}
-          <label>First Name*</label>
-          <input
-            type="text"
-            value={firstName} // ✅ Fix: Use firstName instead of userEmail
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-          />
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Enter new password" value={formData.password} onChange={handleChange} />
 
-          <label>Surname*</label>
-          <input
-            type="text"
-            value={surname} // ✅ Fix: Use surname instead of userEmail
-            onChange={(e) => setSurname(e.target.value)}
-            required
-          />
+      <label>Country*</label>
+      <select name="country" value={formData.country} onChange={handleCountryChange}>
+        <option value="">Select a country</option>
+        <option value="India">India</option>
+        <option value="United States">United States</option>
+        <option value="United Kingdom">United Kingdom</option>
+        <option value="Australia">Australia</option>
+        <option value="Canada">Canada</option>
+        <option value="Germany">Germany</option>
+      </select>
 
-          <label>Country</label>
-          <select value={country} onChange={(e) => setCountry(e.target.value)}>
-            {["India", "USA", "Canada", "UK", "Germany", "Australia", "France", "Japan", "Brazil", "South Africa"].map(
-              (c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              )
-            )}
+      {formData.country && (
+        <>
+          <label>Training Year*</label>
+          <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
+            <option value="">Select training year</option>
+            {availableTrainingYears.map((year) => (
+              <option key={year} value={year}>{year}</option>
+            ))}
           </select>
-          <p className="warning">
-            Affects the format of dates and numbers on the website, mobile apps and generated reports.
-          </p>
 
-          <button className="update-btn" onClick={handleUpdate}>Update</button>
-        </div>
-      </div>
+          <label>Hospital*</label>
+          <select name="hospital" value={formData.hospital} onChange={handleChange}>
+            <option value="">Select hospital</option>
+            {availableHospitals.map((hospital) => (
+              <option key={hospital} value={hospital}>{hospital}</option>
+            ))}
+          </select>
+
+          <label>Specialty*</label>
+          <select name="specialty" value={formData.specialty} onChange={handleChange}>
+            <option value="">Select specialty</option>
+            {availableSpecialties.map((specialty) => (
+              <option key={specialty} value={specialty}>{specialty}</option>
+            ))}
+          </select>
+        </>
+      )}
+
+<button className="update-btn" onClick={handleUpdate}>Update</button>
+<button className="delete-btn" onClick={handleDelete}>
+        <FaTrash /> Delete Account
+      </button>
     </div>
   );
 };
