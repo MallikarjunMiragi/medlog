@@ -1,7 +1,8 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-const predefinedCategories = ["Admissions", "CPD", "POCUS", "Procedures"];
+import { useDispatch } from "react-redux";
+import { addCategory } from "../reducers/categoryReducer";
+
 const categories = [
   "Admissions", "Bone Marrow Reporting", "Clinical Events", "Clinics", "CPD",
   "CUSIC", "General Surgery", "Echocardiograms", "Multi-Disciplinary Team Meetings",
@@ -11,7 +12,19 @@ const categories = [
 
 const AddCategory = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [fields, setFields] = useState([{ name: "", type: "text" }]);
+
+  const addField = () => {
+    setFields([...fields, { name: "", type: "text" }]);
+  };
+
+  const updateField = (index, key, value) => {
+    const updatedFields = [...fields];
+    updatedFields[index][key] = value;
+    setFields(updatedFields);
+  };
 
   const handleSave = () => {
     if (!selectedCategory) {
@@ -19,21 +32,21 @@ const AddCategory = () => {
       return;
     }
 
-    // ✅ Fetch stored categories from ManageLogbook
-    const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
-
-    // ✅ Check if the selected category exists in ManageLogbook (predefined or newly added)
-    if (storedCategories.includes(selectedCategory)) {
-      alert("Category already exists in Manage Logbook! Please choose a different category.");
-      return;
-    }
-    if (predefinedCategories.includes(selectedCategory)) {
-      alert("Category already exists in predefined categories! Please choose a different category.");
+    if (fields.some(field => field.name.trim() === "")) {
+      alert("Field names cannot be empty.");
       return;
     }
 
-    // ✅ If new, proceed to category form
-    navigate(`/category-form/${selectedCategory}`);
+    // Dispatch Redux action to save the category
+    dispatch(addCategory({ name: selectedCategory, fields }))
+      .unwrap()
+      .then(() => {
+        alert("Category saved successfully!");
+        navigate("/logbook");
+      })
+      .catch(error => {
+        alert(error);
+      });
   };
 
   return (
@@ -49,8 +62,29 @@ const AddCategory = () => {
         ))}
       </select>
 
-      <label>Optional category name</label>
-      <input type="text" style={styles.input} placeholder="Enter optional name" />
+      <h3>Define Fields</h3>
+      {fields.map((field, index) => (
+        <div key={index} style={styles.fieldRow}>
+          <input
+            type="text"
+            placeholder="Enter field name"
+            value={field.name}
+            onChange={(e) => updateField(index, "name", e.target.value)}
+            style={styles.input}
+          />
+          <select
+            value={field.type}
+            onChange={(e) => updateField(index, "type", e.target.value)}
+            style={styles.select}
+          >
+            <option value="text">Text</option>
+            <option value="date">Date</option>
+            <option value="number">Number</option>
+            <option value="file">File</option>
+          </select>
+        </div>
+      ))}
+      <button style={styles.addButton} onClick={addField}>+ Add Field</button>
 
       <div style={styles.buttonContainer}>
         <button style={styles.cancelButton} onClick={() => navigate(-1)}>Cancel</button>
@@ -63,9 +97,12 @@ const AddCategory = () => {
 const styles = {
   container: { padding: "20px", maxWidth: "500px", margin: "0 auto", textAlign: "center" },
   input: { width: "100%", padding: "10px", margin: "10px 0", borderRadius: "5px", border: "1px solid #ccc" },
+  fieldRow: { display: "flex", gap: "10px", marginBottom: "10px" },
+  select: { padding: "10px", borderRadius: "5px", border: "1px solid #ccc" },
+  addButton: { margin: "10px 0", padding: "8px", background: "#4CAF50", color: "white", cursor: "pointer", borderRadius: "5px" },
   buttonContainer: { display: "flex", justifyContent: "center", gap: "10px" },
-  cancelButton: { padding: "10px 15px", background: "#ccc", cursor: "pointer" },
-  saveButton: { padding: "10px 15px", background: "teal", color: "white", cursor: "pointer" }
+  cancelButton: { padding: "10px 15px", background: "#ccc", cursor: "pointer", borderRadius: "5px" },
+  saveButton: { padding: "10px 15px", background: "teal", color: "white", cursor: "pointer", borderRadius: "5px" }
 };
 
 export default AddCategory;

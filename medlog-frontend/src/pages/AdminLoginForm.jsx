@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+  import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../reducers/authReducer";
@@ -36,28 +36,7 @@ const AdminLoginForm = () => {
       videoRef.current.pause();
     }
   };
-//original code
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
 
-//     if (!formData.emailId || !formData.password) {
-//       setErrors({ login: "Email and Password are required." });
-//       return;
-//     }
-
-//     const result = await dispatch(loginUser(formData));
-
-//     if (loginUser.fulfilled.match(result)) {
-//       console.log("correct user");
-// //new
-//       navigate("/logbookpage"); // Navigate to the logbook page upon successful login
-//     } else {
-//       console.log("incorrect");
-//       setErrors("Invalid email or password. Please register." );
-//     }
-//   };
-
-//below is added for dummy login
 const handleSubmit = async (e) => {
   e.preventDefault();
 
