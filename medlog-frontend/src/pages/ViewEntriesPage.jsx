@@ -24,26 +24,27 @@ const ViewEntriesPage = () => {
       .then((data) => {
         console.log("Raw API Data:", data);
   
-        // Ensure that updatedAt exists and is a valid date
-        data.forEach((entry) => {
-          console.log(`Entry: ${entry.category.name}, updatedAt:`, new Date(entry.updatedAt));
-        });
+        // // Ensure that updatedAt exists and is a valid date
+        // data.forEach((entry) => {
+        //   console.log(`Entry: ${entry.category.name}, updatedAt:`, new Date(entry.updatedAt));
+        // });
   
-        // Sort data by updatedAt in descending order (latest first)
-        const sortedData = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-        console.log("Sorted Data:", sortedData);
+        // // Sort data by updatedAt in descending order (latest first)
+        // const sortedData = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        // console.log("Sorted Data:", sortedData);
   
-        // Take the most recent entry for each category
-        const latestEntries = {};
-        sortedData.forEach((entry) => {
-          if (!latestEntries[entry.category.name]) {
-            latestEntries[entry.category.name] = entry;
-          }
-        });
+        // // Take the most recent entry for each category
+        // const latestEntries = {};
+        // sortedData.forEach((entry) => {
+        //   if (!latestEntries[entry.category.name]) {
+        //     latestEntries[entry.category.name] = entry;
+        //   }
+        // });
   
-        console.log("Latest Entries:", Object.values(latestEntries));
+        // console.log("Latest Entries:", Object.values(latestEntries));
   
-        setEntries(Object.values(latestEntries));
+        // setEntries(Object.values(latestEntries));
+        setEntries(data);
         setLoading(false);
       })
       .catch((error) => {
