@@ -25,7 +25,7 @@ const ReportsPage = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const email = "sanjana@gmail.com"; // Replace with dynamic email from localStorage
+        const email = "suchitha@gmail.com"; // Replace with dynamic email from localStorage
         const response = await axios.get(`${API_URL}/userDetails/${email}`);
 
         if (response.data) {
