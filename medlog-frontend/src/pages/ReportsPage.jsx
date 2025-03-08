@@ -1,58 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchReportData, setFromDate, setToDate, toggleMain, toggleCategory } from "../reducers/reportsReducer";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logbookCategories from "../Components/logbookCategory";
 import "../styles.css";
 
 const ReportsPage = () => {
-  const [userDetails, setUserDetails] = useState({
-    email: "",
-    selectedHospital: "",
-    selectedSpecialty: "",
-    selectedTrainingYear: "",
-  });
+  const dispatch = useDispatch();
+  const {
+    userDetails,
+    fromDate,
+    toDate,
+    reportFormat,
+    reportFileType,
+    mainToggle,
+    categoryToggles,
+    categories,
+    isLoading,
+    error,
+  } = useSelector((state) => state.reports);
 
+  // Fetch user report details when the page loads
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userDetails")) || {};
-    setUserDetails((prev) => ({
-      ...prev,
-      ...storedUser,
-    }));
-  }, []);
+    dispatch(fetchReportData(userDetails.email));
+  }, [dispatch, userDetails.email]);
 
-  const [fromDate, setFromDate] = useState(new Date().toISOString().split("T")[0]);
-  const [toDate, setToDate] = useState(new Date().toISOString().split("T")[0]);
-  const [reportFormat, setReportFormat] = useState("Summary report");
-  const [reportFileType, setReportFileType] = useState("PDF (non-editable format)");
-
-  const categoriesArray = Array.isArray(logbookCategories) ? logbookCategories : Object.values(logbookCategories);
-  const [mainToggle, setMainToggle] = useState(true);
-  const [categoryToggles, setCategoryToggles] = useState(
-    categoriesArray.reduce((acc, category) => {
-      acc[category] = true;
-      return acc;
-    }, {})
-  );
-
-  const handleCategoryToggle = (category) => {
-    setCategoryToggles((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
-  };
-
-  const handleMainToggle = () => {
-    const newState = !mainToggle;
-    setMainToggle(newState);
-    setCategoryToggles(
-      categoriesArray.reduce((acc, category) => {
-        acc[category] = newState;
-        return acc;
-      }, {})
-    );
-  };
-
-  // Generate PDF Report with multiple pages
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -68,58 +40,25 @@ const ReportsPage = () => {
     doc.addPage();
 
     // Table of Contents
-    const sections = [
-      "Jobs",
-      "Procedures",
-      "Performed by Training Year",
-      "Performed by Supervision Level",
-      "Procedure Records",
-      "Admissions",
-      "Specialties Seen",
-      "Referral Sources",
-      "Location Settings",
-      "Patient Summaries",
-      "Admission Records",
-      "Ultrasounds",
-      "Point-of-Care Ultrasound Performed by Training Year",
-      "Point-of-Care Ultrasound Records",
-      "Continued Professional Development",
-      "Academia",
-      "Audit & Quality Improvement",
-      "Publications",
-      "Conferences",
-      "Courses",
-      "Seminars",
-      "Teaching and Training",
-      "Other Activities",
-    ];
+    const sections = categories.map((category, index) => [category, index + 2]);
 
     doc.setFontSize(16);
     doc.text("Table of Contents", 10, 20);
-    const tocData = sections.map((section, index) => [section, index + 2]);
     autoTable(doc, {
       startY: 30,
       head: [["Section", "Page"]],
-      body: tocData,
+      body: sections,
     });
     doc.addPage();
 
     // Add Sections
-    sections.forEach((section, index) => {
+    categories.forEach((category, index) => {
       if (index > 0) doc.addPage();
       doc.setFontSize(16);
-      doc.text(section, 10, 20);
+      doc.text(category, 10, 20);
       doc.setFontSize(12);
       doc.text("No activities have been performed that relate to this report section", 10, 30);
     });
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.text(`Page ${i} of ${pageCount}`, 180, 290);
-    }
 
     doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
   };
@@ -128,35 +67,34 @@ const ReportsPage = () => {
     <div className="reports-container">
       <div className="reports-content">
         <h2>Create Report</h2>
-        <p>
-          You can download preformatted logbook reports for use in training reviews, interviews, and other professional settings.
-          Reports are available in either PDF or DOCX formats.
-        </p>
+        <p>Generate preformatted logbook reports with the details below.</p>
+
+        {isLoading && <p>Loading report data...</p>}
+        {error && <p className="error">{error}</p>}
 
         <div className="report-form">
           <div className="form-group">
             <label>Name *</label>
-            <input type="text" value={userDetails.email} readOnly />
+            <input type="text" value={userDetails.email || ""} readOnly />
           </div>
           <div className="form-group">
             <label>From Date *</label>
-            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
+            <input type="date" value={fromDate} onChange={(e) => dispatch(setFromDate(e.target.value))} />
           </div>
           <div className="form-group">
             <label>To Date *</label>
-            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
+            <input type="date" value={toDate} onChange={(e) => dispatch(setToDate(e.target.value))} />
           </div>
-
           <div className="form-group">
             <label>Report Format *</label>
-            <select value={reportFormat} onChange={(e) => setReportFormat(e.target.value)}>
+            <select value={reportFormat} onChange={(e) => dispatch({ type: "SET_REPORT_FORMAT", payload: e.target.value })}>
               <option>Summary report</option>
               <option>Full disclosure report</option>
             </select>
           </div>
           <div className="form-group">
             <label>Report File Type *</label>
-            <select value={reportFileType} onChange={(e) => setReportFileType(e.target.value)}>
+            <select value={reportFileType} onChange={(e) => dispatch({ type: "SET_REPORT_FILE_TYPE", payload: e.target.value })}>
               <option>PDF (non-editable format)</option>
               <option>Docx (editable format)</option>
             </select>
@@ -164,27 +102,14 @@ const ReportsPage = () => {
 
           <button className="download-btn" onClick={generatePDF}>Download Report</button>
 
-          <div className="training-info">
-          <h3>{userDetails.selectedTrainingYear} {userDetails.selectedSpecialty}</h3>
-          <p>{userDetails.selectedHospital}</p>
-          <label className="toggle-switch">
-            <input type="checkbox" checked={mainToggle} onChange={handleMainToggle} />
-            <span className="slider"></span>
-          </label>
-        </div>
-
-        <div className="categories">
-          {categoriesArray.map((category) => (
-            <div key={category} className="category-item">
-              <span>{category}</span>
-              <label className="toggle-switch">
-                <input type="checkbox" checked={categoryToggles[category]} onChange={() => handleCategoryToggle(category)} />
-                <span className="slider"></span>
-              </label>
-            </div>
-          ))}
-        </div>
-
+          <div className="categories">
+            {categories.map((category) => (
+              <div key={category} className="category-item">
+                <span>{category}</span>
+                <input type="checkbox" checked={categoryToggles[category]} onChange={() => dispatch(toggleCategory(category))} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
