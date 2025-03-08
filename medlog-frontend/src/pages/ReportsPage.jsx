@@ -1,73 +1,67 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import logbookCategories from "../Components/logbookCategory";
+import axios from "axios";
+import {
+  setFromDate,
+  setToDate,
+  setReportFormat,
+  setReportFileType,
+} from "../reducers/reportsReducer";
 import "../styles.css";
 
+const API_URL = "http://localhost:5000/api/auth";
+
 const ReportsPage = () => {
-  const [userDetails, setUserDetails] = useState({
-    email: "",
-    selectedHospital: "",
-    selectedSpecialty: "",
-    selectedTrainingYear: "",
-  });
+  const dispatch = useDispatch();
+  const { fromDate, toDate, reportFormat, reportFileType } = useSelector(
+    (state) => state.reports
+  );
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("userDetails")) || {};
-    setUserDetails((prev) => ({
-      ...prev,
-      ...storedUser,
-    }));
+    const fetchUserDetails = async () => {
+      try {
+        const email = "sanjana@gmail.com"; // Replace with dynamic email from localStorage
+        const response = await axios.get(`${API_URL}/userDetails/${email}`);
+
+        if (response.data) {
+          console.log("Fetched User Data:", response.data); // Debugging
+          setUserData(response.data);
+        } else {
+          throw new Error("No data received");
+        }
+      } catch (err) {
+        console.error("Error fetching user details:", err);
+        setError("Failed to load user details. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserDetails();
   }, []);
 
-  const [fromDate, setFromDate] = useState(new Date().toISOString().split("T")[0]);
-  const [toDate, setToDate] = useState(new Date().toISOString().split("T")[0]);
-  const [reportFormat, setReportFormat] = useState("Summary report");
-  const [reportFileType, setReportFileType] = useState("PDF (non-editable format)");
-
-  const categoriesArray = Array.isArray(logbookCategories) ? logbookCategories : Object.values(logbookCategories);
-  const [mainToggle, setMainToggle] = useState(true);
-  const [categoryToggles, setCategoryToggles] = useState(
-    categoriesArray.reduce((acc, category) => {
-      acc[category] = true;
-      return acc;
-    }, {})
-  );
-
-  const handleCategoryToggle = (category) => {
-    setCategoryToggles((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
-  };
-
-  const handleMainToggle = () => {
-    const newState = !mainToggle;
-    setMainToggle(newState);
-    setCategoryToggles(
-      categoriesArray.reduce((acc, category) => {
-        acc[category] = newState;
-        return acc;
-      }, {})
-    );
-  };
-
-  // Generate PDF Report with multiple pages
   const generatePDF = () => {
-    const doc = new jsPDF();
+    if (!userData) {
+      alert("User details are missing! Cannot generate report.");
+      return;
+    }
 
-    // Cover Page
+    const doc = new jsPDF();
     doc.setFontSize(20);
     doc.text("Medical Logbook Report", 10, 20);
     doc.setFontSize(14);
-    doc.text(`Prepared for: ${userDetails.email}`, 10, 30);
-    doc.text(`Hospital: ${userDetails.selectedHospital}`, 10, 40);
-    doc.text(`Specialty: ${userDetails.selectedSpecialty}`, 10, 50);
-    doc.text(`Training Year: ${userDetails.selectedTrainingYear}`, 10, 60);
+    doc.text(`Prepared for: ${userData.fullName || "N/A"}`, 10, 30);
+    doc.text(`Hospital: ${userData.selectedHospital || "N/A"}`, 10, 40);
+    doc.text(`Specialty: ${userData.selectedSpecialty || "N/A"}`, 10, 50);
+    doc.text(`Training Year: ${userData.selectedTrainingYear || "N/A"}`, 10, 60);
     doc.text(`Reporting Period: ${fromDate} - ${toDate}`, 10, 70);
     doc.addPage();
 
-    // Table of Contents
     const sections = [
       "Jobs",
       "Procedures",
@@ -96,24 +90,32 @@ const ReportsPage = () => {
 
     doc.setFontSize(16);
     doc.text("Table of Contents", 10, 20);
-    const tocData = sections.map((section, index) => [section, index + 2]);
     autoTable(doc, {
       startY: 30,
       head: [["Section", "Page"]],
-      body: tocData,
+      body: sections.map((section, index) => [section, index + 2]),
     });
     doc.addPage();
 
-    // Add Sections
-    sections.forEach((section, index) => {
-      if (index > 0) doc.addPage();
+    doc.setFontSize(16);
+    doc.text("Jobs", 10, 20);
+    autoTable(doc, {
+      startY: 30,
+      head: [["Field", "Value"]],
+      body: [
+        ["Training Year", userData.selectedTrainingYear || "N/A"],
+        ["Specialty", userData.selectedSpecialty || "N/A"],
+      ],
+    });
+
+    sections.slice(1).forEach((section) => {
+      doc.addPage();
       doc.setFontSize(16);
       doc.text(section, 10, 20);
       doc.setFontSize(12);
       doc.text("No activities have been performed that relate to this report section", 10, 30);
     });
 
-    // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -128,64 +130,34 @@ const ReportsPage = () => {
     <div className="reports-container">
       <div className="reports-content">
         <h2>Create Report</h2>
-        <p>
-          You can download preformatted logbook reports for use in training reviews, interviews, and other professional settings.
-          Reports are available in either PDF or DOCX formats.
-        </p>
-
-        <div className="report-form">
-          <div className="form-group">
-            <label>Name *</label>
-            <input type="text" value={userDetails.email} readOnly />
-          </div>
-          <div className="form-group">
-            <label>From Date *</label>
-            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
-          </div>
-          <div className="form-group">
-            <label>To Date *</label>
-            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
-          </div>
-
-          <div className="form-group">
-            <label>Report Format *</label>
-            <select value={reportFormat} onChange={(e) => setReportFormat(e.target.value)}>
-              <option>Summary report</option>
-              <option>Full disclosure report</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Report File Type *</label>
-            <select value={reportFileType} onChange={(e) => setReportFileType(e.target.value)}>
-              <option>PDF (non-editable format)</option>
-              <option>Docx (editable format)</option>
-            </select>
-          </div>
-
-          <button className="download-btn" onClick={generatePDF}>Download Report</button>
-
-          <div className="training-info">
-          <h3>{userDetails.selectedTrainingYear} {userDetails.selectedSpecialty}</h3>
-          <p>{userDetails.selectedHospital}</p>
-          <label className="toggle-switch">
-            <input type="checkbox" checked={mainToggle} onChange={handleMainToggle} />
-            <span className="slider"></span>
-          </label>
-        </div>
-
-        <div className="categories">
-          {categoriesArray.map((category) => (
-            <div key={category} className="category-item">
-              <span>{category}</span>
-              <label className="toggle-switch">
-                <input type="checkbox" checked={categoryToggles[category]} onChange={() => handleCategoryToggle(category)} />
-                <span className="slider"></span>
-              </label>
+        {loading ? (
+          <p>Loading user details...</p>
+        ) : error ? (
+          <p className="error">{error}</p>
+        ) : (
+          <>
+            <p>You can download preformatted logbook reports for professional use.</p>
+            <div className="report-form">
+              <div className="form-group">
+                <label>Name *</label>
+                <input type="text" value={userData.fullName || ""} readOnly />
+              </div>
+              <div className="form-group">
+                <label>Hospital *</label>
+                <input type="text" value={userData.selectedHospital || ""} readOnly />
+              </div>
+              <div className="form-group">
+                <label>Specialty *</label>
+                <input type="text" value={userData.selectedSpecialty || ""} readOnly />
+              </div>
+              <div className="form-group">
+                <label>Training Year *</label>
+                <input type="text" value={userData.selectedTrainingYear || ""} readOnly />
+              </div>
+              <button className="download-btn" onClick={generatePDF}>Download Report</button>
             </div>
-          ))}
-        </div>
-
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
