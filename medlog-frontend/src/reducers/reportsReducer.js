@@ -1,33 +1,50 @@
+// reducers/reportsReducer.js
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+
 
 const API_URL = "http://localhost:5000/api/auth"; // Adjust based on your backend
 
 // Async action to fetch user report details from DB
-export const fetchReportData = createAsyncThunk("reports/fetchReportData", async (email, thunkAPI) => {
+
+
+// Async action to fetch user report details
+export const fetchUserDetails = createAsyncThunk("reports/fetchUserDetails", async (_, thunkAPI) => {
   try {
-    const response = await fetch(`${API_URL}/user/${userId}`);
+    const userEmail = thunkAPI.getState().auth.user.email; // Ensure auth state has email
+    const response = await fetch(`http://localhost:5000/api/auth/userDetails/${userEmail}`);
     const data = await response.json();
+
     if (!response.ok) {
-      throw new Error(data.error || "Failed to fetch report data");
+      throw new Error(data.error || "Failed to fetch user details");
     }
+
+
     return data;
   } catch (error) {
     return thunkAPI.rejectWithValue({ error: error.message });
   }
 });
+  
 
 const reportsSlice = createSlice({
   name: "reports",
   initialState: {
-    userDetails: {},
+    userDetails: {
+      email: "",
+      fullName: "", 
+      selectedHospital: "",
+      selectedSpecialty: "",
+      selectedTrainingYear: "",
+    },
     fromDate: new Date().toISOString().split("T")[0],
     toDate: new Date().toISOString().split("T")[0],
     reportFormat: "Summary report",
     reportFileType: "PDF (non-editable format)",
+
     categories: [],
     mainToggle: true,
     categoryToggles: {},
-    isLoading: false,
+    loading: false,
     error: null,
   },
   reducers: {
@@ -36,6 +53,13 @@ const reportsSlice = createSlice({
     },
     setToDate: (state, action) => {
       state.toDate = action.payload;
+    },
+
+    setReportFormat: (state, action) => {
+      state.reportFormat = action.payload;
+    },
+    setReportFileType: (state, action) => {
+      state.reportFileType = action.payload;
     },
     toggleMain: (state) => {
       state.mainToggle = !state.mainToggle;
@@ -50,25 +74,21 @@ const reportsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchReportData.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
-      .addCase(fetchReportData.fulfilled, (state, action) => {
-        state.isLoading = false;
-        state.userDetails = action.payload;
-        state.categories = action.payload.categories || [];
-        state.categoryToggles = action.payload.categories.reduce((acc, category) => {
-          acc[category] = true;
-          return acc;
-        }, {});
-      })
-      .addCase(fetchReportData.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload.error || "Failed to fetch report data";
-      });
-  },
+
+    .addCase(fetchUserDetails.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    })
+    .addCase(fetchUserDetails.fulfilled, (state, action) => {
+      state.loading = false;
+      state.userDetails = action.payload;
+    })
+    .addCase(fetchUserDetails.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload.error || "Failed to fetch user details";
+    });
+},
 });
 
-export const { setFromDate, setToDate, toggleMain, toggleCategory } = reportsSlice.actions;
+export const { setFromDate, setToDate, setReportFormat, setReportFileType, toggleMain, toggleCategory } = reportsSlice.actions;
 export default reportsSlice.reducer;
