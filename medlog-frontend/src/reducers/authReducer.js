@@ -2,9 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const API_URL = "http://localhost:5000/api/auth";
 
-
+// Login User
 export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAPI) => {
-    console.log(userData)
   try {
     const response = await fetch(`${API_URL}/login`, {
       method: "POST",
@@ -22,14 +21,17 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
       throw new Error(data.error || "Invalid email or password");
     }
 
-    return { email: data.user };
+    // Store user data in localStorage
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    return data.user; // Return full user details (email, fullName, etc.)
   } catch (error) {
     return thunkAPI.rejectWithValue({ error: error.message });
   }
 });
 
+// Signup User
 export const signupUser = createAsyncThunk("auth/signup", async (userData, thunkAPI) => {
-  console.log("Signup Data Sent:", userData); 
   try {
     const response = await fetch(`${API_URL}/signup`, {
       method: "POST",
@@ -40,14 +42,12 @@ export const signupUser = createAsyncThunk("auth/signup", async (userData, thunk
     });
 
     const data = await response.json();
-    console.log("Signup Response Data:", data);
     if (!response.ok) {
       throw new Error(data.error || "Something went wrong");
     }
 
     return data;
   } catch (error) {
-    console.error("Signup Error:", error.message);
     return thunkAPI.rejectWithValue({ error: error.message });
   }
 });
@@ -55,13 +55,14 @@ export const signupUser = createAsyncThunk("auth/signup", async (userData, thunk
 const authSlice = createSlice({
   name: "auth",
   initialState: {
-    user: null,
+    user: JSON.parse(localStorage.getItem("user")) || null, // Load user from localStorage
     isLoading: false,
     error: null,
   },
   reducers: {
     logout: (state) => {
       state.user = null;
+      localStorage.removeItem("user"); // Clear user data from localStorage
     },
   },
   extraReducers: (builder) => {
@@ -72,7 +73,7 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        state.user = action.payload; // Store the full user object
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
