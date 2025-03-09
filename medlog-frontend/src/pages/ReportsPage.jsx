@@ -15,19 +15,26 @@ const API_URL = "http://localhost:5000/api/auth";
 
 const ReportsPage = () => {
   const dispatch = useDispatch();
+
+  const userEmail = useSelector((state) => state.auth.user?.email);
   const { fromDate, toDate, reportFormat, reportFileType } = useSelector(
     (state) => state.reports
   );
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
-      try {
-        const email = "suchitha@gmail.com"; // Replace with dynamic email from localStorage
-        const response = await axios.get(`${API_URL}/userDetails/${email}`);
+      if (!userEmail) {
+        setError("User email not available. Please log in again.");
+        setLoading(false);
+        return;
+      }
 
+      try {
+        const response = await axios.get(`${API_URL}/userDetails/${userEmail}`);
         if (response.data) {
           console.log("Fetched User Data:", response.data); // Debugging
           setUserData(response.data);
@@ -35,15 +42,13 @@ const ReportsPage = () => {
           throw new Error("No data received");
         }
       } catch (err) {
-        console.error("Error fetching user details:", err);
         setError("Failed to load user details. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchUserDetails();
-  }, []);
+  }, [userEmail]);
 
   const generatePDF = () => {
     if (!userData) {
@@ -123,6 +128,9 @@ const ReportsPage = () => {
       doc.text(`Page ${i} of ${pageCount}`, 180, 290);
     }
 
+
+
+
     doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
   };
 
@@ -136,23 +144,53 @@ const ReportsPage = () => {
           <p className="error">{error}</p>
         ) : (
           <>
-            <p>You can download preformatted logbook reports for professional use.</p>
+            <p>Download preformatted logbook reports.</p>
             <div className="report-form">
               <div className="form-group">
                 <label>Name *</label>
                 <input type="text" value={userData.fullName || ""} readOnly />
               </div>
               <div className="form-group">
-                <label>Hospital *</label>
-                <input type="text" value={userData.selectedHospital || ""} readOnly />
+                <label>From Date *</label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => dispatch(setFromDate(e.target.value))}
+                />
               </div>
               <div className="form-group">
-                <label>Specialty *</label>
-                <input type="text" value={userData.selectedSpecialty || ""} readOnly />
+                <label>To Date *</label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => dispatch(setToDate(e.target.value))}
+                />
               </div>
               <div className="form-group">
-                <label>Training Year *</label>
-                <input type="text" value={userData.selectedTrainingYear || ""} readOnly />
+                <label>Report *</label>
+                <select >
+                  <option>Logbook Report</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Report Format *</label>
+                <select
+                  value={reportFormat}
+                  onChange={(e) => dispatch(setReportFormat(e.target.value))}
+                >
+                  <option>Summary Report</option>
+                  <option>Full Disclosure Report</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Report File Type *</label>
+                <select
+                  value={reportFileType}
+                  onChange={(e) => dispatch(setReportFileType(e.target.value))}
+                >
+                  <option>PDF (non-editable format)</option>
+                  <option>Docx (editable format)</option>
+                </select>
               </div>
               <button className="download-btn" onClick={generatePDF}>Download Report</button>
             </div>
