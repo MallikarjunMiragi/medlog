@@ -50,3 +50,12 @@
 .logout-btn:hover {
     background-color: darkred;
 }
+.doctor-logbook-layout {
+    display: flex;
+    height: 100vh;
+}
+
+.doctor-logbook-content {
+    flex-grow: 1;
+    padding: 20px;
+}
