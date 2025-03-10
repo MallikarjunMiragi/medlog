@@ -1,0 +1,35 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { IoLogOutOutline } from "react-icons/io5";
+import { FaHome, FaUserCog, FaUserGraduate } from "react-icons/fa";
+
+const DoctorSidebar = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/");
+  };
+
+  return (
+    <div className="sidebar">
+      <div className="logo">Doctor Logbook</div>
+      <ul className="sidebar-menu">
+        <li onClick={() => navigate("/home")}>
+          <FaHome className="icon" /> Home
+        </li>
+        <li onClick={() => navigate("/account")}>
+          <FaUserCog className="icon" /> Account
+        </li>
+        <li onClick={() => navigate("/view-students")}>
+          <FaUserGraduate className="icon" /> View Students
+        </li>
+        <li className="logout" onClick={handleLogout}>
+          <IoLogOutOutline className="icon" /> Log Out
+        </li>
+      </ul>
+    </div>
+  );
+};
+
+export default DoctorSidebar;

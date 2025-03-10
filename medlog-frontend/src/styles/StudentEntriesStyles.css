@@ -1,0 +1,80 @@
+.comment-box {
+    margin-top: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.comment-box textarea {
+    width: 100%;
+    min-height: 50px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.comment-box button {
+    background-color: #007bff;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.comment-box button:hover {
+    background-color: #0056b3;
+}
+/* ===== Score Box Styling ===== */
+.score-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0, 128, 0, 0.1);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #28a745;
+}
+
+/* Input box inside the score box */
+.score-box input {
+    width: 80px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    color: black; 
+}
+
+/* Submit button inside the score box */
+.score-box button {
+    background-color: #28a745;
+    color: white;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.score-box button:hover {
+    background-color: #218838;
+}
+
+/* ===== Entry Box Styling ===== */
+.entry-box {
+    position: relative; /* Needed for the absolute position of score box */
+    background: white;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    position: relative;
+}

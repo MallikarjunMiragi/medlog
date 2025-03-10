@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/DoctorLogbookStyles.css"; // ✅ Importing separate styles
+import DoctorSidebar from "../components/DoctorSidebar";
 
 const DoctorLogbook = () => {
     const [students, setStudents] = useState([]); // ✅ Store student list
@@ -19,17 +20,9 @@ const DoctorLogbook = () => {
     
 
     const handleViewEntries = (student) => {
-        setSelectedStudent(student); // ✅ Store the selected student
-
-        // 🔹 Fetch the selected student's log entries using email
-        fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(student.email)}`)
-            .then((res) => res.json())
-            .then((logEntries) => {
-                console.log(`Log Entries for ${student.fullName}:`, logEntries);
-                setEntries(logEntries); // ✅ Store fetched entries
-            })
-            .catch((error) => console.error(`Error fetching logs for ${student.email}:`, error));
+        navigate("/student-entries", { state: { student } }); // ✅ Navigate with student data
     };
+    
 
     return (
         <div className="doctor-logbook-container">
@@ -53,12 +46,13 @@ const DoctorLogbook = () => {
                                 <td>{student.fullName}</td>
                                 <td>{student.email}</td>
                                 <td>
-                                    <button 
-                                        className="view-entries-btn"
-                                        onClick={() => handleViewEntries(student)} // ✅ Fetch this student’s logs
-                                    >
-                                        View Entries
-                                    </button>
+                                <button 
+    className="view-entries-btn"
+    onClick={() => handleViewEntries(student)} // ✅ Navigate to new page
+>
+    View Entries
+</button>
+
                                 </td>
                             </tr>
                         ))}
