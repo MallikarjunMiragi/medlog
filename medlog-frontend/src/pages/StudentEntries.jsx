@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/StudentEntriesStyles.css"; // ✅ Ensure styles are updated
+import DoctorSidebar from "../components/DoctorSidebar";
 
 const StudentEntries = () => {
     const location = useLocation();
@@ -48,50 +49,53 @@ const StudentEntries = () => {
 
     return (
         <div className="student-entries-container">
-            <h2 className="student-entries-title">Entries for {student.fullName}</h2>
+            <DoctorSidebar />
+            <div className="entries-content">
+                <h2 className="student-entries-title">Entries for {student.fullName}</h2>
 
-            {entries.length === 0 ? (
-                <p className="no-entries-text">No log entries found.</p>
-            ) : (
-                entries.map((entry) => (
-                    <div key={entry._id} className="entry-box">
-                        {/* 🔹 Score Box at Top-Right Corner */}
-                        <div className="score-box">
-                            <input
-                                type="number"
-                                min="0"
-                                max="100"
-                                placeholder="Score (0-100)"
-                                value={scores[entry._id] || ""}
-                                onChange={(e) => handleScoreChange(entry._id, e.target.value)}
-                            />
-                            <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
+                {entries.length === 0 ? (
+                    <p className="no-entries-text">No log entries found.</p>
+                ) : (
+                    entries.map((entry) => (
+                        <div key={entry._id} className="entry-box">
+                            {/* 🔹 Score Box at Top-Right Corner */}
+                            <div className="score-box">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    placeholder="Score (0-100)"
+                                    value={scores[entry._id] || ""}
+                                    onChange={(e) => handleScoreChange(entry._id, e.target.value)}
+                                />
+                                <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
+                            </div>
+
+                            {/* Entry Content */}
+                            <h4 className="entry-category-name">{entry.category.name}</h4>
+                            <div className="entry-details-container">
+                                {Object.entries(entry.data).map(([key, value]) => (
+                                    <p key={key} className="entry-detail">
+                                        <strong>{key.replace(/_/g, " ")}:</strong> {value || "N/A"}
+                                    </p>
+                                ))}
+                            </div>
+
+                            {/* 🔽 Comment Box Below Each Entry */}
+                            <div className="comment-box">
+                                <textarea
+                                    placeholder="Write a comment..."
+                                    value={comments[entry._id] || ""}
+                                    onChange={(e) => handleCommentChange(entry._id, e.target.value)}
+                                />
+                                <button onClick={() => handleCommentSubmit(entry._id)}>Submit</button>
+                            </div>
                         </div>
+                    ))
+                )}
 
-                        {/* Entry Content */}
-                        <h4 className="entry-category-name">{entry.category.name}</h4>
-                        <div className="entry-details-container">
-                            {Object.entries(entry.data).map(([key, value]) => (
-                                <p key={key} className="entry-detail">
-                                    <strong>{key.replace(/_/g, " ")}:</strong> {value || "N/A"}
-                                </p>
-                            ))}
-                        </div>
-
-                        {/* 🔽 Comment Box Below Each Entry */}
-                        <div className="comment-box">
-                            <textarea
-                                placeholder="Write a comment..."
-                                value={comments[entry._id] || ""}
-                                onChange={(e) => handleCommentChange(entry._id, e.target.value)}
-                            />
-                            <button onClick={() => handleCommentSubmit(entry._id)}>Submit</button>
-                        </div>
-                    </div>
-                ))
-            )}
-
-            <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
+                <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
+            </div>
         </div>
     );
 };
