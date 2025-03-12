@@ -91,10 +91,13 @@ import GeneratedForm from "./pages/GeneratedForm";
 import Support from "./pages/Support"; 
 import GoalProgression from "./pages/GoalProgression";
 import StudentEntries from "./pages/StudentEntries"; 
+import DoctorHome from "./pages/DoctorHome";
 
 const AppLayout = () => {
   const location = useLocation();
-  const hideSidebar = location.pathname === "/" || location.pathname === "/register" || location.pathname === "/doctor-logbook" || location.pathname === "/student-entries";
+  const hideSidebar = location.pathname === "/" || location.pathname === "/register" 
+  || location.pathname === "/doctor-logbook" || location.pathname === "/student-entries" 
+  || location.pathname === "/doctor-home";
 
   return (
     <div className="app-layout">
@@ -121,6 +124,8 @@ const AppLayout = () => {
             <Route path="/view-entries" element={<ViewEntriesPage />} />
             <Route path="/doctor-logbook" element={<DoctorLogbook />} />
             <Route path="/student-entries" element={<StudentEntries />}/>
+            
+<Route path="/doctor-home" element={<DoctorHome />} />
           </Routes>
         </div>
       </div>

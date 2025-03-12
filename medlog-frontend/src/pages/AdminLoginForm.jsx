@@ -54,7 +54,7 @@ const handleSubmit = async (e) => {
       console.log("✅ Login successful! Role:", userRole);
   
       if (userRole === "doctor") {
-          navigate("/doctor-logbook"); // ✅ Redirect doctor to DoctorLogbookPage
+          navigate("/doctor-home"); // ✅ Redirect doctor to DoctorLogbookPage
       } else {
           navigate("/logbookpage"); // ✅ Redirect others to normal logbook
       }
