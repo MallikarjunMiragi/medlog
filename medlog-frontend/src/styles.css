@@ -1329,3 +1329,12 @@ input:checked + .slider:before {
 
 
 
+.doctor-home-layout {
+  display: flex; /* ✅ Ensures Sidebar and Content are side by side */
+  min-height: 100vh; /* ✅ Takes full screen height */
+}
+
+.doctor-home-container {
+  flex-grow: 1;
+  padding: 20px;
+}
