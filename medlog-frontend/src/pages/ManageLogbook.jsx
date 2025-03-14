@@ -1,90 +1,86 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-const initialCategories = [
-  { id: 1, name: "Admissions", icon: "🟠" },
-  { id: 2, name: "CPD", icon: "🔵" },
-  { id: 3, name: "POCUS", icon: "🟡" },
-  { id: 4, name: "Procedures", icon: "🟢" },
-];
+import axios from "axios";
 
 const ManageLogbook = () => {
-  const [categoryList, setCategoryList] = useState(initialCategories);
+  const [categoryList, setCategoryList] = useState([]);
   const [editedCategories, setEditedCategories] = useState({});
   const navigate = useNavigate();
 
-  // ✅ Load saved categories when component mounts
+  // ✅ Fetch categories from backend instead of localStorage
   useEffect(() => {
-    const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
-    const updatedCategories = [
-      ...initialCategories,
-      ...storedCategories.map((name, index) => ({
-        id: initialCategories.length + index + 1,
-        name,
-        icon: "🟣", // Default icon for new categories
-      })),
-    ];
-    setCategoryList(updatedCategories);
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/category/all");
+        setCategoryList(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
-  const handleDelete = (id, e) => {
+  // ✅ Delete category from backend
+  const handleDelete = async (id, e) => {
     e.stopPropagation();
+    console.log("Deleting category with ID:", id); // Debugging log
   
-    // Find the category name before deleting
-    const categoryToDelete = categoryList.find((category) => category.id === id)?.name;
-  
-    // Remove from state
-    const updatedList = categoryList.filter((category) => category.id !== id);
-    setCategoryList(updatedList);
-  
-    // ✅ Remove from localStorage
-    if (categoryToDelete) {
-      const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
-      const filteredCategories = storedCategories.filter((cat) => cat !== categoryToDelete);
-      localStorage.setItem("categories", JSON.stringify(filteredCategories));
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/category/delete/${id}`);
+      console.log("Delete response:", response.data);
+      
+      // Remove category from the state
+      setCategoryList(categoryList.filter((category) => category._id !== id));
+    } catch (error) {
+      console.error("Error deleting category:", error.response?.data || error.message);
     }
   };
   
 
+  // ✅ Update category name in frontend state
   const handleEdit = (id, newName) => {
     setEditedCategories({ ...editedCategories, [id]: newName });
   };
 
-  const handleSave = (id, e) => {
+  // ✅ Save updated category name to backend
+  const handleSave = async (id, e) => {
     e.stopPropagation();
-    setCategoryList(
-      categoryList.map((category) =>
-        category.id === id ? { ...category, name: editedCategories[id] || category.name } : category
-      )
-    );
+    try {
+      const updatedName = editedCategories[id];
+      await axios.put(`http://localhost:5000/api/category/update/${id}`, { name: updatedName });
+      setCategoryList(
+        categoryList.map((category) =>
+          category._id === id ? { ...category, name: updatedName } : category
+        )
+      );
+    } catch (error) {
+      console.error("Error updating category:", error);
+    }
   };
 
   return (
     <div style={styles.container}>
       <h2>Manage logbook categories</h2>
       <p>
-        You can change the name of a category and also delete the category if you no longer require it.
-        Categories that have existing logbook entries will not be able to be removed until their log entries
-        have been removed.
+        You can change the name of a category and delete categories you no longer require.
       </p>
       <button style={styles.addButton} onClick={() => navigate("/add-category")}>
         Add additional category
       </button>
       <div style={styles.categoryList}>
         {categoryList.map((category) => (
-          <div key={category.id} style={styles.categoryItem}>
-            <span style={styles.icon}>{category.icon}</span>
+          <div key={category._id} style={styles.categoryItem}>
             <input
               type="text"
-              value={editedCategories[category.id] ?? category.name}
-              onChange={(e) => handleEdit(category.id, e.target.value)}
+              value={editedCategories[category._id] ?? category.name}
+              onChange={(e) => handleEdit(category._id, e.target.value)}
               style={styles.input}
             />
-            <button style={{ ...styles.button, ...styles.saveButton }} onClick={(e) => handleSave(category.id, e)}>
+            <button style={{ ...styles.button, ...styles.saveButton }} onClick={(e) => handleSave(category._id, e)}>
               ✔️
             </button>
-            <button style={{ ...styles.button, ...styles.deleteButton }} onClick={(e) => handleDelete(category.id, e)}>
+            <button style={{ ...styles.button, ...styles.deleteButton }} onClick={(e) => handleDelete(category._id, e)}>
               🗑️
             </button>
           </div>
@@ -122,9 +118,6 @@ const styles = {
     minWidth: "400px",
     border: "1px solid #ccc",
     borderRadius: "8px",
-  },
-  icon: {
-    fontSize: "22px",
   },
   input: {
     flexGrow: 1,

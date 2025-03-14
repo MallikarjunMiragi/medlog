@@ -12,6 +12,7 @@ const store = configureStore({
     reports: reportsReducer,
     category: categoryReducer,
   },
+    devTools: process.env.NODE_ENV !== "production", // Enables Redux DevTools
 });
 
 export default store;
