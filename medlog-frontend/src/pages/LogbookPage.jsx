@@ -1,31 +1,32 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import LogbookCategory from "../components/logbookCategory";
-import { FaHospital, FaClipboardList, FaStethoscope, FaProcedures, FaChevronRight } from "react-icons/fa"; 
+import { FaClipboardList, FaChevronRight } from "react-icons/fa"; 
+import axios from "axios";
 import "../styles.css";
-
-const predefinedCategories = [
-  { name: "Admissions", description: "Add Admissions", icon: <FaHospital />, route: "/admissions" },
-  { name: "CPD", description: "CPD", icon: <FaClipboardList />, route: "/cpd-entry" },
-  { name: "POCUS", description: "POCUS", icon: <FaStethoscope />, route: "/pocus" },
-  { name: "Procedures", description: "Procedures", icon: <FaProcedures />, route: "/procedures-entry" },
-];
 
 const LogbookPage = () => {
   const navigate = useNavigate();
-  const [categoryList, setCategoryList] = useState(predefinedCategories);
+  const [categoryList, setCategoryList] = useState([]);
 
-  // ✅ Fetch categories from localStorage when page loads
+  // ✅ Fetch categories from the backend
   useEffect(() => {
-    const storedCategories = JSON.parse(localStorage.getItem("categories")) || [];
-    const newCategories = storedCategories.map((name) => ({
-      name,
-      description: `Manage ${name}`,
-      icon: <FaClipboardList />, // Default icon for new categories
-      route: `/generated-form/${name}`, // Navigate to dynamically generated form
-    }));
-    setCategoryList([...predefinedCategories, ...newCategories]);
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/category/all");
+        const categories = response.data.map((category) => ({
+          name: category.name,
+          description: `Manage ${category.name}`,
+          icon: <FaClipboardList />, // Default icon
+          route: `/generated-form/${category.name}`, // ✅ Navigate dynamically
+        }));
+        setCategoryList(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
   }, []);
 
   return (
@@ -33,25 +34,20 @@ const LogbookPage = () => {
       <h1 className="text-2xl font-bold mb-4">Welcome to your new logbook!</h1>
       <p className="text-gray-700 mb-4">
         Log entries you've made in previous jobs are filed separately, and can be accessed and added via the jobs page. 
-        Logbooks from multiple jobs can still be combined to produce reports on the Reports page. You can record the following 
-        clinical activities in your logbook associated with this job.
+        Logbooks from multiple jobs can still be combined to produce reports on the Reports page.
       </p>
 
-      {/* ✅ Dynamically List Categories (Including New Ones) */}
+      {/* ✅ Display dynamic categories */}
       <div className="logbook-list grid grid-cols-2 gap-4">
-
         {categoryList.map((category, index) => (
           <LogbookCategory
             key={index}
             icon={category.icon}
             title={category.name}
             description={category.description}
-            route={category.route} // ✅ Now routes to the correct form
+            route={category.route} // ✅ Dynamic category routing
           />
         ))}
-
-
-    
       </div>
 
       {/* Clickable Manage Logbook Categories Section */}
@@ -62,8 +58,7 @@ const LogbookPage = () => {
 
       <p className="logbook-footer text-sm text-gray-500 mt-4">
         You can opt into one of our growing list of other, more specialist, logbook categories at any time using the "Add category" 
-        button on the add logbook entry category picker. If you have any questions, ideas or problems please do not hesitate to get in 
-        contact with us on our email.
+        button on the category picker. If you have any questions, please contact us via email.
       </p>
     </div>
   );

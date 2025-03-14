@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addCategory } from "../reducers/categoryReducer";
+import DynamicCategoryForm from "../Components/DynamicCategoryForm"; // Importing Dynamic Form Component
 
 const categories = [
   "Admissions", "Bone Marrow Reporting", "Clinical Events", "Clinics", "CPD",
@@ -13,6 +14,8 @@ const categories = [
 const AddCategory = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const savedCategories = useSelector((state) => state.categories); // Get categories from Redux store
+
   const [selectedCategory, setSelectedCategory] = useState("");
   const [fields, setFields] = useState([{ name: "", type: "text" }]);
 
@@ -32,7 +35,7 @@ const AddCategory = () => {
       return;
     }
 
-    if (fields.some(field => field.name.trim() === "")) {
+    if (fields.some((field) => field.name.trim() === "")) {
       alert("Field names cannot be empty.");
       return;
     }
@@ -42,9 +45,9 @@ const AddCategory = () => {
       .unwrap()
       .then(() => {
         alert("Category saved successfully!");
-        navigate("/logbook");
+        navigate("/logbookpage");
       })
-      .catch(error => {
+      .catch((error) => {
         alert(error);
       });
   };
@@ -55,10 +58,16 @@ const AddCategory = () => {
       <p>Logbook categories help you organize your logbook.</p>
 
       <label>Logbook category *</label>
-      <select style={styles.input} value={selectedCategory} onChange={(e) => setSelectedCategory(e.target.value)}>
+      <select
+        style={styles.input}
+        value={selectedCategory}
+        onChange={(e) => setSelectedCategory(e.target.value)}
+      >
         <option value="">Select a category</option>
         {categories.map((category, index) => (
-          <option key={index} value={category}>{category}</option>
+          <option key={index} value={category}>
+            {category}
+          </option>
         ))}
       </select>
 
@@ -84,25 +93,87 @@ const AddCategory = () => {
           </select>
         </div>
       ))}
-      <button style={styles.addButton} onClick={addField}>+ Add Field</button>
+      <button style={styles.addButton} onClick={addField}>
+        + Add Field
+      </button>
+
+      {/* Preview Dynamic Category Form */}
+      {selectedCategory && (
+        <div style={styles.previewContainer}>
+          <h3 style={{color: "black"}}>Preview: {selectedCategory}</h3>
+          <DynamicCategoryForm categoryName={selectedCategory} fields={fields} />
+        </div>
+      )}
 
       <div style={styles.buttonContainer}>
-        <button style={styles.cancelButton} onClick={() => navigate(-1)}>Cancel</button>
-        <button style={styles.saveButton} onClick={handleSave}>Save</button>
+        <button style={styles.cancelButton} onClick={() => navigate(-1)}>
+          Cancel
+        </button>
+        <button style={styles.saveButton} onClick={handleSave}>
+          Save
+        </button>
       </div>
     </div>
   );
 };
 
 const styles = {
-  container: { padding: "20px", maxWidth: "500px", margin: "0 auto", textAlign: "center" },
-  input: { width: "100%", padding: "10px", margin: "10px 0", borderRadius: "5px", border: "1px solid #ccc" },
-  fieldRow: { display: "flex", gap: "10px", marginBottom: "10px" },
-  select: { padding: "10px", borderRadius: "5px", border: "1px solid #ccc" },
-  addButton: { margin: "10px 0", padding: "8px", background: "#4CAF50", color: "white", cursor: "pointer", borderRadius: "5px" },
-  buttonContainer: { display: "flex", justifyContent: "center", gap: "10px" },
-  cancelButton: { padding: "10px 15px", background: "#ccc", cursor: "pointer", borderRadius: "5px" },
-  saveButton: { padding: "10px 15px", background: "teal", color: "white", cursor: "pointer", borderRadius: "5px" }
+  container: {
+    padding: "20px",
+    maxWidth: "600px",
+    margin: "0 auto",
+    textAlign: "center",
+  },
+  input: {
+    width: "100%",
+    padding: "10px",
+    margin: "10px 0",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+  fieldRow: {
+    display: "flex",
+    gap: "10px",
+    marginBottom: "10px",
+  },
+  select: {
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+  addButton: {
+    margin: "10px 0",
+    padding: "8px",
+    background: "#4CAF50",
+    color: "white",
+    cursor: "pointer",
+    borderRadius: "5px",
+  },
+  previewContainer: {
+    marginTop: "20px",
+    padding: "15px",
+    border: "1px solid #ddd",
+    borderRadius: "5px",
+    background: "#f9f9f9",
+  },
+  buttonContainer: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+  },
+  cancelButton: {
+    padding: "10px 15px",
+    background: "#ccc",
+    cursor: "pointer",
+    borderRadius: "5px",
+  },
+  saveButton: {
+    padding: "10px 15px",
+    background: "teal",
+    color: "white",
+    cursor: "pointer",
+    borderRadius: "5px",
+  },
 };
 
 export default AddCategory;
