@@ -46,25 +46,26 @@ const handleSubmit = async (e) => {
     return;
   }
 
-  // ✅ Check if the user is a doctor (hardcoded login)
-  if (formData.emailId === "doctor@gmail.com" && formData.password === "doctor") {
-    console.log("Doctor logged in.");
-    navigate("/doctor-logbook"); // ✅ Redirect doctor to DoctorLogbookPage
-    return; // ✅ Stop further execution
-  }
-
-  // ✅ Proceed with normal user login
   const result = await dispatch(loginUser(formData));
 
-    if (loginUser.fulfilled.match(result)) {
-      console.log("correct user");
+  if (loginUser.fulfilled.match(result)) {
+      const userRole = result.payload.role; // Extract role from backend response
+  
+      console.log("✅ Login successful! Role:", userRole);
+  
+      if (userRole === "doctor") {
+          navigate("/doctor-home"); // ✅ Redirect doctor to DoctorLogbookPage
+      } else {
+          navigate("/logbookpage"); // ✅ Redirect others to normal logbook
+      }
+  
       setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
-      setTimeout(() => navigate("/logbookpage"), 2000);
-    } else {
-      console.log("incorrect");
+  } else {
+      console.log("❌ Invalid credentials");
       setErrors({ login: "Invalid email or password. Please register." });
       setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
   }
+  
 };
 
 
