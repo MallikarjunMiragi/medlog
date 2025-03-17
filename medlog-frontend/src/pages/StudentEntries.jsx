@@ -152,16 +152,19 @@ const StudentEntries = () => {
                                         onChange={(e) => handleCommentChange(entry._id, e.target.value)}
                                     />
                                     <button onClick={() => handleCommentSubmit(entry._id)}>Submit Comment</button>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        max="100"
-                                        placeholder="Score (0-100)"
-                                        value={scores[entry._id] || ""}
-                                        onChange={(e) => handleScoreChange(entry._id, e.target.value)}
-                                    />
-                                    
-                                    <button onClick={() => handleScoreSubmit(entry._id)}>Submit Score</button>
+                                    {/* 🔹 Score Box at Top-Right Corner */}
+<div className="score-box">
+    <input
+        type="number"
+        min="0"
+        max="100"
+        placeholder="Score"
+        value={scores[entry._id] || ""}
+        onChange={(e) => handleScoreChange(entry._id, e.target.value)}
+    />
+    <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
+</div>
+
                                 </div>
                             )}
                         </div>
