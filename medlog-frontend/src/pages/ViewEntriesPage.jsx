@@ -16,35 +16,14 @@ const ViewEntriesPage = () => {
       navigate("/login");
       return;
     }
-  
+
     const userEmail = user.email.email || user.email;
-  
+
     fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(userEmail)}`)
       .then((response) => response.json())
       .then((data) => {
         console.log("Raw API Data:", data);
-  
-        // // Ensure that updatedAt exists and is a valid date
-        // data.forEach((entry) => {
-        //   console.log(`Entry: ${entry.category.name}, updatedAt:`, new Date(entry.updatedAt));
-        // });
-  
-        // // Sort data by updatedAt in descending order (latest first)
-        // const sortedData = data.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-        // console.log("Sorted Data:", sortedData);
-  
-        // // Take the most recent entry for each category
-        // const latestEntries = {};
-        // sortedData.forEach((entry) => {
-        //   if (!latestEntries[entry.category.name]) {
-        //     latestEntries[entry.category.name] = entry;
-        //   }
-        // });
-  
-        // console.log("Latest Entries:", Object.values(latestEntries));
-  
-        // setEntries(Object.values(latestEntries));
-        setEntries(data);
+        setEntries(data);  // ✅ Store the fetched entries
         setLoading(false);
       })
       .catch((error) => {
@@ -53,8 +32,6 @@ const ViewEntriesPage = () => {
         setLoading(false);
       });
   }, [user, navigate]);
-  
-  
 
   return (
     <div className="view-entries-container">
@@ -62,7 +39,6 @@ const ViewEntriesPage = () => {
 
       {loading && <p className="loading-text">Loading entries...</p>}
       {error && <p className="error-text">{error}</p>}
-
       {!loading && !error && entries.length === 0 && (
         <p className="no-entries-text">No log entries found.</p>
       )}
@@ -70,13 +46,27 @@ const ViewEntriesPage = () => {
       {entries.length > 0 &&
         entries.map((entry) => (
           <div key={entry._id} className="entry-box">
-            <h3 className="entry-category-name">{entry.category.name}</h3>
+            <h3 className="entry-category-name">{entry.category}</h3>  {/* ✅ Fix category display */}
             <div className="entry-details-container">
               {Object.entries(entry.data).map(([key, value]) => (
                 <p key={key} className="entry-detail">
                   <strong>{key.replace(/_/g, " ")}:</strong> {value || "N/A"}
                 </p>
               ))}
+
+              {/* ✅ Show Comments if Available */}
+              {entry.comments && (
+                <p className="entry-detail">
+                  <strong>Doctor's Comments:</strong> {entry.comments}
+                </p>
+              )}
+
+              {/* ✅ Show Score if Available */}
+              {entry.score !== null && entry.score !== undefined && (
+                <p className="entry-detail">
+                  <strong>Score:</strong> {entry.score} / 100
+                </p>
+              )}
             </div>
           </div>
         ))}

@@ -130,3 +130,24 @@
 .back-btn:hover {
     background: #d43f3f;
 }
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.toggle-btn {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #444;
+    color: white;
+    border-radius: 5px;
+    margin: 0 5px;
+}
+
+.toggle-btn.active {
+    background-color: teal;
+    font-weight: bold;
+}
