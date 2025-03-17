@@ -27,26 +27,59 @@ const StudentEntries = () => {
     const handleCommentChange = (entryId, value) => {
         setComments({ ...comments, [entryId]: value });
     };
-
-    // ✅ Handle comment submission
-    const handleCommentSubmit = (entryId) => {
-        console.log(`Comment for Entry ${entryId}:`, comments[entryId]);
-        alert(`Comment submitted: ${comments[entryId]}`);
-        setComments({ ...comments, [entryId]: "" }); // Clear input after submitting
-    };
-
-    // ✅ Handle score change
     const handleScoreChange = (entryId, value) => {
-        setScores({ ...scores, [entryId]: value });
+        setScores((prevScores) => ({
+            ...prevScores,
+            [entryId]: value,
+        }));
     };
-
-    // ✅ Handle score submission
-    const handleScoreSubmit = (entryId) => {
-        console.log(`Score for Entry ${entryId}:`, scores[entryId]);
-        alert(`Score submitted: ${scores[entryId]}`);
-        setScores({ ...scores, [entryId]: "" }); // Clear input after submitting
+    
+    const handleCommentSubmit = async (entryId) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/logentry/update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    entryId,
+                    comments: comments[entryId],
+                }),
+            });
+    
+            const result = await response.json();
+            if (response.ok) {
+                console.log("✅ Comment saved:", result);
+                alert(`Comment submitted: ${comments[entryId]}`);
+            } else {
+                console.error("❌ Error saving comment:", result.error);
+            }
+        } catch (error) {
+            console.error("❌ Server error:", error);
+        }
     };
-
+    
+    const handleScoreSubmit = async (entryId) => {
+        try {
+            const response = await fetch("http://localhost:5000/api/logentry/update", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    entryId,
+                    score: scores[entryId],
+                }),
+            });
+    
+            const result = await response.json();
+            if (response.ok) {
+                console.log("✅ Score saved:", result);
+                alert(`Score submitted: ${scores[entryId]}`);
+            } else {
+                console.error("❌ Error saving score:", result.error);
+            }
+        } catch (error) {
+            console.error("❌ Server error:", error);
+        }
+    };
+    
     return (
         <div className="student-entries-container">
             <DoctorSidebar />
