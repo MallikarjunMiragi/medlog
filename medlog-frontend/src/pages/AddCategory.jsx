@@ -16,8 +16,12 @@ const AddCategory = () => {
   const dispatch = useDispatch();
   const savedCategories = useSelector((state) => state.categories); // Get categories from Redux store
 
+  //const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
-  const [fields, setFields] = useState([{ name: "", type: "text" }]);
+const [categoryExists, setCategoryExists] = useState(false);
+
+ // const [fields, setFields] = useState([{ name: "", type: "text" }]);
+ const [fields, setFields] = useState([]);
 
   const addField = () => {
     setFields([...fields, { name: "", type: "text" }]);
@@ -51,7 +55,10 @@ const AddCategory = () => {
         alert(error);
       });
   };
-
+  const handleDeleteField = (index) => {
+    setFields(fields.filter((_, i) => i !== index)); // Remove field at `index`
+  };
+  
   return (
     <div style={styles.container}>
       <h2>Add Category</h2>
@@ -61,7 +68,18 @@ const AddCategory = () => {
       <select
         style={styles.input}
         value={selectedCategory}
-        onChange={(e) => setSelectedCategory(e.target.value)}
+        //onChange={(e) => setSelectedCategory(e.target.value)}
+        onChange={async (e) => {
+          const category = e.target.value;
+          setSelectedCategory(category);
+      
+          if (category) {
+              const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}`);
+              const data = await response.json();
+              setCategoryExists(data.exists);
+          }
+      }}
+      
       >
         <option value="">Select a category</option>
         {categories.map((category, index) => (
@@ -70,40 +88,59 @@ const AddCategory = () => {
           </option>
         ))}
       </select>
+      {categoryExists ? (
+    <p style={{ color: "red" }}>This category already exists!</p>
+) : (
+    <>
+        <h3>Define Fields</h3>
+        {fields.map((field, index) => (
+  <div key={index} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <input
+      type="text"
+      placeholder="Field Name"
+      value={field.name}
+      onChange={(e) => {
+        const updatedFields = [...fields];
+        updatedFields[index].name = e.target.value;
+        setFields(updatedFields);
+      }}
+    />
+    
+    <select
+      value={field.type}
+      onChange={(e) => {
+        const updatedFields = [...fields];
+        updatedFields[index].type = e.target.value;
+        setFields(updatedFields);
+      }}
+    >
+      <option value="text">Text</option>
+      <option value="number">Number</option>
+      <option value="date">Date</option>
+      <option value="file">File</option>
+    </select>
 
-      <h3>Define Fields</h3>
-      {fields.map((field, index) => (
-        <div key={index} style={styles.fieldRow}>
-          <input
-            type="text"
-            placeholder="Enter field name"
-            value={field.name}
-            onChange={(e) => updateField(index, "name", e.target.value)}
-            style={styles.input}
-          />
-          <select
-            value={field.type}
-            onChange={(e) => updateField(index, "type", e.target.value)}
-            style={styles.select}
-          >
-            <option value="text">Text</option>
-            <option value="date">Date</option>
-            <option value="number">Number</option>
-            <option value="file">File</option>
-          </select>
-        </div>
-      ))}
+    {/* ✅ Delete Button */}
+    <button onClick={() => handleDeleteField(index)} style={{ color: "red", cursor: "pointer" }}>
+      ❌ Delete
+    </button>
+  </div>
+))}
+
+    </>
+)}
+
       <button style={styles.addButton} onClick={addField}>
         + Add Field
       </button>
 
       {/* Preview Dynamic Category Form */}
-      {selectedCategory && (
+      {/* {selectedCategory && (
         <div style={styles.previewContainer}>
           <h3 style={{color: "black"}}>Preview: {selectedCategory}</h3>
           <DynamicCategoryForm categoryName={selectedCategory} fields={fields} />
         </div>
-      )}
+      )} */}
 
       <div style={styles.buttonContainer}>
         <button style={styles.cancelButton} onClick={() => navigate(-1)}>
