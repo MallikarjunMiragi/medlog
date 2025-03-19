@@ -108,7 +108,14 @@ const doctorSpecialties = ["Allergy", "Cardiology", "Dermatology", "Emergency me
         await dispatch(signupUser(userData)).unwrap();
         console.log("🎉 Registration Successful!");
         setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
-        setTimeout(() => navigate("/logbookpage"), 2000);
+        setTimeout(() => {
+          if (role === "student") {
+            navigate("/logbookpage"); // Keep it the same for students
+          } else if (role === "doctor") {
+            navigate("/doctor-home"); // Redirect doctors to doctor-home
+          }
+        }, 2000);
+        
     } catch (err) {
         console.error("❌ Registration Error:", err);
         setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
