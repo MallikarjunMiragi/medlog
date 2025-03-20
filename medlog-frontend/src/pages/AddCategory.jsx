@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addCategory } from "../reducers/categoryReducer";
-import DynamicCategoryForm from "../Components/DynamicCategoryForm"; // Importing Dynamic Form Component
+import DynamicCategoryForm from "../Components/DynamicCategoryForm";
+import Notification from "../Components/Notification";
+
 
 const categories = [
   "Admissions", "Bone Marrow Reporting", "Clinical Events", "Clinics", "CPD",
@@ -19,6 +21,13 @@ const AddCategory = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [fields, setFields] = useState([{ name: "", type: "text" }]);
 
+  const [notification, setNotification] = useState({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+  
+
   const addField = () => {
     setFields([...fields, { name: "", type: "text" }]);
   };
@@ -31,29 +40,44 @@ const AddCategory = () => {
 
   const handleSave = () => {
     if (!selectedCategory) {
-      alert("Please select a category before saving.");
+      setNotification({ isOpen: true, message: "Please select a category before saving.", type: "error" });
       return;
+
     }
 
     if (fields.some((field) => field.name.trim() === "")) {
-      alert("Field names cannot be empty.");
+      setNotification({ isOpen: true, message: "Field names cannot be empty.", type: "error" });
       return;
     }
 
     // Dispatch Redux action to save the category
     dispatch(addCategory({ name: selectedCategory, fields }))
-      .unwrap()
-      .then(() => {
-        alert("Category saved successfully!");
+    .unwrap()
+    .then(() => {
+      setNotification({ isOpen: true, message: "Category saved successfully!", type: "success" });
+  
+      // Delay navigation to allow the notification to appear
+      setTimeout(() => {
         navigate("/logbookpage");
-      })
-      .catch((error) => {
-        alert(error);
-      });
+      }, 2000); // 2-second delay (adjust if needed)
+    })
+    .catch((error) => {
+      setNotification({ isOpen: true, message: error, type: "error" });
+    });
+  
   };
 
   return (
+    
     <div style={styles.container}>
+      <Notification
+      isOpen={notification.isOpen}
+      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+      title="Notification"
+      message={notification.message}
+      type={notification.type}
+      />
+
       <h2>Add Category</h2>
       <p>Logbook categories help you organize your logbook.</p>
 

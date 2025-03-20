@@ -117,6 +117,8 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Notification from "../Components/Notification";
+
 
 const DynamicCategoryForm = () => {
     const { category } = useParams();
@@ -126,6 +128,13 @@ const DynamicCategoryForm = () => {
 
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({});
+
+    const [notification, setNotification] = useState({
+        isOpen: false,
+        message: "",
+        type: "info",
+      });
+      
 
     useEffect(() => {
         if (!category) {
@@ -156,6 +165,18 @@ const DynamicCategoryForm = () => {
         }
     }, [categories, category]);
 
+    // Close notification automatically after 3 seconds
+// useEffect(() => {
+//     if (notification.isOpen) {
+//       const timer = setTimeout(() => {
+//         setNotification({ ...notification, isOpen: false });
+//       }, 3000); // 3 seconds delay
+  
+//       return () => clearTimeout(timer); // Cleanup on unmount or state change
+//     }
+//   }, [notification.isOpen]);
+
+
     const handleChange = (e) => {
         setFormData({
             ...formData,
@@ -168,13 +189,13 @@ const DynamicCategoryForm = () => {
 
         if (!userEmail) {
             console.error("❌ Email is missing! Ensure the user is logged in.");
-            alert("You must be logged in to submit an entry.");
+            setNotification({ isOpen: true, message: "You must be logged in to submit an entry.", type: "error" });
             return;
         }
 
         if (!selectedCategory?._id) {
             console.error("❌ Category ID is missing!");
-            alert("Category not found.");
+            setNotification({ isOpen: true, message: "Category not found.", type: "error" });
             return;
         }
 
@@ -197,10 +218,12 @@ const DynamicCategoryForm = () => {
             });
 
             console.log("✅ Entry saved successfully:", response.data);
-            alert("Log entry submitted successfully!");
+            setNotification({ isOpen: true, message: "Log entry submitted successfully!", type: "success" });
+
         } catch (error) {
             console.error("❌ Error saving entry:", error.response?.data || error.message);
-            alert("Failed to save entry. Please try again.");
+            setNotification({ isOpen: true, message: "Failed to save entry. Please try again.", type: "error" });
+
         }
     };
 
@@ -209,6 +232,7 @@ const DynamicCategoryForm = () => {
 
     return (
         <form onSubmit={handleSubmit}>
+
             <h2>{selectedCategory.name} Form</h2>
             {selectedCategory.fields.map((field, index) => (
                 <div key={index}>
@@ -223,6 +247,13 @@ const DynamicCategoryForm = () => {
                 </div>
             ))}
             <button type="submit">Submit</button>
+            <Notification
+            isOpen={notification.isOpen}
+            onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+            title="Notification"
+            message={notification.message}
+            type={notification.type}
+            />
         </form>
     );
 };

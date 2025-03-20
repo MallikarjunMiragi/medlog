@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/StudentEntriesStyles.css";
 import DoctorSidebar from "../components/DoctorSidebar";
+import Notification from "../Components/Notification";
+
 
 const StudentEntries = () => {
     const location = useLocation();
@@ -13,6 +15,13 @@ const StudentEntries = () => {
     const [selectedTab, setSelectedTab] = useState("not-reviewed"); // Default: Not Reviewed
     const [comments, setComments] = useState({});
     const [scores, setScores] = useState({});
+
+    const [notification, setNotification] = useState({
+        isOpen: false,
+        message: "",
+        type: "info",
+      });
+      
 
     useEffect(() => {
         if (student.email) {
@@ -55,7 +64,12 @@ const StudentEntries = () => {
             const result = await response.json();
             if (response.ok) {
                 console.log("✅ Comment saved:", result);
-                alert(`Comment submitted: ${comments[entryId]}`);
+                setNotification({
+                    isOpen: true,
+                    message: `Comment submitted: ${comments[entryId]}`,
+                    type: "success",
+                  });
+                  
 
                 // Update reviewed list after submission
                 setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
@@ -84,7 +98,12 @@ const StudentEntries = () => {
             const result = await response.json();
             if (response.ok) {
                 console.log("✅ Score saved:", result);
-                alert(`Score submitted: ${scores[entryId]}`);
+                setNotification({
+                    isOpen: true,
+                    message: `Score submitted: ${scores[entryId]}`,
+                    type: "success",
+                  });
+                  
 
                 // Update reviewed list after submission
                 setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
@@ -97,10 +116,13 @@ const StudentEntries = () => {
             console.error("❌ Server error:", error);
         }
     };
-
+    
     return (
         <div className="student-entries-container">
             <DoctorSidebar />
+            <div className="back-container">{/* 🔹 Back Button */}
+            <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
+            </div>
             <div className="entries-content">
                 <h2 className="student-entries-title">Entries for {student.fullName}</h2>
 
@@ -153,17 +175,17 @@ const StudentEntries = () => {
                                     />
                                     <button onClick={() => handleCommentSubmit(entry._id)}>Submit Comment</button>
                                     {/* 🔹 Score Box at Top-Right Corner */}
-<div className="score-box">
-    <input
-        type="number"
-        min="0"
-        max="100"
-        placeholder="Score"
-        value={scores[entry._id] || ""}
-        onChange={(e) => handleScoreChange(entry._id, e.target.value)}
-    />
-    <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
-</div>
+                                    <div className="score-box">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            max="100"
+                                            placeholder="Score"
+                                            value={scores[entry._id] || ""}
+                                            onChange={(e) => handleScoreChange(entry._id, e.target.value)}
+                                        />
+                                        <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
+                                    </div>
 
                                 </div>
                             )}
@@ -171,9 +193,17 @@ const StudentEntries = () => {
                     ))
                 )}
 
-                {/* 🔹 Back Button */}
-                <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
             </div>
+
+
+            <Notification
+            isOpen={notification.isOpen}
+            onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+            title="Notification"
+            message={notification.message}
+            type={notification.type}
+            />
+
         </div>
     );
 };

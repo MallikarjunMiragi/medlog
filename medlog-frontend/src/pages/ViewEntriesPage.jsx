@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "../styles/ViewEntriesPage.css"; // ✅ Importing specific styles
+import Notification from "../Components/Notification";
+
 
 const ViewEntriesPage = () => {
   const [entries, setEntries] = useState([]);
@@ -10,9 +12,16 @@ const ViewEntriesPage = () => {
   const user = useSelector((state) => state.auth.user);
   const navigate = useNavigate();
 
+  const [notification, setNotification] = useState({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+  
+
   useEffect(() => {
     if (!user || !user.email) {
-      alert("Please log in to view entries.");
+      setNotification({ isOpen: true, message: "Please log in to view entries.", type: "error" });
       navigate("/login");
       return;
     }
@@ -74,6 +83,15 @@ const ViewEntriesPage = () => {
       <button className="back-to-jobs-btn" onClick={() => navigate("/jobs")}>
         Back to Jobs
       </button>
+
+      <Notification
+      isOpen={notification.isOpen}
+      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+      title="Notification"
+      message={notification.message}
+      type={notification.type}
+      />
+
     </div>
   );
 };
