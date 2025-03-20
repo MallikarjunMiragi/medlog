@@ -48,11 +48,19 @@ const ViewEntriesPage = () => {
           <div key={entry._id} className="entry-box">
             <h3 className="entry-category-name">{entry.category}</h3>  {/* ✅ Fix category display */}
             <div className="entry-details-container">
-              {Object.entries(entry.data).map(([key, value]) => (
-                <p key={key} className="entry-detail">
-                  <strong>{key.replace(/_/g, " ")}:</strong> {value || "N/A"}
-                </p>
-              ))}
+            {Object.entries(entry.data).map(([key, value]) => (
+    <p key={key} className="entry-detail">
+        <strong>{key.replace(/_/g, " ")}:</strong> 
+        {key === "file" && value ? (
+            <a href={`http://localhost:5000${value}`} download>
+                Download File
+            </a>
+        ) : (
+            value || "N/A"
+        )}
+    </p>
+))}
+
 
               {/* ✅ Show Comments if Available */}
               {entry.comments && (
