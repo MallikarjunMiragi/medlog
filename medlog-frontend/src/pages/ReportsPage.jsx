@@ -10,6 +10,8 @@ import {
   setReportFileType,
 } from "../reducers/reportsReducer";
 import "../styles.css";
+import Notification from "../Components/Notification";
+
 
 const API_URL = "http://localhost:5000/api/auth";
 
@@ -25,10 +27,17 @@ const ReportsPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [notification, setNotification] = useState({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
+  
+
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (!userEmail) {
-        setError("User email not available. Please log in again.");
+        setNotification({ isOpen: true, message: "User email not available. Please log in again.", type: "error" });
         setLoading(false);
         return;
       }
@@ -52,7 +61,7 @@ const ReportsPage = () => {
 
   const generatePDF = () => {
     if (!userData) {
-      alert("User details are missing! Cannot generate report.");
+      setNotification({ isOpen: true, message: "User details are missing! Cannot generate report.", type: "error" });
       return;
     }
 
@@ -197,6 +206,15 @@ const ReportsPage = () => {
           </>
         )}
       </div>
+
+      <Notification
+      isOpen={notification.isOpen}
+      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+      title="Notification"
+      message={notification.message}
+      type={notification.type}
+    />
+
     </div>
   );
 };

@@ -231,6 +231,7 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import Notification from "../Components/Notification";
 
 const DynamicCategoryForm = () => {
     const { category } = useParams();
@@ -242,7 +243,8 @@ const DynamicCategoryForm = () => {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({});
     const [fileInputs, setFileInputs] = useState({}); // Store file inputs separately
-
+    const [notification, setNotification] = useState({ isOpen: false, message: "", type: "info" });
+    
     useEffect(() => {
         if (!category) {
             console.error("❌ categoryName is undefined in URL.");
@@ -261,7 +263,7 @@ const DynamicCategoryForm = () => {
 
                 // Initialize form fields
                 const initialFormData = foundCategory.fields.reduce((acc, field) => {
-                    acc[field.name] = field.type === "file" ? null : ""; // Leave file fields null
+                    acc[field.name] = field.type === "file" ? null : "";
                     return acc;
                 }, {});
 
@@ -282,45 +284,54 @@ const DynamicCategoryForm = () => {
     const handleFileChange = (e, fieldName) => {
         setFileInputs({
             ...fileInputs,
-            [fieldName]: e.target.files[0] // Store file separately
+            [fieldName]: e.target.files[0]
         });
     };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        if (!selectedCategory || !selectedCategory._id) {
-            console.error("❌ Category ID is missing!");
-            alert("Category not found. Please select a valid category.");
+        if (!userEmail) {
+            console.error("❌ Email is missing! Ensure the user is logged in.");
+            setNotification({ isOpen: true, message: "You must be logged in to submit an entry.", type: "error" });
             return;
         }
+
+        if (!selectedCategory || !selectedCategory._id) {
+            console.error("❌ Category ID is missing!");
+            setNotification({ isOpen: true, message: "Category not found.", type: "error" });
+            return;
+        }
+
         const formDataToSend = new FormData();
         formDataToSend.append("email", userEmail);
         formDataToSend.append("categoryId", selectedCategory._id);
         formDataToSend.append("name", formData["name"] || ""); // Ensure name is included
-        
-        // Append file only if selected
-        if (fileInputs["file"]) {
-            formDataToSend.append("file", fileInputs["file"]);
-        }
-        
+
+        Object.keys(formData).forEach((key) => {
+            formDataToSend.append(key, formData[key]);
+        });
+
+        Object.keys(fileInputs).forEach((key) => {
+            if (fileInputs[key]) {
+                formDataToSend.append(key, fileInputs[key]);
+            }
+        });
+
         try {
-            const response = await fetch("http://localhost:5000/api/logentry/add", {
-                method: "POST",
-                body: formDataToSend, // ✅ Correct way to send FormData
+            const response = await axios.post("http://localhost:5000/api/logentry/add", formDataToSend, {
+                headers: { "Content-Type": "multipart/form-data" },
             });
-        
-            const result = await response.json();
-            console.log("✅ Success:", result);
-            alert("Entry submitted successfully!");
+
+            console.log("✅ Entry saved successfully:", response.data);
+            setNotification({ isOpen: true, message: "Log entry submitted successfully!", type: "success" });
         } catch (error) {
-            console.error("❌ Error submitting form:", error);
-            alert("Failed to submit entry. Please try again.");
+            console.error("❌ Error saving entry:", error.response?.data || error.message);
+            setNotification({ isOpen: true, message: "Failed to save entry. Please try again.", type: "error" });
         }
-        
     };
 
-    if (categories.length === 0) return <p style={{color: "black"}}>Loading categories from database...</p>;
+    if (categories.length === 0) return <p style={{ color: "black" }}>Loading categories from database...</p>;
     if (!selectedCategory) return <p>❌ Category not found!</p>;
 
     return (
@@ -329,8 +340,6 @@ const DynamicCategoryForm = () => {
             {selectedCategory.fields.map((field, index) => (
                 <div key={index}>
                     <label>{field.name}</label>
-                    
-                    {/* Render input dynamically based on type */}
                     {field.type === "file" ? (
                         <input type="file" onChange={(e) => handleFileChange(e, field.name)} required />
                     ) : (
@@ -344,8 +353,14 @@ const DynamicCategoryForm = () => {
                     )}
                 </div>
             ))}
-
             <button type="submit">Submit</button>
+            <Notification
+                isOpen={notification.isOpen}
+                onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+                title="Notification"
+                message={notification.message}
+                type={notification.type}
+            />
         </form>
     );
 };

@@ -115,16 +115,18 @@
 }
 
 /* 🔹 Back Button */
+
 .back-btn {
     display: block;
-    margin: 20px auto;
+    margin: 10px auto;
     background: #ff4b4b;
     color: white;
-    padding: 10px 15px;
+    padding: 10px 20px;
     border: none;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
-    width: 25%;
+    width: 80px;
+    margin-left: 10px;
 }
 
 .back-btn:hover {
