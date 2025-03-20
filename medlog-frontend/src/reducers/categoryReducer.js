@@ -26,26 +26,32 @@ export const addCategory = createAsyncThunk(
 );
 
 // ✅ Async action to fetch all categories
+export const checkCategoryExists = createAsyncThunk(
+  "category/checkCategoryExists",
+  async (categoryName, thunkAPI) => {
+    try {
+      const response = await fetch(`${API_URL}/exists?name=${encodeURIComponent(categoryName)}`);
+      const data = await response.json();
+      return data.exists; // API should return { exists: true/false }
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.message || "Something went wrong");
+    }
+  }
+);
 export const fetchCategories = createAsyncThunk(
   "category/fetchCategories",
   async (_, thunkAPI) => {
     try {
       const response = await fetch(`${API_URL}/all`);
       const data = await response.json();
-      console.log("API Data:", data); // ✅ Debugging
       if (!response.ok) throw new Error(data.error || "Failed to fetch categories");
-
-      if (!Array.isArray(data)) {
-        console.error("Unexpected API Response:", data);
-        return []; // Prevent Redux from breaking if data is invalid
-      }
-
-      return data; // ✅ Ensure it's an array
+      return data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message || "Something went wrong");
     }
   }
 );
+
 
 const categorySlice = createSlice({
   name: "category",
