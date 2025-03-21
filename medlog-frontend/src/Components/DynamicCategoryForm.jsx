@@ -290,46 +290,59 @@ const DynamicCategoryForm = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+    
         if (!userEmail) {
             console.error("❌ Email is missing! Ensure the user is logged in.");
             setNotification({ isOpen: true, message: "You must be logged in to submit an entry.", type: "error" });
             return;
         }
-
+    
         if (!selectedCategory || !selectedCategory._id) {
             console.error("❌ Category ID is missing!");
             setNotification({ isOpen: true, message: "Category not found.", type: "error" });
             return;
         }
-
+    
         const formDataToSend = new FormData();
         formDataToSend.append("email", userEmail);
         formDataToSend.append("categoryId", selectedCategory._id);
-        formDataToSend.append("name", formData["name"] || ""); // Ensure name is included
-
+    
+        // Append text fields
         Object.keys(formData).forEach((key) => {
-            formDataToSend.append(key, formData[key]);
+            if (fileInputs[key]) {
+                formDataToSend.append(key, fileInputs[key]); // ✅ Append files properly
+            } else {
+                formDataToSend.append(key, formData[key] || ""); // ✅ Store text fields
+            }
         });
-
+        
+    
+        // Append file fields
         Object.keys(fileInputs).forEach((key) => {
             if (fileInputs[key]) {
                 formDataToSend.append(key, fileInputs[key]);
             }
         });
-
+    
         try {
             const response = await axios.post("http://localhost:5000/api/logentry/add", formDataToSend, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
-            console.log("✅ Entry saved successfully:", response.data);
-            setNotification({ isOpen: true, message: "Log entry submitted successfully!", type: "success" });
+    
+            if (response.status === 201) {
+                console.log("✅ Entry saved successfully:", response.data);
+                setNotification({ isOpen: true, message: "Log entry submitted successfully!", type: "success" });
+            } else {
+                console.error("❌ Unexpected response:", response);
+                setNotification({ isOpen: true, message: "Something went wrong. Try again.", type: "error" });
+            }
         } catch (error) {
             console.error("❌ Error saving entry:", error.response?.data || error.message);
-            setNotification({ isOpen: true, message: "Failed to save entry. Please try again.", type: "error" });
+            const errorMessage = error.response?.data?.error || "Failed to save entry. Please try again.";
+            setNotification({ isOpen: true, message: errorMessage, type: "error" });
         }
     };
+    
 
     if (categories.length === 0) return <p style={{ color: "black" }}>Loading categories from database...</p>;
     if (!selectedCategory) return <p>❌ Category not found!</p>;
