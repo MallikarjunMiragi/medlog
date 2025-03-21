@@ -27,6 +27,7 @@ const AccountPage = () => {
 
   const [profileImage, setProfileImage] = useState(null);
   const [memberSince, setMemberSince] = useState("");
+  const [role, setRole] = useState(""); // Store user role
 
   // ✅ Training Year, Hospitals, Specialties Lists
   const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer"];
@@ -51,6 +52,7 @@ const AccountPage = () => {
           console.error("User data fetch failed:", data?.error || "Unknown error");
           return;
         }
+        setRole(data.role || "student"); // Default to student if role is missing
 
         setFormData({
           fullName: data.fullName || "",
@@ -100,6 +102,14 @@ const AccountPage = () => {
 
   const handleUpdate = async () => {
     const updatedUser = { ...formData };
+
+    // If the user is a doctor, remove unnecessary fields
+    if (role === "doctor") {
+      delete updatedUser.country;
+      delete updatedUser.hospital;
+      delete updatedUser.trainingYear;
+    }
+    
 
     fetch("http://localhost:5000/api/auth/user/update", {
       method: "PUT",
@@ -163,19 +173,40 @@ const handleDelete = async () => {
 
       <label>Password</label>
       <input type="password" name="password" placeholder="Enter new password" value={formData.password} onChange={handleChange} />
+      {role === "doctor" && (
+  <>
+    <label>Specialty*</label>
+    <select name="specialty" value={formData.specialty} onChange={handleChange}>
+      <option value="">Select specialty</option>
+      <option value="Allergy">Allergy</option>
+      <option value="Cardiology">Cardiology</option>
+      <option value="Dermatology">Dermatology</option>
+      <option value="Emergency medicine">Emergency medicine</option>
+      <option value="Oncology">Oncology</option>
+      <option value="Pediatrics">Pediatrics</option>
+      <option value="Neurology">Neurology</option>
+    </select>
+  </>
+)}
+{role === "student" && (
+  <>
+    <label>Country*</label>
+    <select name="country" value={formData.country} onChange={handleCountryChange}>
+      <option value="">Select a country</option>
+      <option value="India">India</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Australia">Australia</option>
+      <option value="Canada">Canada</option>
+      <option value="Germany">Germany</option>
+    </select>
+  </>
+)}
 
-      <label>Country*</label>
-      <select name="country" value={formData.country} onChange={handleCountryChange}>
-        <option value="">Select a country</option>
-        <option value="India">India</option>
-        <option value="United States">United States</option>
-        <option value="United Kingdom">United Kingdom</option>
-        <option value="Australia">Australia</option>
-        <option value="Canada">Canada</option>
-        <option value="Germany">Germany</option>
-      </select>
 
-      {formData.country && (
+      {role === "student" && formData.country && (
+
+        
         <>
           <label>Training Year*</label>
           <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>

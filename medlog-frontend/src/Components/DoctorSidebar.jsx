@@ -21,6 +21,9 @@ const DoctorSidebar = () => {
         <li onClick={() => navigate("/doctor-logbook")}> {/* ✅ Now navigates to DoctorLogbook */}
           <FaUserGraduate className="icon" /> View Students
         </li>
+        <li onClick={() => navigate("/account")}> {/* ✅ Now navigates to DoctorLogbook */}
+          <FaUserGraduate className="icon" /> Account
+        </li>
         <li className="logout" onClick={handleLogout}>
           <IoLogOutOutline className="icon" /> Log Out
         </li>
