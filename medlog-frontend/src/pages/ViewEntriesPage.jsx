@@ -60,7 +60,7 @@ const ViewEntriesPage = () => {
             {Object.entries(entry.data).map(([key, value]) => (
     <p key={key} className="entry-detail">
         <strong>{key.replace(/_/g, " ")}:</strong> 
-        {key === "file" && value ? (
+        {key === "document" && value ? (  // ✅ Fix: Check for "document" instead of "file"
             <a href={`http://localhost:5000${value}`} download>
                 Download File
             </a>
@@ -69,6 +69,7 @@ const ViewEntriesPage = () => {
         )}
     </p>
 ))}
+
 
 
               {/* ✅ Show Comments if Available */}
