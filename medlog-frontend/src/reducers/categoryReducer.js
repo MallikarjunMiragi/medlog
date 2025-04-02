@@ -38,6 +38,21 @@ export const checkCategoryExists = createAsyncThunk(
     }
   }
 );
+// export const fetchCategories = createAsyncThunk(
+//   "category/fetchCategories",
+//   async (_, thunkAPI) => {
+//     try {
+//       const response = await fetch(`${API_URL}/all`);
+//       const data = await response.json();
+//       if (!response.ok) throw new Error(data.error || "Failed to fetch categories");
+//       return data;
+//     } catch (error) {
+//       return thunkAPI.rejectWithValue(error.message || "Something went wrong");
+//     }
+//   }
+// );
+
+
 export const fetchCategories = createAsyncThunk(
   "category/fetchCategories",
   async (_, thunkAPI) => {
@@ -45,12 +60,19 @@ export const fetchCategories = createAsyncThunk(
       const response = await fetch(`${API_URL}/all`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to fetch categories");
-      return data;
+
+      console.log("Fetched Categories:", data); // ✅ Debugging
+      return data.map(category => ({
+        id: category._id || category.id, // ✅ Store _id as id
+        name: category.name,
+        fields: category.fields
+      }));
     } catch (error) {
       return thunkAPI.rejectWithValue(error.message || "Something went wrong");
     }
   }
 );
+
 
 
 const categorySlice = createSlice({
@@ -90,7 +112,7 @@ const categorySlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        console.log("Fetched Categories in Reducer:", action.payload); // ✅ Debugging
+        console.log("Fetched Categories:", JSON.stringify(action.payload, null, 2)); // Debugging
         state.loading = false;
         state.categories = action.payload || []; // Store fetched categories
       })

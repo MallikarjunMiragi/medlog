@@ -40,7 +40,7 @@
 //         setFormData({
 //             ...formData,
 //             [e.target.name]: e.target.value
-//         });
+//         });  
 //     };
 
 //     const handleSubmit = async (e) => {
@@ -236,41 +236,50 @@ import Notification from "../Components/Notification";
 const DynamicCategoryForm = () => {
     const { category } = useParams();
     console.log("🔍 Category from useParams:", category);
-    
+
     const categories = useSelector((state) => state.category.categories || []);
     const userEmail = useSelector((state) => state.auth.user?.email);
 
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({});
-    const [fileInputs, setFileInputs] = useState({}); // Store file inputs separately
+    const [fileInputs, setFileInputs] = useState({});
     const [notification, setNotification] = useState({ isOpen: false, message: "", type: "info" });
-    
+
     useEffect(() => {
         if (!category) {
             console.error("❌ categoryName is undefined in URL.");
             return;
         }
 
-        if (categories.length > 0) {
-            const normalizedCategory = category.trim().toLowerCase();
-            const foundCategory = categories.find(
-                (c) => c.name?.trim().toLowerCase() === normalizedCategory
-            );
+        if (!categories.length) {
+            console.warn("⚠️ Categories are not loaded yet!");
+            return;
+        }
 
-            if (foundCategory) {
-                console.log("✅ Found Category:", foundCategory);
-                setSelectedCategory(foundCategory);
+        console.log("🔍 Available categories:", categories);
 
-                // Initialize form fields
-                const initialFormData = foundCategory.fields.reduce((acc, field) => {
-                    acc[field.name] = field.type === "file" ? null : "";
-                    return acc;
-                }, {});
+        const normalizedCategory = category.trim().toLowerCase();
+        const foundCategory = categories.find((c) => c.name?.trim().toLowerCase() === normalizedCategory);
 
-                setFormData(initialFormData);
-            } else {
-                console.error("❌ Category not found:", category);
-            }
+        if (foundCategory) {
+            console.log("✅ Found Category:", foundCategory);
+
+            // Ensure _id exists
+            const updatedCategory = { ...foundCategory, _id: foundCategory.id || foundCategory._id };
+            console.log("🛠 Selected Category:", updatedCategory);
+
+            setSelectedCategory(updatedCategory);
+
+            // Initialize form data with default values
+            const initialFormData = updatedCategory.fields.reduce((acc, field) => {
+                acc[field.name] = field.type === "file" ? null : "";
+                return acc;
+            }, {});
+
+            initialFormData.categoryId = updatedCategory._id; // Ensure categoryId is included
+            setFormData(initialFormData);
+        } else {
+            console.error("❌ Category not found in Redux store:", category);
         }
     }, [categories, category]);
 
@@ -288,50 +297,55 @@ const DynamicCategoryForm = () => {
         });
     };
 
+    console.log("🛠 Selected Category:", JSON.stringify(selectedCategory, null, 2));
+
     const handleSubmit = async (event) => {
         event.preventDefault();
-    
+
         if (!userEmail) {
             console.error("❌ Email is missing! Ensure the user is logged in.");
             setNotification({ isOpen: true, message: "You must be logged in to submit an entry.", type: "error" });
             return;
         }
-    
+
         if (!selectedCategory || !selectedCategory._id) {
             console.error("❌ Category ID is missing!");
             setNotification({ isOpen: true, message: "Category not found.", type: "error" });
             return;
         }
-    
+
+        console.log("🔹 Submitting log entry with Category ID:", selectedCategory._id);
+
         const formDataToSend = new FormData();
         formDataToSend.append("email", userEmail);
         formDataToSend.append("categoryId", selectedCategory._id);
-    
+
         // Append text fields
-        Object.keys(formData).forEach((key) => {
-            if (fileInputs[key]) {
-                formDataToSend.append(key, fileInputs[key]); // ✅ Append files properly
-            } else {
-                formDataToSend.append(key, formData[key] || ""); // ✅ Store text fields
+        Object.entries(formData).forEach(([key, value]) => {
+            if (!fileInputs[key]) {
+                formDataToSend.append(key, value || "");
             }
         });
-        
-    
-        // Append file fields
-        Object.keys(fileInputs).forEach((key) => {
-            if (fileInputs[key]) {
-                formDataToSend.append(key, fileInputs[key]);
+
+        // Append file fields separately
+        Object.entries(fileInputs).forEach(([key, value]) => {
+            if (value) {
+                formDataToSend.append(key, value);
             }
         });
-    
+
         try {
             const response = await axios.post("http://localhost:5000/api/logentry/add", formDataToSend, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-    
+
             if (response.status === 201) {
                 console.log("✅ Entry saved successfully:", response.data);
                 setNotification({ isOpen: true, message: "Log entry submitted successfully!", type: "success" });
+
+                // Reset form after successful submission
+                setFormData({});
+                setFileInputs({});
             } else {
                 console.error("❌ Unexpected response:", response);
                 setNotification({ isOpen: true, message: "Something went wrong. Try again.", type: "error" });
@@ -342,9 +356,8 @@ const DynamicCategoryForm = () => {
             setNotification({ isOpen: true, message: errorMessage, type: "error" });
         }
     };
-    
 
-    if (categories.length === 0) return <p style={{ color: "black" }}>Loading categories from database...</p>;
+    if (!categories.length) return <p style={{ color: "black" }}>Loading categories from database...</p>;
     if (!selectedCategory) return <p>❌ Category not found!</p>;
 
     return (
@@ -379,3 +392,4 @@ const DynamicCategoryForm = () => {
 };
 
 export default DynamicCategoryForm;
+

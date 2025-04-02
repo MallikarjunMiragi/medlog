@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Notification from "../Components/Notification";
 
 const ManageLogbook = () => {
   const [categoryList, setCategoryList] = useState([]);
   const [editedCategories, setEditedCategories] = useState({});
+  const [notification, setNotification] = useState({ isOpen: false, title: "", message: "", type: "info" });
   const navigate = useNavigate();
 
   // ✅ Fetch categories from backend instead of localStorage
@@ -24,16 +26,18 @@ const ManageLogbook = () => {
   // ✅ Delete category from backend
   const handleDelete = async (id, e) => {
     e.stopPropagation();
-    console.log("Deleting category with ID:", id); // Debugging log
+    setNotification({ isOpen: true, title: "Info", message: `Deleting category with ID: ${id}`, type: "info" }); 
   
     try {
       const response = await axios.delete(`http://localhost:5000/api/category/delete/${id}`);
       console.log("Delete response:", response.data);
+      setNotification({ isOpen: true, title: "Success", message: "Category deleted successfully!", type: "success" });
       
       // Remove category from the state
       setCategoryList(categoryList.filter((category) => category._id !== id));
     } catch (error) {
-      console.error("Error deleting category:", error.response?.data || error.message);
+      const errorMessage = error.response?.data?.error || "Failed to delete category. Please try again.";
+      setNotification({ isOpen: true, title: "Error", message: errorMessage, type: "error" });
     }
   };
   
@@ -86,6 +90,15 @@ const ManageLogbook = () => {
           </div>
         ))}
       </div>
+
+       {/* Notification Modal */}
+            <Notification
+              isOpen={notification.isOpen}
+              onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+              title={notification.title}
+              message={notification.message}
+              type={notification.type}
+            />
     </div>
   );
 };

@@ -19,7 +19,7 @@ const AddCategory = () => {
   const savedCategories = useSelector((state) => state.categories); // Get categories from Redux store
 
   //const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
+const [selectedCategory, setSelectedCategory] = useState("");
 const [categoryExists, setCategoryExists] = useState(false);
 
  // const [fields, setFields] = useState([{ name: "", type: "text" }]);
