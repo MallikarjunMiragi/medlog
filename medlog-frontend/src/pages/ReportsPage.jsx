@@ -12,7 +12,6 @@ import {
 import "../styles.css";
 import Notification from "../Components/Notification";
 
-
 const API_URL = "http://localhost:5000/api/auth";
 
 const ReportsPage = () => {
@@ -24,6 +23,7 @@ const ReportsPage = () => {
   );
 
   const [userData, setUserData] = useState(null);
+  const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -32,40 +32,67 @@ const ReportsPage = () => {
     message: "",
     type: "info",
   });
-  
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
+    const fetchData = async () => {
       if (!userEmail) {
-        setNotification({ isOpen: true, message: "User email not available. Please log in again.", type: "error" });
+        setNotification({
+          isOpen: true,
+          message: "User email not available. Please log in again.",
+          type: "error",
+        });
         setLoading(false);
         return;
       }
 
       try {
-        const response = await axios.get(`${API_URL}/userDetails/${userEmail}`);
-        if (response.data) {
-          console.log("Fetched User Data:", response.data); // Debugging
-          setUserData(response.data);
+        // Fetch user data
+        const userResponse = await axios.get(
+          `${API_URL}/userDetails/${userEmail}`
+        );
+        if (userResponse.data) {
+          setUserData(userResponse.data);
         } else {
-          throw new Error("No data received");
+          throw new Error("No user data received");
+        }
+
+        // Fetch entries
+        const formattedEmail =
+          typeof userEmail === "object" ? userEmail.email : userEmail;
+        const entriesResponse = await axios.get(
+          `http://localhost:5000/api/logentry/${encodeURIComponent(
+            formattedEmail
+          )}`
+        );
+        if (Array.isArray(entriesResponse.data)) {
+          setEntries(entriesResponse.data);
+        } else {
+          throw new Error("No entries data received");
         }
       } catch (err) {
-        setError("Failed to load user details. Please try again.");
+        console.error(err);
+        setError("Failed to load data. Please try again.");
       } finally {
         setLoading(false);
       }
     };
-    fetchUserDetails();
+
+    fetchData();
   }, [userEmail]);
 
   const generatePDF = () => {
     if (!userData) {
-      setNotification({ isOpen: true, message: "User details are missing! Cannot generate report.", type: "error" });
+      setNotification({
+        isOpen: true,
+        message: "User details are missing! Cannot generate report.",
+        type: "error",
+      });
       return;
     }
 
     const doc = new jsPDF();
+
+    // Header Info
     doc.setFontSize(20);
     doc.text("Medical Logbook Report", 10, 20);
     doc.setFontSize(14);
@@ -78,27 +105,28 @@ const ReportsPage = () => {
 
     const sections = [
       "Jobs",
-      "Procedures",
-      "Performed by Training Year",
-      "Performed by Supervision Level",
-      "Procedure Records",
-      "Admissions",
-      "Specialties Seen",
-      "Referral Sources",
-      "Location Settings",
-      "Patient Summaries",
-      "Admission Records",
-      "Ultrasounds",
-      "Point-of-Care Ultrasound Performed by Training Year",
-      "Point-of-Care Ultrasound Records",
-      "Continued Professional Development",
-      "Academia",
-      "Audit & Quality Improvement",
-      "Publications",
-      "Conferences",
-      "Courses",
-      "Seminars",
-      "Teaching and Training",
+      "Logbook Entries", // ✅ NEW SECTION
+      // "Procedures",
+      // "Performed by Training Year",
+      // "Performed by Supervision Level",
+      // "Procedure Records",
+      // "Admissions",
+      // "Specialties Seen",
+      // "Referral Sources",
+      // "Location Settings",
+      // "Patient Summaries",
+      // "Admission Records",
+      // "Ultrasounds",
+      // "Point-of-Care Ultrasound Performed by Training Year",
+      // "Point-of-Care Ultrasound Records",
+      // "Continued Professional Development",
+      // "Academia",
+      // "Audit & Quality Improvement",
+      // "Publications",
+      // "Conferences",
+      // "Courses",
+      // "Seminars",
+      // "Teaching and Training",
       "Other Activities",
     ];
 
@@ -111,6 +139,7 @@ const ReportsPage = () => {
     });
     doc.addPage();
 
+    // Jobs Section
     doc.setFontSize(16);
     doc.text("Jobs", 10, 20);
     autoTable(doc, {
@@ -122,14 +151,61 @@ const ReportsPage = () => {
       ],
     });
 
-    sections.slice(1).forEach((section) => {
+
+// ✅ Logbook Entries Section
+doc.addPage();
+doc.setFontSize(16);
+doc.text("Logbook Entries", 10, 20);
+
+if (entries.length > 0) {
+  entries.forEach((entry, index) => {
+    const entryTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30;
+
+    // Add entry title
+    doc.setFontSize(14);
+    doc.text(`Entry ${index + 1}: ${entry.category}`, 10, entryTitleY);
+
+    const rows = Object.entries(entry.data).map(([key, value]) => {
+      return [key.replace(/_/g, " "), value ? value.toString() : "N/A"];
+    });
+
+    if (entry.comments) {
+      rows.push(["Doctor's Comments", entry.comments]);
+    }
+
+    if (entry.score !== null && entry.score !== undefined) {
+      rows.push(["Score", `${entry.score} / 100`]);
+    }
+
+    autoTable(doc, {
+      startY: entryTitleY + 10,
+      margin: { bottom: 30 },
+      head: [["Field", "Value"]],
+      body: rows,
+      theme: "grid",
+      styles: { fontSize: 11 },
+    });
+  });
+} else {
+  doc.setFontSize(12);
+  doc.text("No log entries available for this user.", 10, 30);
+}
+
+
+    // Remaining Sections
+    sections.slice(2).forEach((section) => {
       doc.addPage();
       doc.setFontSize(16);
       doc.text(section, 10, 20);
       doc.setFontSize(12);
-      doc.text("No activities have been performed that relate to this report section", 10, 30);
+      doc.text(
+        "No activities have been performed that relate to this report section",
+        10,
+        30
+      );
     });
 
+    // Footer
     const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -137,10 +213,9 @@ const ReportsPage = () => {
       doc.text(`Page ${i} of ${pageCount}`, 180, 290);
     }
 
-
-
-
-    doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
+    doc.save(
+      `Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`
+    );
   };
 
   return (
@@ -177,7 +252,7 @@ const ReportsPage = () => {
               </div>
               <div className="form-group">
                 <label>Report *</label>
-                <select >
+                <select>
                   <option>Logbook Report</option>
                 </select>
               </div>
@@ -185,7 +260,9 @@ const ReportsPage = () => {
                 <label>Report Format *</label>
                 <select
                   value={reportFormat}
-                  onChange={(e) => dispatch(setReportFormat(e.target.value))}
+                  onChange={(e) =>
+                    dispatch(setReportFormat(e.target.value))
+                  }
                 >
                   <option>Summary Report</option>
                   <option>Full Disclosure Report</option>
@@ -195,26 +272,31 @@ const ReportsPage = () => {
                 <label>Report File Type *</label>
                 <select
                   value={reportFileType}
-                  onChange={(e) => dispatch(setReportFileType(e.target.value))}
+                  onChange={(e) =>
+                    dispatch(setReportFileType(e.target.value))
+                  }
                 >
                   <option>PDF (non-editable format)</option>
                   <option>Docx (editable format)</option>
                 </select>
               </div>
-              <button className="download-btn" onClick={generatePDF}>Download Report</button>
+              <button className="download-btn" onClick={generatePDF}>
+                Download Report
+              </button>
             </div>
           </>
         )}
       </div>
 
       <Notification
-      isOpen={notification.isOpen}
-      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
-      title="Notification"
-      message={notification.message}
-      type={notification.type}
-    />
-
+        isOpen={notification.isOpen}
+        onRequestClose={() =>
+          setNotification({ ...notification, isOpen: false })
+        }
+        title="Notification"
+        message={notification.message}
+        type={notification.type}
+      />
     </div>
   );
 };
