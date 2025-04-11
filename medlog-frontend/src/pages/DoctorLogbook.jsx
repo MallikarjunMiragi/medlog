@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux"; // ✅ Import useSelector to get logged-in user from Redux
 import "../styles.css";
-import DoctorSidebar from "../components/DoctorSidebar";
+
 
 const DoctorLogbook = () => {
     const [students, setStudents] = useState([]);
@@ -33,7 +33,7 @@ const DoctorLogbook = () => {
 
     return (
         <div className="doctor-logbook-layout">
-            <DoctorSidebar />
+            
             <div className="doctor-logbook-container">
                 <h2 className="doctor-logbook-title">Doctor Logbook - View Student Entries</h2>
 

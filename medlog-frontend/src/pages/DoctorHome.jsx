@@ -1,11 +1,11 @@
 import React from "react";
 import "../styles.css"; 
-import DoctorSidebar from "../components/DoctorSidebar"; // ✅ Import Sidebar
+
 
 const DoctorHome = () => {
   return (
     <div className="doctor-home-layout"> {/* ✅ Wrap with layout */}
-      <DoctorSidebar /> {/* ✅ Sidebar stays visible */}
+      
       
       {/* ✅ Main Content */}
       <div className="doctor-home-container">
