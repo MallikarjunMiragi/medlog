@@ -16,6 +16,8 @@ const categories = [
 const AddCategory = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const userEmail = useSelector((state) => state.auth?.user?.email);
+
   const savedCategories = useSelector((state) => state.categories); // Get categories from Redux store
 
   //const [selectedCategory, setSelectedCategory] = useState("");
@@ -55,7 +57,11 @@ const [categoryExists, setCategoryExists] = useState(false);
     }
 
     // Dispatch Redux action to save the category
-    dispatch(addCategory({ name: selectedCategory, fields }))
+    //dispatch(addCategory({ name: selectedCategory, fields }))
+   
+
+dispatch(addCategory({ name: selectedCategory, fields, createdBy: userEmail }))
+
     .unwrap()
     .then(() => {
       setNotification({ isOpen: true, message: "Category saved successfully!", type: "success" });
@@ -98,7 +104,9 @@ const [categoryExists, setCategoryExists] = useState(false);
           setSelectedCategory(category);
       
           if (category) {
-              const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}`);
+              //const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}`);
+              const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}&email=${encodeURIComponent(userEmail)}`);
+
               const data = await response.json();
               setCategoryExists(data.exists);
           }

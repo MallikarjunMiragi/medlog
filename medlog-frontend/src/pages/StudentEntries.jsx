@@ -119,7 +119,7 @@ const StudentEntries = () => {
     
     return (
         <div className="student-entries-container">
-            <DoctorSidebar />
+          
             <div className="back-container">{/* 🔹 Back Button */}
             <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
             </div>
@@ -151,16 +151,16 @@ const StudentEntries = () => {
                             <h4 className="entry-category-name">{entry.category}</h4>
                             <div className="entry-details-container">
                             {Object.entries(entry.data).map(([key, value]) => (
-    <p key={key} className="entry-detail">
-        <strong>{key.replace(/_/g, " ")}:</strong> 
-        {key === "file" && value ? (  
-            <a href={`http://localhost:5000${value}`} download>
-                📄 Download File
-            </a>
-        ) : (
-            value || "N/A"
-        )}
-    </p>
+  <p key={key} className="entry-detail">
+    <strong>{key.replace(/_/g, " ")}:</strong>{" "}
+    {typeof value === "string" && value.startsWith("/uploads/") ? (
+      <a href={`http://localhost:5000${value}`} download>
+        📄 Download File
+      </a>
+    ) : (
+      value || "N/A"
+    )}
+  </p>
 ))}
 
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+
 import axios from "axios";
 import Notification from "../Components/Notification";
 
@@ -8,12 +10,16 @@ const ManageLogbook = () => {
   const [editedCategories, setEditedCategories] = useState({});
   const [notification, setNotification] = useState({ isOpen: false, title: "", message: "", type: "info" });
   const navigate = useNavigate();
+  const userEmail = useSelector((state) => state.auth?.user?.email);
 
   // ✅ Fetch categories from backend instead of localStorage
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/category/all");
+    //const userEmail = useSelector((state) => state.auth?.user?.email); // Get logged-in user's email
+
+const fetchCategories = async () => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`);
+
         setCategoryList(response.data);
       } catch (error) {
         console.error("Error fetching categories:", error);
