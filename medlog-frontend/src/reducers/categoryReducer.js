@@ -55,15 +55,14 @@ export const checkCategoryExists = createAsyncThunk(
 
 export const fetchCategories = createAsyncThunk(
   "category/fetchCategories",
-  async (_, thunkAPI) => {
+  async (email, thunkAPI) => {
     try {
-      const response = await fetch(`${API_URL}/all`);
+      const response = await fetch(`${API_URL}/all?email=${encodeURIComponent(email)}`);
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to fetch categories");
 
-      console.log("Fetched Categories:", data); // ✅ Debugging
       return data.map(category => ({
-        id: category._id || category.id, // ✅ Store _id as id
+        id: category._id || category.id,
         name: category.name,
         fields: category.fields
       }));
@@ -72,6 +71,7 @@ export const fetchCategories = createAsyncThunk(
     }
   }
 );
+
 
 
 
