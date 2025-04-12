@@ -53,36 +53,79 @@
 // export default GeneratedForm;
 
 
+// import React, { useEffect } from "react";
+// import { useParams } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
+// import { fetchCategories } from "../reducers/categoryReducer"; // Import Redux action
+// import DynamicCategoryForm from "../Components/DynamicCategoryForm";
+
+// const GeneratedForm = () => {
+//   const { category } = useParams(); // Get category name from URL
+//   const dispatch = useDispatch();
+//   const categories = useSelector((state) => state.category.categories);
+//   const loading = useSelector((state) => state.category.loading);
+//   const error = useSelector((state) => state.category.error);
+
+//   // Fetch categories when component mounts (if not already available)
+//   useEffect(() => {
+//     if (categories.length === 0) {
+//       dispatch(fetchCategories());
+//     }
+//   }, [dispatch, categories]);
+
+//   console.log("Category from URL:", category);
+//   console.log("Redux Categories:", categories);
+
+//   // Find the selected category from Redux state
+//   const selectedCategory = categories.find((cat) => cat.name === category);
+
+//   return (
+//     <div style={styles.container}>
+//       {/* <h2>{category} Form</h2> */}
+
+//       {loading ? (
+//         <p>Loading form fields...</p>
+//       ) : error ? (
+//         <p>Error loading categories: {error}</p>
+//       ) : !selectedCategory ? (
+//         <p>Category not found.</p>
+//       ) : (
+//         <DynamicCategoryForm categoryName={category} />
+//       )}
+//     </div>
+//   );
+// };
+
+// // ✅ Basic styles
+// const styles = {
+//   container: { padding: "20px", maxWidth: "500px", margin: "0 auto", textAlign: "center" },
+// };
+
+// export default GeneratedForm;
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCategories } from "../reducers/categoryReducer"; // Import Redux action
+import { fetchCategories } from "../reducers/categoryReducer";
 import DynamicCategoryForm from "../Components/DynamicCategoryForm";
 
 const GeneratedForm = () => {
-  const { category } = useParams(); // Get category name from URL
+  const { category } = useParams();
   const dispatch = useDispatch();
+  const userEmail = useSelector((state) => state.auth?.user?.email); // ✅ Get email from auth
   const categories = useSelector((state) => state.category.categories);
   const loading = useSelector((state) => state.category.loading);
   const error = useSelector((state) => state.category.error);
 
-  // Fetch categories when component mounts (if not already available)
   useEffect(() => {
-    if (categories.length === 0) {
-      dispatch(fetchCategories());
+    if (categories.length === 0 && userEmail) {
+      dispatch(fetchCategories(userEmail)); // ✅ Pass email
     }
-  }, [dispatch, categories]);
+  }, [dispatch, categories.length, userEmail]);
 
-  console.log("Category from URL:", category);
-  console.log("Redux Categories:", categories);
-
-  // Find the selected category from Redux state
   const selectedCategory = categories.find((cat) => cat.name === category);
 
   return (
     <div style={styles.container}>
-      {/* <h2>{category} Form</h2> */}
-
       {loading ? (
         <p>Loading form fields...</p>
       ) : error ? (
@@ -96,7 +139,6 @@ const GeneratedForm = () => {
   );
 };
 
-// ✅ Basic styles
 const styles = {
   container: { padding: "20px", maxWidth: "500px", margin: "0 auto", textAlign: "center" },
 };
