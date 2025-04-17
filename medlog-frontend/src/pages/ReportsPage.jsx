@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios";
+import gangliaLogo from "../assets/ganglia-logo.png"; // Adjust path if needed
+
 import {
   setFromDate,
   setToDate,
@@ -89,134 +91,138 @@ const ReportsPage = () => {
       });
       return;
     }
-
+  
     const doc = new jsPDF();
+  
+// Header Info - First Page
+const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Header Info
-    doc.setFontSize(20);
-    doc.text("Medical Logbook Report", 10, 20);
-    doc.setFontSize(14);
-    doc.text(`Prepared for: ${userData.fullName || "N/A"}`, 10, 30);
-    doc.text(`Hospital: ${userData.selectedHospital || "N/A"}`, 10, 40);
-    doc.text(`Specialty: ${userData.selectedSpecialty || "N/A"}`, 10, 50);
-    doc.text(`Training Year: ${userData.selectedTrainingYear || "N/A"}`, 10, 60);
-    doc.text(`Reporting Period: ${fromDate} - ${toDate}`, 10, 70);
-    doc.addPage();
+doc.setFontSize(20);
+let title = "Medical Logbook Report";
+let titleWidth = doc.getTextWidth(title);
+doc.text(title, (pageWidth - titleWidth) / 2, 20);
 
-    const sections = [
-      "Jobs",
-      "Logbook Entries", // ✅ NEW SECTION
-      // "Procedures",
-      // "Performed by Training Year",
-      // "Performed by Supervision Level",
-      // "Procedure Records",
-      // "Admissions",
-      // "Specialties Seen",
-      // "Referral Sources",
-      // "Location Settings",
-      // "Patient Summaries",
-      // "Admission Records",
-      // "Ultrasounds",
-      // "Point-of-Care Ultrasound Performed by Training Year",
-      // "Point-of-Care Ultrasound Records",
-      // "Continued Professional Development",
-      // "Academia",
-      // "Audit & Quality Improvement",
-      // "Publications",
-      // "Conferences",
-      // "Courses",
-      // "Seminars",
-      // "Teaching and Training",
-      "Other Activities",
-    ];
+doc.setFontSize(14);
 
-    doc.setFontSize(16);
-    doc.text("Table of Contents", 10, 20);
-    autoTable(doc, {
-      startY: 30,
-      head: [["Section", "Page"]],
-      body: sections.map((section, index) => [section, index + 2]),
-    });
-    doc.addPage();
+const lines = [
+  `Prepared for: ${userData.fullName || "N/A"}`,
+  `Hospital: ${userData.selectedHospital || "N/A"}`,
+  `Specialty: ${userData.selectedSpecialty || "N/A"}`,
+  `Training Year: ${userData.selectedTrainingYear || "N/A"}`,
+  `Reporting Period: ${fromDate} - ${toDate}`
+];
 
-    // Jobs Section
-    doc.setFontSize(16);
-    doc.text("Jobs", 10, 20);
-    autoTable(doc, {
-      startY: 30,
-      head: [["Field", "Value"]],
-      body: [
-        ["Training Year", userData.selectedTrainingYear || "N/A"],
-        ["Specialty", userData.selectedSpecialty || "N/A"],
-      ],
-    });
+let y = 30;
+lines.forEach((line) => {
+  const textWidth = doc.getTextWidth(line);
+  doc.text(line, (pageWidth - textWidth) / 2, y);
+  y += 10;
+});
 
-
-// ✅ Logbook Entries Section
-doc.addPage();
-doc.setFontSize(16);
-doc.text("Logbook Entries", 10, 20);
-
-if (entries.length > 0) {
-  entries.forEach((entry, index) => {
-    const entryTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30;
-
-    // Add entry title
-    doc.setFontSize(14);
-    doc.text(`Entry ${index + 1}: ${entry.category}`, 10, entryTitleY);
-
-    const rows = Object.entries(entry.data).map(([key, value]) => {
-      return [key.replace(/_/g, " "), value ? value.toString() : "N/A"];
-    });
-
-    if (entry.comments) {
-      rows.push(["Doctor's Comments", entry.comments]);
-    }
-
-    if (entry.score !== null && entry.score !== undefined) {
-      rows.push(["Score", `${entry.score} / 100`]);
-    }
-
-    autoTable(doc, {
-      startY: entryTitleY + 10,
-      margin: { bottom: 30 },
-      head: [["Field", "Value"]],
-      body: rows,
-      theme: "grid",
-      styles: { fontSize: 11 },
-    });
-  });
-} else {
-  doc.setFontSize(12);
-  doc.text("No log entries available for this user.", 10, 30);
-}
-
-
-    // Remaining Sections
-    sections.slice(2).forEach((section) => {
+  
+    // ✅ Add Ganglia Logo to bottom center of first page
+    const img = new Image();
+    img.src = gangliaLogo;
+    img.onload = function () {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const logoWidth = 70;
+      const logoHeight = 70;
+      const x = 75;
+      const y = 100;
+      doc.addImage(img, "PNG", x, y, logoWidth, logoHeight);
+  
+      // 📄 Move to next page for TOC
+      doc.addPage();
+  
+      const sections = [
+        "Jobs",
+        "Logbook Entries",
+        "Other Activities",
+      ];
+  
+      doc.setFontSize(16);
+      doc.text("Table of Contents", 10, 20);
+      autoTable(doc, {
+        startY: 30,
+        head: [["Section", "Page"]],
+        body: sections.map((section, index) => [section, index + 2]),
+      });
+  
+      // 📄 Jobs Section
       doc.addPage();
       doc.setFontSize(16);
-      doc.text(section, 10, 20);
-      doc.setFontSize(12);
-      doc.text(
-        "No activities have been performed that relate to this report section",
-        10,
-        30
+      doc.text("Jobs", 10, 20);
+      autoTable(doc, {
+        startY: 30,
+        head: [["Field", "Value"]],
+        body: [
+          ["Training Year", userData.selectedTrainingYear || "N/A"],
+          ["Specialty", userData.selectedSpecialty || "N/A"],
+        ],
+      });
+  
+      // 📄 Logbook Entries Section
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text("Logbook Entries", 10, 20);
+  
+      if (entries.length > 0) {
+        entries.forEach((entry, index) => {
+          const entryTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30;
+          doc.setFontSize(14);
+          doc.text(`Entry ${index + 1}: ${entry.category}`, 10, entryTitleY);
+  
+          const rows = Object.entries(entry.data).map(([key, value]) => [
+            key.replace(/_/g, " "), value ? value.toString() : "N/A"
+          ]);
+  
+          if (entry.comments) rows.push(["Doctor's Comments", entry.comments]);
+          if (entry.score !== null && entry.score !== undefined) {
+            rows.push(["Score", `${entry.score} / 100`]);
+          }
+  
+          autoTable(doc, {
+            startY: entryTitleY + 10,
+            margin: { bottom: 30 },
+            head: [["Field", "Value"]],
+            body: rows,
+            theme: "grid",
+            styles: { fontSize: 11 },
+          });
+        });
+      } else {
+        doc.setFontSize(12);
+        doc.text("No log entries available for this user.", 10, 30);
+      }
+  
+      // 📄 Remaining Sections
+      sections.slice(2).forEach((section) => {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.text(section, 10, 20);
+        doc.setFontSize(12);
+        doc.text(
+          "No activities have been performed that relate to this report section",
+          10,
+          30
+        );
+      });
+  
+      // 📄 Footer - Page Numbers
+      const pageCount = doc.internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(10);
+        doc.text(`Page ${i} of ${pageCount}`, 180, 290);
+      }
+  
+      // ✅ Save
+      doc.save(
+        `Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`
       );
-    });
-
-    // Footer
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      doc.setFontSize(10);
-      doc.text(`Page ${i} of ${pageCount}`, 180, 290);
-    }
-
-    doc.save(
-      `Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`
-    );
+    };
   };
+  
 
   return (
     <div className="reports-container">

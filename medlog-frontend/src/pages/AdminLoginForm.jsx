@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../reducers/authReducer";
 import Image from "../assets/photo/login.mp4";
 import Notification from "../Components/Notification";
-import "../styles.css";
+//import "../styles.css";
 
 const AdminLoginForm = () => {
   const [formData, setFormData] = useState({
