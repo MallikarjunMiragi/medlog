@@ -20,6 +20,7 @@ import StudentEntries from "./pages/StudentEntries";
 import DynamicForm from "./Components/DynamicCategoryForm"; 
 import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
+import "./index.css"; 
 
 const AppLayout = () => {
   const location = useLocation();

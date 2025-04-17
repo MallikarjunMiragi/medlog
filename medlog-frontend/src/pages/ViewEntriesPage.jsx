@@ -60,15 +60,16 @@ const ViewEntriesPage = () => {
             {Object.entries(entry.data).map(([key, value]) => (
   <p key={key} className="entry-detail">
     <strong>{key.replace(/_/g, " ")}:</strong>{" "}
-    {typeof value === "string" && value.startsWith("/uploads/") ? (
-      <a href={`http://localhost:5000${value}`} download>
-        📄 Download File
+    {typeof value === "string" && value.startsWith("https://res.cloudinary.com/") ? (
+      <a href={value} target="_blank" rel="noopener noreferrer">
+        📄 Open File
       </a>
     ) : (
       value || "N/A"
     )}
   </p>
 ))}
+
 
 
 
