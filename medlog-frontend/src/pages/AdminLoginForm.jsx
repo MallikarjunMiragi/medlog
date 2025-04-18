@@ -46,6 +46,17 @@ const handleSubmit = async (e) => {
     return;
   }
 
+    // ✅ 1. TEMP Admin Bypass Check
+    if (
+      formData.emailId.toLowerCase() === "admin@logbook.com" &&
+      formData.password === "admin123"
+    ) {
+      localStorage.setItem("isAdmin", "true");
+      navigate("/admin");
+      setNotification({ isOpen: true, title: "Admin Login", message: "Welcome, Admin! Redirecting...", type: "success" });
+      return;
+    }
+
   const result = await dispatch(loginUser(formData));
 
   if (loginUser.fulfilled.match(result)) {
