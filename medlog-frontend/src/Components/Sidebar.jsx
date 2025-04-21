@@ -117,7 +117,7 @@ const Sidebar = () => {
   return (
     <div className="bg-[#008080] w-[250px] h-screen text-white flex flex-col pt-5 fixed left-0 top-0 shadow-lg">
       <div className="text-center text-[22px] font-bold mb-5 text-gray-100">Medical Logbook</div>
-      <ul className="sidebar-menu *:flex">
+      <ul className="*:px-6 *:py-5 *:flex *:gap-3 *:items-center *:cursor-pointer *:rounded-md *:transition-all *:duration-300 *:hover:bg-white/20 *:hover:border-l-[4px] *:hover:border-[#3498db] *:hover:pl-[16px]">
         <li onClick={() => navigate("/logbookpage")}>
           <FaBook className="icon" /> Primary Logbook
         </li>
@@ -139,7 +139,7 @@ const Sidebar = () => {
         <li onClick={() => navigate("/support")}>
           <FaQuestionCircle className="icon" /> Support
         </li>
-        <li className="logout" onClick={handleLogout}>
+        <li className="hover:!bg-[#154f4e]" onClick={handleLogout}>
           <IoLogOutOutline className="icon" /> Log Out
         </li>
       </ul>
