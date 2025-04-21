@@ -10,8 +10,8 @@ const GoalProgression = () => {
 
     return (
         <div className="goal-progression-container">
-            <h1>Goal progression</h1>
-            <p>
+            <h1 className="text-[#a9d0cd] text-center font-[cursive]">Goal progression</h1>
+            <p className="text-center text-[#d9ede9] font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
                 If you are doing an accreditation, you will see a list of goals below that you need to work
                 towards as part of your course. Goals help you gauge which of your clinical activities will
                 count towards your assessment. In general, you will need to fulfill all goals to complete an

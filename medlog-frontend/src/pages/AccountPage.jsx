@@ -165,7 +165,9 @@ const handleDelete = async () => {
       <ToastContainer />
       <h2>Account Information</h2>
 
-      <p><strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" /></p>
+      <p className="flex items-center">
+        <strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" />
+      </p>
 
 
       <label>Full Name*</label>

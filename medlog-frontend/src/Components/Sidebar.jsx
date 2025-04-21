@@ -115,9 +115,9 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="sidebar">
-      <div className="logo">Medical Logbook</div>
-      <ul className="sidebar-menu">
+    <div className="bg-[#008080] w-[250px] h-screen text-white flex flex-col pt-5 fixed left-0 top-0 shadow-lg">
+      <div className="text-center text-[22px] font-bold mb-5 text-gray-100">Medical Logbook</div>
+      <ul className="sidebar-menu *:flex">
         <li onClick={() => navigate("/logbookpage")}>
           <FaBook className="icon" /> Primary Logbook
         </li>
