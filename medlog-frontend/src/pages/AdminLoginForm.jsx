@@ -1,4 +1,4 @@
-  import { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../reducers/authReducer";
@@ -14,7 +14,7 @@ const AdminLoginForm = () => {
 
   const [errors, setErrors] = useState({});
   const [notification, setNotification] = useState({ isOpen: false, title: "", message: "", type: "info" });
-  
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, error, loading } = useSelector((state) => state.auth);
@@ -37,36 +37,36 @@ const AdminLoginForm = () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!formData.emailId || !formData.password) {
-    setErrors({ login: "Email and Password are required." });
-     setNotification({ isOpen: true, title: "Error", message: "Email and Password are required.", type: "error" });
-    return;
-  }
+    if (!formData.emailId || !formData.password) {
+      setErrors({ login: "Email and Password are required." });
+      setNotification({ isOpen: true, title: "Error", message: "Email and Password are required.", type: "error" });
+      return;
+    }
 
-  const result = await dispatch(loginUser(formData));
+    const result = await dispatch(loginUser(formData));
 
-  if (loginUser.fulfilled.match(result)) {
+    if (loginUser.fulfilled.match(result)) {
       const userRole = result.payload.role; // Extract role from backend response
-  
+
       console.log("✅ Login successful! Role:", userRole);
-  
+
       if (userRole === "doctor") {
-          navigate("/doctor-home"); // ✅ Redirect doctor to DoctorLogbookPage
+        navigate("/doctor-home"); // ✅ Redirect doctor to DoctorLogbookPage
       } else {
-          navigate("/logbookpage"); // ✅ Redirect others to normal logbook
+        navigate("/logbookpage"); // ✅ Redirect others to normal logbook
       }
-  
+
       setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
-  } else {
+    } else {
       console.log("❌ Invalid credentials");
       setErrors({ login: "Invalid email or password. Please register." });
       setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
-  }
-  
-};
+    }
+
+  };
 
 
 
@@ -77,14 +77,14 @@ const handleSubmit = async (e) => {
   const isForgotPasswordVisible = formData.emailId.toLowerCase() !== "admin@gmail.com";
 
   return (
-    <section className="login-container">
-      <div className="login-form">
-        <div className="form-container">
-          <h2 className="form-heading">Login</h2>
+    <section className="flex justify-center items-center h-full w-full">
+      <div className="flex w-[800px] max-w-[90%] bg-white/10 shadow-md rounded-md text-white">
+        <div className="flex-1 p-8 flex flex-col justify-center">
+          <h2 className="text-center text-xl mb-5 font-bold">Login</h2>
           <form onSubmit={handleSubmit}>
-            <label className="label">Email</label>
+            <label className="mb-1 block font-bold">Email</label>
             <input
-              className="input-field"
+              className="w-full p-3 mb-4 rounded-md bg-white/20"
               type="email"
               placeholder="Enter your email"
               name="emailId"
@@ -93,11 +93,11 @@ const handleSubmit = async (e) => {
               onBlur={handleBlur}
               required
             />
-            {errors.emailId && <div className="error">{errors.emailId}</div>}
+            {errors.emailId && <div className="text-red-800 bg-red-200 border-l-2 border-red-500">{errors.emailId}</div>}
 
-            <label className="label">Password</label>
+            <label className="mb-1 block font-bold">Password</label>
             <input
-              className="input-field"
+              className="w-full p-3 mb-4 rounded-md bg-white/20"
               type="password"
               placeholder="Enter your password"
               name="password"
@@ -110,23 +110,23 @@ const handleSubmit = async (e) => {
             {errors.login && <div className="error">{errors.login}</div>} */}
 
             {isForgotPasswordVisible && (
-              <button type="button" className="forgot-password-button">
+              <button type="button" className="w-full p-3 text-[#22615f] bg-[#dadde0] cursor-pointer mb-4 text-sm hover:bg-[#bdc0c5] transition duration-300 rounded-md">
                 Forgot Password?
               </button>
             )}
 
-            <div className="button-group">
-              <button type="submit" className="button" disabled={loading}>
+            <div className="flex mt-5 gap-4">
+              <button type="submit" className="w-full p-3 bg-[#008080] cursor-pointer mb-4 text-sm hover:bg-[#283e3e] transition duration-300 rounded-md" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
-              <button type="button" onClick={handleRegister} className="register-button">
+              <button type="button" onClick={handleRegister} className="w-full p-3 bg-[#44266c] cursor-pointer mb-4 text-sm hover:bg-[#261d32] transition duration-300 rounded-md">
                 Register
               </button>
             </div>
           </form>
         </div>
-        <div className="video-container">
-          <video ref={videoRef} className="video" autoPlay loop muted>
+        <div className="flex-1 hidden md:block relative min-w-[300px] h-full">
+          <video ref={videoRef} className="w-full h-full object-cover" autoPlay loop muted>
             <source src={Image} type="video/mp4" />
           </video>
         </div>

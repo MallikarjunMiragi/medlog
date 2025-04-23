@@ -161,12 +161,12 @@ const handleDelete = async () => {
 
 
   return (
-    <div className="account-container">
+    <div className="w-[80%] flex flex-col m-auto p-5 bg-[#344d66] rounded-md font-arial text-white [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
       <ToastContainer />
-      <h2>Account Information</h2>
+      <h2 className="text-xl font-bold mb-2">Account Information</h2>
 
-      <p className="flex items-center">
-        <strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" />
+      <p className="flex items-center mb-6">
+        <strong>Email:</strong> {formData.email} <FaCheckCircle className="text-[#0e856f]" />
       </p>
 
 
@@ -236,8 +236,8 @@ const handleDelete = async () => {
         </>
       )}
 
-<button className="update-btn" onClick={handleUpdate}>Update</button>
-<button className="delete-btn" onClick={handleDelete}>
+<button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={handleUpdate}>Update</button>
+<button className="bg-[#2f2267] py-2 px-4 rounded-md cursor-pointer flex justify-center gap-1.5 mt-2" onClick={handleDelete}>
         <FaTrash /> Delete Account
       </button>
     </div>

@@ -39,7 +39,7 @@ const fetchCategories = async () => {
   return (
     <div className="w-full max-w-5xl p-6 rounded-lg shadow-md">
       <h1 className="text-2xl font-bold mb-4 text-[#a9d0cd] text-center font-[cursive]">Welcome to your new logbook!</h1>
-      <p className="text-gray-300 text-center mb-4">
+      <p className="text-[#deefed] text-center mb-4">
         Log entries you've made in previous jobs are filed separately, and can be accessed and added via the jobs page. 
         Logbooks from multiple jobs can still be combined to produce reports on the Reports page.
       </p>
@@ -63,7 +63,7 @@ const fetchCategories = async () => {
         <FaChevronRight className="text-gray-300 ml-auto" />
       </div>
 
-      <p className="text-sm text-gray-300 mt-5 p-2">
+      <p className="text-sm text-[#deefed] mt-5 p-2 text-center">
         You can opt into one of our growing list of other, more specialist, logbook categories at any time using the "Add category" 
         button on the category picker. If you have any questions, please contact us via email.
       </p>

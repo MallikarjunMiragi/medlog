@@ -9,9 +9,9 @@ const GoalProgression = () => {
     };
 
     return (
-        <div className="goal-progression-container">
-            <h1 className="text-[#a9d0cd] text-center font-[cursive]">Goal progression</h1>
-            <p className="text-center text-[#d9ede9] font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif]">
+        <div className="goal-progression-container text-white">
+            <h1 className="text-[#a9d0cd] text-center font-[cursive] text-2xl font-bold">Goal progression</h1>
+            <p className="text-center text-[#d9ede9] font-['Segoe_UI',Tahoma,Geneva,Verdana,sans-serif] mt-4">
                 If you are doing an accreditation, you will see a list of goals below that you need to work
                 towards as part of your course. Goals help you gauge which of your clinical activities will
                 count towards your assessment. In general, you will need to fulfill all goals to complete an
@@ -19,7 +19,7 @@ const GoalProgression = () => {
             </p>
 
             {/* Goal Section - Click to toggle */}
-            <div className="goal-section" onClick={toggleDropdown} style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", borderRadius: "5px" }}>
+            <div className="mt-4" onClick={toggleDropdown} style={{ cursor: "pointer", border: "1px solid #ccc", padding: "10px", borderRadius: "5px" }}>
                 <h2>University of East Anglia - Breast Ultrasound Accreditation</h2>
                 <p>The accumulation of ultrasound procedures that are to be performed while accrediting for the University of East Anglia’s Breast Ultrasound CPD module</p>
             </div>
