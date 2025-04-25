@@ -46,40 +46,42 @@ const handleSubmit = async (e) => {
     return;
   }
 
-    // ✅ 1. TEMP Admin Bypass Check
-    if (
-      formData.emailId.toLowerCase() === "admin@logbook.com" &&
-      formData.password === "admin123"
-    ) {
-      localStorage.setItem("isAdmin", "true");
-      navigate("/admin");
-      setNotification({ isOpen: true, title: "Admin Login", message: "Welcome, Admin! Redirecting...", type: "success" });
-      return;
-    }
 
   const result = await dispatch(loginUser(formData));
 
   if (loginUser.fulfilled.match(result)) {
       const userRole = result.payload.role; // Extract role from backend response
+      
   
       console.log("✅ Login successful! Role:", userRole);
   
-      if (userRole === "doctor") {
-          navigate("/doctor-home"); // ✅ Redirect doctor to DoctorLogbookPage
+      if (userRole === "admin") {
+        localStorage.setItem("isAdmin", "true");
+        navigate("/admin");
+      } else if (userRole === "doctor") {
+        navigate("/doctor-home");
       } else {
-          navigate("/logbookpage"); // ✅ Redirect others to normal logbook
+        navigate("/logbookpage");
       }
+      
   
       setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
   } else {
-      console.log("❌ Invalid credentials");
-      setErrors({ login: "Invalid email or password. Please register." });
-      setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
+    console.log("❌ Login failed:", result.payload?.error || "Unknown error");
+  
+    const backendError = result.payload?.error || "Invalid email or password.";
+  
+    setErrors({ login: backendError });
+    setNotification({
+      isOpen: true,
+      title: "Login Failed",
+      message: backendError,
+      type: "error",
+    });
   }
   
+  
 };
-
-
 
   const handleRegister = () => {
     navigate("/register");

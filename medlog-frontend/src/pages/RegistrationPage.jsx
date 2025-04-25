@@ -109,12 +109,9 @@ const doctorSpecialties = ["Allergy", "Cardiology", "Dermatology", "Emergency me
         console.log("🎉 Registration Successful!");
         setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
         setTimeout(() => {
-          if (role === "student") {
-            navigate("/logbookpage"); // Keep it the same for students
-          } else if (role === "doctor") {
-            navigate("/doctor-home"); // Redirect doctors to doctor-home
-          }
+          navigate("/pending-approval");
         }, 2000);
+        
         
     } catch (err) {
         console.error("❌ Registration Error:", err);
