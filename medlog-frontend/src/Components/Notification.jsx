@@ -28,9 +28,9 @@ const Notification = ({ isOpen, onRequestClose, title = "Notification", message 
         },
       }}
     >
-      <h4 className={`notification-header ${type}`}>{title}</h4>
-      <div className="notification-message">{message}</div>
-      <button onClick={onRequestClose} className="notification-close-btn">Close</button>
+      <h4 className={`font-xl font-bold p-1 mt-2 ${type=="success"?"text-[#155724] bg-[#d4edda] border-l-4 border-[#28a745]":type=="error"?"text-[#721c24] bg-[#f8d7da] border-l-4 border-[#dc3545]":"text-[#0c5460] bg-[#d1ecf1] border-l-4 border-[#17a2b8]"}`}>{title}</h4>
+      <div className="notification-message p-3 rounded-md uppercase">{message}</div>
+      <button onClick={onRequestClose} className="bg-[#00796b] text-white py-3 px-5 cursor-pointer rounded-md transition duration-300 w-full hover:bg-[#004d40]">Close</button>
     </Modal>
   );
 };

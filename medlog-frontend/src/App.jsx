@@ -33,12 +33,13 @@ const AppLayout = () => {
   const role = user?.role || "student"; // Default to student if role is not available
 
   return (
-    <div className="app-layout">
-      <div className="main-content">
+    <div className="flex md:flex-row flex-col h-screen">
+      {!hideSidebar && (<div className="w-[250px] h-10 md:h-screen">
         {/* ✅ Show correct sidebar based on user role */}
-        {!hideSidebar && (role === "doctor" ? <DoctorSidebar /> : <Sidebar />)}
-
-        <div className="page-content">
+        {role === "doctor" ? <DoctorSidebar /> : <Sidebar />}
+        </div>
+        )}
+        <div className="flex-1 p-5 overflow-y-auto bg-white/10 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
@@ -59,7 +60,7 @@ const AppLayout = () => {
             <Route path="/doctor-home" element={<DoctorHome />} />
           </Routes>
         </div>
-      </div>
+      
     </div>
   );
 };

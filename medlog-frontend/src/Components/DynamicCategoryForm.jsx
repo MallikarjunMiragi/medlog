@@ -361,11 +361,11 @@ const DynamicCategoryForm = () => {
     if (!selectedCategory) return <p>❌ Category not found!</p>;
 
     return (
-        <form onSubmit={handleSubmit}>
-            <h2>{selectedCategory.name} Form</h2>
+        <form onSubmit={handleSubmit} className="text-white font-semibold">
+            <h2 className="text-lg">{selectedCategory.name} Form</h2>
             {selectedCategory.fields.map((field, index) => (
-                <div key={index}>
-                    <label>{field.name}</label>
+                <div key={index} className="[&_input]:placeholder:text-gray-300 [&_input]:w-full [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:bg-white/20">
+                    <label className="mb-1 block">{field.name}</label>
                     {field.type === "file" ? (
                         <input type="file" onChange={(e) => handleFileChange(e, field.name)} required />
                     ) : (
@@ -379,7 +379,7 @@ const DynamicCategoryForm = () => {
                     )}
                 </div>
             ))}
-            <button type="submit">Submit</button>
+            <button type="submit" className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition delay-300 hover:#015b5b">Submit</button>
             <Notification
                 isOpen={notification.isOpen}
                 onRequestClose={() => setNotification({ ...notification, isOpen: false })}

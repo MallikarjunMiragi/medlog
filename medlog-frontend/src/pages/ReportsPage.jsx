@@ -225,22 +225,22 @@ lines.forEach((line) => {
   
 
   return (
-    <div className="reports-container">
-      <div className="reports-content">
-        <h2>Create Report</h2>
+    <div className="flex text-white">
+      <div className="flex-1 p-5">
+        <h2 className="font-semibold text-lg">Create Report</h2>
         {loading ? (
           <p>Loading user details...</p>
         ) : error ? (
-          <p className="error">{error}</p>
+          <p className="text-[#721c24] bg-[#f8d7da] border-l-2 border-[#dc2545]">{error}</p>
         ) : (
           <>
-            <p>Download preformatted logbook reports.</p>
-            <div className="report-form">
-              <div className="form-group">
+            <p className="text-center text-teal-50">Download preformatted logbook reports.</p>
+            <div className="grid gap-4 [&>div]:flex [&>div]:flex-col [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
+              <div>
                 <label>Name *</label>
                 <input type="text" value={userData.fullName || ""} readOnly />
               </div>
-              <div className="form-group">
+              <div>
                 <label>From Date *</label>
                 <input
                   type="date"
@@ -248,7 +248,7 @@ lines.forEach((line) => {
                   onChange={(e) => dispatch(setFromDate(e.target.value))}
                 />
               </div>
-              <div className="form-group">
+              <div>
                 <label>To Date *</label>
                 <input
                   type="date"
@@ -256,13 +256,13 @@ lines.forEach((line) => {
                   onChange={(e) => dispatch(setToDate(e.target.value))}
                 />
               </div>
-              <div className="form-group">
+              <div>
                 <label>Report *</label>
                 <select>
                   <option>Logbook Report</option>
                 </select>
               </div>
-              <div className="form-group">
+              <div>
                 <label>Report Format *</label>
                 <select
                   value={reportFormat}
@@ -274,7 +274,7 @@ lines.forEach((line) => {
                   <option>Full Disclosure Report</option>
                 </select>
               </div>
-              <div className="form-group">
+              <div>
                 <label>Report File Type *</label>
                 <select
                   value={reportFileType}
@@ -286,7 +286,7 @@ lines.forEach((line) => {
                   <option>Docx (editable format)</option>
                 </select>
               </div>
-              <button className="download-btn" onClick={generatePDF}>
+              <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={generatePDF}>
                 Download Report
               </button>
             </div>

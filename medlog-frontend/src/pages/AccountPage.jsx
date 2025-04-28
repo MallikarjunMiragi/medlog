@@ -2,19 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaCheckCircle } from "react-icons/fa";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles.css"; 
 
 const AccountPage = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-
-  // ✅ Extract user email properly
   const userEmail = user?.email?.email || user?.email || "";
 
-  // ✅ Initial State for Prefilled Data
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -25,11 +20,11 @@ const AccountPage = () => {
     specialty: "",
   });
 
-  const [profileImage, setProfileImage] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅ Loader state
+  const [role, setRole] = useState("");
   const [memberSince, setMemberSince] = useState("");
-  const [role, setRole] = useState(""); // Store user role
+  const [profileImage, setProfileImage] = useState(null);
 
-  // ✅ Training Year, Hospitals, Specialties Lists
   const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer"];
   const trainingYearsOther = ["Medical Year 1", "Medical Year 2", "Medical Year 3"];
   const hospitalsIndia = ["KMC Manipal", "AIIMS Delhi", "Fortis Hospital"];
@@ -41,7 +36,6 @@ const AccountPage = () => {
   const [availableHospitals, setAvailableHospitals] = useState([]);
   const [availableSpecialties, setAvailableSpecialties] = useState([]);
 
-  // ✅ Fetch Logged-in User Details
   useEffect(() => {
     if (!userEmail) return;
 
@@ -52,12 +46,12 @@ const AccountPage = () => {
           console.error("User data fetch failed:", data?.error || "Unknown error");
           return;
         }
-        setRole(data.role || "student"); // Default to student if role is missing
 
+        setRole(data.role || "student");
         setFormData({
           fullName: data.fullName || "",
-          email: data.email || "", // ✅ Non-editable
-          password:data.password, // Do not prefill password for security reasons
+          email: data.email || "",
+          password: data.password,
           country: data.country || "",
           trainingYear: data.trainingYear || "",
           hospital: data.hospital || "",
@@ -76,20 +70,17 @@ const AccountPage = () => {
           setAvailableSpecialties(specialtiesOther);
         }
       })
-      .catch((error) => console.error("Error fetching user details:", error));
+      .catch((error) => console.error("Error fetching user details:", error))
+      .finally(() => setLoading(false)); // ✅ Hide loader after fetch
   }, [userEmail]);
 
-  // ✅ Handle Input Changes
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // ✅ Handle Country Selection (Updates Dropdowns)
-  const handleCountryChange = (event) => {
-    const selectedCountry = event.target.value;
-    setFormData({ ...formData, country: selectedCountry });
+  const handleCountryChange = (e) => {
+    const country = e.target.value;
+    setFormData({ ...formData, country });
 
-    if (selectedCountry === "India") {
+    if (country === "India") {
       setAvailableTrainingYears(trainingYearsIndia);
       setAvailableHospitals(hospitalsIndia);
       setAvailableSpecialties(specialtiesIndia);
@@ -101,113 +92,101 @@ const AccountPage = () => {
   };
 
   const handleUpdate = async () => {
+    setLoading(true);
     const updatedUser = { ...formData };
-
-    // If the user is a doctor, remove unnecessary fields
     if (role === "doctor") {
       delete updatedUser.country;
       delete updatedUser.hospital;
       delete updatedUser.trainingYear;
     }
-    
 
     fetch("http://localhost:5000/api/auth/user/update", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
-        if (data.error) {
-          toast.error(data.error);
-        } else {
-          toast.success("Profile updated successfully!");
+        if (data.error) toast.error(data.error);
+        else toast.success("Profile updated successfully!");
+      })
+      .catch((err) => {
+        console.error("Update error:", err);
+        toast.error("Failed to update profile.");
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete your account?");
+    if (!confirmDelete) return;
+
+    setLoading(true);
+
+    fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) toast.error(data.error);
+        else {
+          toast.success("Account deleted!");
+          setTimeout(() => navigate("/"), 2000);
         }
       })
-      .catch((error) => {
-        console.error("Error updating profile:", error);
-        toast.error("Failed to update profile.");
-      });
-};
+      .catch((err) => {
+        console.error("Delete error:", err);
+        toast.error("Failed to delete account.");
+      })
+      .finally(() => setLoading(false));
+  };
 
-const handleDelete = async () => {
-  if (!formData.email) {
-    toast.error("No user found to delete.");
-    return;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-[#1e2a38] text-white">
+        <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-teal-400"></div>
+      </div>
+    );
   }
 
-  const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
-  if (!confirmDelete) return;
-
-  fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
-    method: "DELETE",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.error) {
-        toast.error(data.error);
-      } else {
-        toast.success("Account deleted successfully!");
-        setTimeout(() => {
-          navigate("/"); // ✅ Redirect to login page after deletion
-        }, 2000);
-      }
-    })
-    .catch((error) => {
-      console.error("Error deleting account:", error);
-      toast.error("Failed to delete account.");
-    });
-};
-
-
   return (
-    <div className="account-container">
+    <div className="w-[80%] flex flex-col m-auto p-5 bg-[#364454] rounded-md font-arial text-white [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
       <ToastContainer />
-      <h2>Account Information</h2>
+      <h2 className="text-xl font-bold mb-2">Account Information</h2>
 
-      <p><strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" /></p>
-
+      <p className="flex items-center mb-6">
+        <strong>Email:</strong> {formData.email} <FaCheckCircle className="text-[#0e856f] ml-1" />
+      </p>
 
       <label>Full Name*</label>
       <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
 
       <label>Password</label>
       <input type="password" name="password" placeholder="Enter new password" value={formData.password} onChange={handleChange} />
-      {role === "doctor" && (
-  <>
-    <label>Specialty*</label>
-    <select name="specialty" value={formData.specialty} onChange={handleChange}>
-      <option value="">Select specialty</option>
-      <option value="Allergy">Allergy</option>
-      <option value="Cardiology">Cardiology</option>
-      <option value="Dermatology">Dermatology</option>
-      <option value="Emergency medicine">Emergency medicine</option>
-      <option value="Oncology">Oncology</option>
-      <option value="Pediatrics">Pediatrics</option>
-      <option value="Neurology">Neurology</option>
-    </select>
-  </>
-)}
-{role === "student" && (
-  <>
-    <label>Country*</label>
-    <select name="country" value={formData.country} onChange={handleCountryChange}>
-      <option value="">Select a country</option>
-      <option value="India">India</option>
-      <option value="United States">United States</option>
-      <option value="United Kingdom">United Kingdom</option>
-      <option value="Australia">Australia</option>
-      <option value="Canada">Canada</option>
-      <option value="Germany">Germany</option>
-    </select>
-  </>
-)}
 
-
-      {role === "student" && formData.country && (
-
-        
+      {role === "doctor" ? (
         <>
+          <label>Specialty*</label>
+          <select name="specialty" value={formData.specialty} onChange={handleChange}>
+            <option value="">Select specialty</option>
+            {specialtiesIndia.concat(specialtiesOther).map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <>
+          <label>Country*</label>
+          <select name="country" value={formData.country} onChange={handleCountryChange}>
+            <option value="">Select a country</option>
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Australia">Australia</option>
+            <option value="Canada">Canada</option>
+            <option value="Germany">Germany</option>
+          </select>
+
           <label>Training Year*</label>
           <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
             <option value="">Select training year</option>
@@ -219,23 +198,25 @@ const handleDelete = async () => {
           <label>Hospital*</label>
           <select name="hospital" value={formData.hospital} onChange={handleChange}>
             <option value="">Select hospital</option>
-            {availableHospitals.map((hospital) => (
-              <option key={hospital} value={hospital}>{hospital}</option>
+            {availableHospitals.map((h) => (
+              <option key={h} value={h}>{h}</option>
             ))}
           </select>
 
           <label>Specialty*</label>
           <select name="specialty" value={formData.specialty} onChange={handleChange}>
             <option value="">Select specialty</option>
-            {availableSpecialties.map((specialty) => (
-              <option key={specialty} value={specialty}>{specialty}</option>
+            {availableSpecialties.map((s) => (
+              <option key={s} value={s}>{s}</option>
             ))}
           </select>
         </>
       )}
 
-<button className="update-btn" onClick={handleUpdate}>Update</button>
-<button className="delete-btn" onClick={handleDelete}>
+      <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition hover:bg-[#015b5b]" onClick={handleUpdate}>
+        Update
+      </button>
+      <button className="bg-[#2f2267] py-2 px-4 rounded-md cursor-pointer flex justify-center items-center gap-1.5 mt-2" onClick={handleDelete}>
         <FaTrash /> Delete Account
       </button>
     </div>
