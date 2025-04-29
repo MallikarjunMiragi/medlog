@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import "../styles/StudentEntriesStyles.css";
 import DoctorSidebar from "../components/DoctorSidebar";
 import Notification from "../Components/Notification";
-
 
 const StudentEntries = () => {
     const location = useLocation();
@@ -12,16 +10,14 @@ const StudentEntries = () => {
 
     const [reviewedEntries, setReviewedEntries] = useState([]);
     const [notReviewedEntries, setNotReviewedEntries] = useState([]);
-    const [selectedTab, setSelectedTab] = useState("not-reviewed"); // Default: Not Reviewed
+    const [selectedTab, setSelectedTab] = useState("not-reviewed");
     const [comments, setComments] = useState({});
     const [scores, setScores] = useState({});
-
     const [notification, setNotification] = useState({
         isOpen: false,
         message: "",
         type: "info",
-      });
-      
+    });
 
     useEffect(() => {
         if (student.email) {
@@ -36,21 +32,26 @@ const StudentEntries = () => {
         }
     }, [student]);
 
-    // ✅ Switch between "Reviewed" & "Not Reviewed"
     const displayedEntries = selectedTab === "reviewed" ? reviewedEntries : notReviewedEntries;
 
-    // ✅ Handle comment change
     const handleCommentChange = (entryId, value) => {
         setComments({ ...comments, [entryId]: value });
     };
 
-    // ✅ Handle score change
     const handleScoreChange = (entryId, value) => {
         setScores({ ...scores, [entryId]: value });
     };
 
-    // ✅ Submit comment
-    const handleCommentSubmit = async (entryId) => {
+    const handleSubmitReview = async (entryId) => {
+        if (!comments[entryId] || !scores[entryId]) {
+            setNotification({
+                isOpen: true,
+                message: "Please enter both a comment and a score.",
+                type: "error",
+            });
+            return;
+        }
+
         try {
             const response = await fetch("http://localhost:5000/api/logentry/update", {
                 method: "PUT",
@@ -58,135 +59,108 @@ const StudentEntries = () => {
                 body: JSON.stringify({
                     entryId,
                     comments: comments[entryId],
-                }),
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-                console.log("✅ Comment saved:", result);
-                setNotification({
-                    isOpen: true,
-                    message: `Comment submitted: ${comments[entryId]}`,
-                    type: "success",
-                  });
-                  
-
-                // Update reviewed list after submission
-                setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
-                setNotReviewedEntries(notReviewedEntries.filter(entry => entry._id !== entryId));
-                setComments({ ...comments, [entryId]: "" });
-            } else {
-                console.error("❌ Error saving comment:", result.error);
-            }
-        } catch (error) {
-            console.error("❌ Server error:", error);
-        }
-    };
-
-    // ✅ Submit score
-    const handleScoreSubmit = async (entryId) => {
-        try {
-            const response = await fetch("http://localhost:5000/api/logentry/update", {
-                method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    entryId,
                     score: scores[entryId],
                 }),
             });
 
             const result = await response.json();
             if (response.ok) {
-                console.log("✅ Score saved:", result);
+                console.log("✅ Review saved:", result);
                 setNotification({
                     isOpen: true,
-                    message: `Score submitted: ${scores[entryId]}`,
+                    message: "Review submitted: Comment and Score",
                     type: "success",
-                  });
-                  
+                });
 
-                // Update reviewed list after submission
                 setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
                 setNotReviewedEntries(notReviewedEntries.filter(entry => entry._id !== entryId));
+
+                setComments({ ...comments, [entryId]: "" });
                 setScores({ ...scores, [entryId]: "" });
             } else {
-                console.error("❌ Error saving score:", result.error);
+                console.error("❌ Error saving review:", result.error);
             }
         } catch (error) {
             console.error("❌ Server error:", error);
         }
     };
-    
-    return (
-        <div className="student-entries-container">
-          
-            <div className="back-container">{/* 🔹 Back Button */}
-            <button className="back-btn" onClick={() => navigate(-1)}>Back</button>
-            </div>
-            <div className="entries-content">
-                <h2 className="student-entries-title">Entries for {student.fullName}</h2>
 
-                {/* 🔹 Toggle Button for Reviewed & Not Reviewed */}
-                <div className="toggle-container">
+    return (
+        <div className="flex min-h-screen bg-gray-900 text-white">
+            
+            <div className="flex-grow p-6 overflow-y-auto relative">
+                <div className="absolute top-6 left-6">
                     <button
-                        className={`toggle-btn ${selectedTab === "not-reviewed" ? "active" : ""}`}
+                        onClick={() => navigate(-1)}
+                        className="bg-red-500 hover:bg-red-600 text-white font-semibold p-2 rounded-full text-sm transition-all duration-300"
+                    >
+                        ←Back
+                    </button>
+                </div>
+
+                <h2 className="text-3xl font-bold text-center mb-12">Entries for {student.fullName}</h2>
+
+                <div className="flex justify-center mb-8 gap-4">
+                    <button
+                        className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                            selectedTab === "not-reviewed"
+                                ? "bg-teal-600 font-bold"
+                                : "bg-gray-700 hover:bg-teal-500"
+                        }`}
                         onClick={() => setSelectedTab("not-reviewed")}
                     >
                         Not Reviewed
                     </button>
                     <button
-                        className={`toggle-btn ${selectedTab === "reviewed" ? "active" : ""}`}
+                        className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                            selectedTab === "reviewed"
+                                ? "bg-teal-600 font-bold"
+                                : "bg-gray-700 hover:bg-teal-500"
+                        }`}
                         onClick={() => setSelectedTab("reviewed")}
                     >
                         Reviewed
                     </button>
                 </div>
 
-                {/* 🔹 Display Entries Based on Selected Tab */}
                 {displayedEntries.length === 0 ? (
-                    <p className="no-entries-text">No {selectedTab.replace("-", " ")} entries found.</p>
+                    <p className="text-center text-gray-400 text-lg">
+                        No {selectedTab.replace("-", " ")} entries found.
+                    </p>
                 ) : (
                     displayedEntries.map((entry) => (
-                        <div key={entry._id} className="entry-box">
-                            <h4 className="entry-category-name">{entry.category}</h4>
-                            <div className="entry-details-container">
-                            {Object.entries(entry.data).map(([key, value]) => (
-  <p key={key} className="entry-detail">
-    <strong>{key.replace(/_/g, " ")}:</strong>{" "}
-    {typeof value === "string" && value.startsWith("https://res.cloudinary.com/") ? (
-      <a href={value} target="_blank" rel="noopener noreferrer">
-        📄 Open File
-      </a>
-    ) : (
-      value || "N/A"
-    )}
-  </p>
-))}
+                        <div key={entry._id} className="bg-gray-800 p-6 rounded-lg shadow-lg mb-6 relative">
+                            <h4 className="text-xl font-bold mb-4">{entry.category}</h4>
 
-
-
-
+                            <div className="mb-6">
+                                {Object.entries(entry.data).map(([key, value]) => (
+                                    <p key={key} className="text-sm mb-2">
+                                        <strong>{key.replace(/_/g, " ")}:</strong>{" "}
+                                        {typeof value === "string" && value.startsWith("https://res.cloudinary.com/") ? (
+                                            <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
+                                                📄 Open File
+                                            </a>
+                                        ) : (
+                                            value || "N/A"
+                                        )}
+                                    </p>
+                                ))}
                             </div>
 
-                            {/* ✅ Show Comments & Score for Reviewed Entries */}
-                            {selectedTab === "reviewed" && (
+                            {selectedTab === "reviewed" ? (
                                 <>
-                                    <p className="entry-detail"><strong>Doctor's Comments:</strong> {entry.comments}</p>
-                                    <p className="entry-detail"><strong>Score:</strong> {entry.score}/100</p>
+                                    <p className="text-sm mb-2"><strong>Doctor's Comments:</strong> {entry.comments}</p>
+                                    <p className="text-sm"><strong>Score:</strong> {entry.score}/100</p>
                                 </>
-                            )}
-
-                            {/* ✅ Show Comment & Score Inputs for Not Reviewed Entries */}
-                            {selectedTab === "not-reviewed" && (
-                                <div className="review-inputs">
+                            ) : (
+                                <div className="flex flex-col gap-4">
                                     <textarea
                                         placeholder="Write a comment..."
                                         value={comments[entry._id] || ""}
                                         onChange={(e) => handleCommentChange(entry._id, e.target.value)}
+                                        className="w-full p-3 bg-gray-700 rounded resize-none"
                                     />
-                                    <button onClick={() => handleCommentSubmit(entry._id)}>Submit Comment</button>
-                                    {/* 🔹 Score Box at Top-Right Corner */}
-                                    <div className="score-box">
+                                    <div className="flex items-center gap-4 flex-wrap">
                                         <input
                                             type="number"
                                             min="0"
@@ -194,27 +168,29 @@ const StudentEntries = () => {
                                             placeholder="Score"
                                             value={scores[entry._id] || ""}
                                             onChange={(e) => handleScoreChange(entry._id, e.target.value)}
+                                            className="w-24 p-2 rounded bg-gray-700 text-center"
                                         />
-                                        <button onClick={() => handleScoreSubmit(entry._id)}>Submit</button>
+                                        <button
+                                            onClick={() => handleSubmitReview(entry._id)}
+                                            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded transition-all duration-300"
+                                        >
+                                            Submit Review
+                                        </button>
                                     </div>
-
                                 </div>
                             )}
                         </div>
                     ))
                 )}
 
+                <Notification
+                    isOpen={notification.isOpen}
+                    onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+                    title="Notification"
+                    message={notification.message}
+                    type={notification.type}
+                />
             </div>
-
-
-            <Notification
-            isOpen={notification.isOpen}
-            onRequestClose={() => setNotification({ ...notification, isOpen: false })}
-            title="Notification"
-            message={notification.message}
-            type={notification.type}
-            />
-
         </div>
     );
 };

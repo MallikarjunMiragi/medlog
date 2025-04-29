@@ -2,19 +2,14 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { FaTrash, FaCheckCircle } from "react-icons/fa";
-import { IoCloudUploadOutline } from "react-icons/io5";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "../styles.css"; 
 
 const AccountPage = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
-
-  // ✅ Extract user email properly
   const userEmail = user?.email?.email || user?.email || "";
 
-  // ✅ Initial State for Prefilled Data
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -25,11 +20,9 @@ const AccountPage = () => {
     specialty: "",
   });
 
-  const [profileImage, setProfileImage] = useState(null);
   const [memberSince, setMemberSince] = useState("");
-  const [role, setRole] = useState(""); // Store user role
+  const [role, setRole] = useState("");
 
-  // ✅ Training Year, Hospitals, Specialties Lists
   const trainingYearsIndia = ["Residency", "Postgraduate year 1", "Internship", "Resident medical officer"];
   const trainingYearsOther = ["Medical Year 1", "Medical Year 2", "Medical Year 3"];
   const hospitalsIndia = ["KMC Manipal", "AIIMS Delhi", "Fortis Hospital"];
@@ -41,7 +34,6 @@ const AccountPage = () => {
   const [availableHospitals, setAvailableHospitals] = useState([]);
   const [availableSpecialties, setAvailableSpecialties] = useState([]);
 
-  // ✅ Fetch Logged-in User Details
   useEffect(() => {
     if (!userEmail) return;
 
@@ -52,12 +44,13 @@ const AccountPage = () => {
           console.error("User data fetch failed:", data?.error || "Unknown error");
           return;
         }
-        setRole(data.role || "student"); // Default to student if role is missing
+
+        setRole(data.role || "student");
 
         setFormData({
           fullName: data.fullName || "",
-          email: data.email || "", // ✅ Non-editable
-          password:data.password, // Do not prefill password for security reasons
+          email: data.email || "",
+          password: "", // Avoid pre-filling passwords
           country: data.country || "",
           trainingYear: data.trainingYear || "",
           hospital: data.hospital || "",
@@ -79,17 +72,15 @@ const AccountPage = () => {
       .catch((error) => console.error("Error fetching user details:", error));
   }, [userEmail]);
 
-  // ✅ Handle Input Changes
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle Country Selection (Updates Dropdowns)
-  const handleCountryChange = (event) => {
-    const selectedCountry = event.target.value;
-    setFormData({ ...formData, country: selectedCountry });
+  const handleCountryChange = (e) => {
+    const country = e.target.value;
+    setFormData({ ...formData, country });
 
-    if (selectedCountry === "India") {
+    if (country === "India") {
       setAvailableTrainingYears(trainingYearsIndia);
       setAvailableHospitals(hospitalsIndia);
       setAvailableSpecialties(specialtiesIndia);
@@ -103,20 +94,18 @@ const AccountPage = () => {
   const handleUpdate = async () => {
     const updatedUser = { ...formData };
 
-    // If the user is a doctor, remove unnecessary fields
     if (role === "doctor") {
       delete updatedUser.country;
       delete updatedUser.hospital;
       delete updatedUser.trainingYear;
     }
-    
 
     fetch("http://localhost:5000/api/auth/user/update", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
         if (data.error) {
           toast.error(data.error);
@@ -124,120 +113,177 @@ const AccountPage = () => {
           toast.success("Profile updated successfully!");
         }
       })
-      .catch((error) => {
-        console.error("Error updating profile:", error);
+      .catch((err) => {
+        console.error("Error updating profile:", err);
         toast.error("Failed to update profile.");
       });
-};
+  };
 
-const handleDelete = async () => {
-  if (!formData.email) {
-    toast.error("No user found to delete.");
-    return;
-  }
+  const handleDelete = async () => {
+    if (!formData.email) {
+      toast.error("No user found to delete.");
+      return;
+    }
 
-  const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
-  if (!confirmDelete) return;
+    const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmDelete) return;
 
-  fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
-    method: "DELETE",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.error) {
-        toast.error(data.error);
-      } else {
-        toast.success("Account deleted successfully!");
-        setTimeout(() => {
-          navigate("/"); // ✅ Redirect to login page after deletion
-        }, 2000);
-      }
+    fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
+      method: "DELETE",
     })
-    .catch((error) => {
-      console.error("Error deleting account:", error);
-      toast.error("Failed to delete account.");
-    });
-};
-
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.error) {
+          toast.error(data.error);
+        } else {
+          toast.success("Account deleted successfully!");
+          setTimeout(() => navigate("/"), 2000);
+        }
+      })
+      .catch((err) => {
+        console.error("Error deleting account:", err);
+        toast.error("Failed to delete account.");
+      });
+  };
 
   return (
-    <div className="account-container">
+    <div className="w-4/5 mx-auto p-6 bg-slate-700 rounded-lg text-white shadow-lg">
       <ToastContainer />
-      <h2>Account Information</h2>
+      <h2 className="text-3xl font-bold mb-6 text-center">Account Information</h2>
 
-      <p><strong>Email:</strong> {formData.email} <FaCheckCircle className="verified-icon" /></p>
+      <p className="text-center mb-6">
+        <strong>Email:</strong> {formData.email}{" "}
+        <FaCheckCircle className="inline text-green-400 ml-2" />
+      </p>
 
+      <label className="block text-lg font-semibold mb-1">Full Name*</label>
+      <input
+        type="text"
+        name="fullName"
+        value={formData.fullName}
+        onChange={handleChange}
+        required
+        className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+      />
 
-      <label>Full Name*</label>
-      <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} required />
+      <label className="block text-lg font-semibold mb-1">Password</label>
+      <input
+        type="password"
+        name="password"
+        placeholder="Enter new password"
+        value={formData.password}
+        onChange={handleChange}
+        className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+      />
 
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter new password" value={formData.password} onChange={handleChange} />
+      {/* Doctor-specific fields */}
       {role === "doctor" && (
-  <>
-    <label>Specialty*</label>
-    <select name="specialty" value={formData.specialty} onChange={handleChange}>
-      <option value="">Select specialty</option>
-      <option value="Allergy">Allergy</option>
-      <option value="Cardiology">Cardiology</option>
-      <option value="Dermatology">Dermatology</option>
-      <option value="Emergency medicine">Emergency medicine</option>
-      <option value="Oncology">Oncology</option>
-      <option value="Pediatrics">Pediatrics</option>
-      <option value="Neurology">Neurology</option>
-    </select>
-  </>
-)}
-{role === "student" && (
-  <>
-    <label>Country*</label>
-    <select name="country" value={formData.country} onChange={handleCountryChange}>
-      <option value="">Select a country</option>
-      <option value="India">India</option>
-      <option value="United States">United States</option>
-      <option value="United Kingdom">United Kingdom</option>
-      <option value="Australia">Australia</option>
-      <option value="Canada">Canada</option>
-      <option value="Germany">Germany</option>
-    </select>
-  </>
-)}
-
-
-      {role === "student" && formData.country && (
-
-        
         <>
-          <label>Training Year*</label>
-          <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
-            <option value="">Select training year</option>
-            {availableTrainingYears.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-
-          <label>Hospital*</label>
-          <select name="hospital" value={formData.hospital} onChange={handleChange}>
-            <option value="">Select hospital</option>
-            {availableHospitals.map((hospital) => (
-              <option key={hospital} value={hospital}>{hospital}</option>
-            ))}
-          </select>
-
-          <label>Specialty*</label>
-          <select name="specialty" value={formData.specialty} onChange={handleChange}>
+          <label className="block text-lg font-semibold mb-1">Specialty*</label>
+          <select
+            name="specialty"
+            value={formData.specialty}
+            onChange={handleChange}
+            className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+          >
             <option value="">Select specialty</option>
-            {availableSpecialties.map((specialty) => (
-              <option key={specialty} value={specialty}>{specialty}</option>
+            {specialtiesIndia.concat(specialtiesOther).map((spec) => (
+              <option key={spec} value={spec}>
+                {spec}
+              </option>
             ))}
           </select>
         </>
       )}
 
-<button className="update-btn" onClick={handleUpdate}>Update</button>
-<button className="delete-btn" onClick={handleDelete}>
-        <FaTrash /> Delete Account
-      </button>
+      {/* Student-specific fields */}
+      {role === "student" && (
+        <>
+          <label className="block text-lg font-semibold mb-1">Country*</label>
+          <select
+            name="country"
+            value={formData.country}
+            onChange={handleCountryChange}
+            className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+          >
+            <option value="">Select a country</option>
+            <option value="India">India</option>
+            <option value="United States">United States</option>
+            <option value="United Kingdom">United Kingdom</option>
+            <option value="Australia">Australia</option>
+            <option value="Canada">Canada</option>
+            <option value="Germany">Germany</option>
+          </select>
+
+          {/* Training Year */}
+          {formData.country && (
+            <>
+              <label className="block text-lg font-semibold mb-1">Training Year*</label>
+              <select
+                name="trainingYear"
+                value={formData.trainingYear}
+                onChange={handleChange}
+                className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+              >
+                <option value="">Select training year</option>
+                {availableTrainingYears.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+
+              {/* Hospital */}
+              <label className="block text-lg font-semibold mb-1">Hospital*</label>
+              <select
+                name="hospital"
+                value={formData.hospital}
+                onChange={handleChange}
+                className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+              >
+                <option value="">Select hospital</option>
+                {availableHospitals.map((hosp) => (
+                  <option key={hosp} value={hosp}>
+                    {hosp}
+                  </option>
+                ))}
+              </select>
+
+              {/* Specialty */}
+              <label className="block text-lg font-semibold mb-1">Specialty*</label>
+              <select
+                name="specialty"
+                value={formData.specialty}
+                onChange={handleChange}
+                className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+              >
+                <option value="">Select specialty</option>
+                {availableSpecialties.map((spec) => (
+                  <option key={spec} value={spec}>
+                    {spec}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </>
+      )}
+
+      <div className="flex flex-col sm:flex-row gap-4 mt-6">
+        <button
+          className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded"
+          onClick={handleUpdate}
+        >
+          Update
+        </button>
+
+        <button
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded flex items-center justify-center gap-2"
+          onClick={handleDelete}
+        >
+          <FaTrash /> Delete Account
+        </button>
+      </div>
     </div>
   );
 };
