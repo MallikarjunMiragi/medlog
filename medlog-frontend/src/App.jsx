@@ -21,6 +21,7 @@ import DynamicForm from "./Components/DynamicCategoryForm";
 import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
 import AdminPage from "./pages/AdminPage";
+import AnalysisPage from "./pages/AnalysisPage";
 import "./index.css"; 
 
 const AppLayout = () => {
@@ -59,6 +60,7 @@ const AppLayout = () => {
             <Route path="/generated-form/:category" element={<DynamicForm />} />
             <Route path="/doctor-home" element={<DoctorHome />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/analysis" element={<AnalysisPage />} />
           </Routes>
         </div>
       </div>
