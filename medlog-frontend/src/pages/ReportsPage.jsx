@@ -92,91 +92,94 @@ const ReportsPage = () => {
       return;
     }
   
+    const capitalize = (str) =>
+      str
+        .toString()
+        .toLowerCase()
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+  
+    const beautifyKey = (key) =>
+      key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+  
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
   
-// Header Info - First Page
-const pageWidth = doc.internal.pageSize.getWidth();
-
-doc.setFontSize(20);
-let title = "Medical Logbook Report";
-let titleWidth = doc.getTextWidth(title);
-doc.text(title, (pageWidth - titleWidth) / 2, 20);
-
-doc.setFontSize(14);
-
-const lines = [
-  `Prepared for: ${userData.fullName || "N/A"}`,
-  `Hospital: ${userData.selectedHospital || "N/A"}`,
-  `Specialty: ${userData.selectedSpecialty || "N/A"}`,
-  `Training Year: ${userData.selectedTrainingYear || "N/A"}`,
-  `Reporting Period: ${fromDate} - ${toDate}`
-];
-
-let y = 30;
-lines.forEach((line) => {
-  const textWidth = doc.getTextWidth(line);
-  doc.text(line, (pageWidth - textWidth) / 2, y);
-  y += 10;
-});
-
+    // Header
+    doc.setFontSize(20);
+    const title = "Medical Logbook Report";
+    const titleWidth = doc.getTextWidth(title);
+    doc.text(title, (pageWidth - titleWidth) / 2, 20);
   
-    // ✅ Add Ganglia Logo to bottom center of first page
+    doc.setFontSize(14);
+    const lines = [
+      `Prepared for: ${capitalize(userData.fullName || "N/A")}`,
+      `Hospital: ${capitalize(userData.selectedHospital || "N/A")}`,
+      `Specialty: ${capitalize(userData.selectedSpecialty || "N/A")}`,
+      `Training Year: ${capitalize(userData.selectedTrainingYear || "N/A")}`,
+      `Reporting Period: ${fromDate} - ${toDate}`,
+    ];
+  
+    let y = 30;
+    lines.forEach((line) => {
+      const textWidth = doc.getTextWidth(line);
+      doc.text(line, (pageWidth - textWidth) / 2, y);
+      y += 10;
+    });
+  
     const img = new Image();
     img.src = gangliaLogo;
+  
     img.onload = function () {
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const logoWidth = 70;
-      const logoHeight = 70;
-      const x = 75;
-      const y = 100;
-      doc.addImage(img, "PNG", x, y, logoWidth, logoHeight);
+      doc.addImage(img, "PNG", 75, y + 10, 70, 70);
   
-      // 📄 Move to next page for TOC
+      // TOC
       doc.addPage();
-  
-      const sections = [
-        "Jobs",
-        "Logbook Entries",
-        "Other Activities",
-      ];
-  
       doc.setFontSize(16);
       doc.text("Table of Contents", 10, 20);
       autoTable(doc, {
         startY: 30,
         head: [["Section", "Page"]],
-        body: sections.map((section, index) => [section, index + 2]),
+        body: [["Jobs", 2], ["Logbook Entries", 3], ["Other Activities", 4]],
       });
   
-      // 📄 Jobs Section
+      // Jobs
       doc.addPage();
       doc.setFontSize(16);
       doc.text("Jobs", 10, 20);
       autoTable(doc, {
         startY: 30,
-        head: [["Field", "Value"]],
         body: [
-          ["Training Year", userData.selectedTrainingYear || "N/A"],
-          ["Specialty", userData.selectedSpecialty || "N/A"],
+          ["Training Year", capitalize(userData.selectedTrainingYear || "N/A")],
+          ["Specialty", capitalize(userData.selectedSpecialty || "N/A")],
         ],
       });
   
-      // 📄 Logbook Entries Section
+      // Logbook Entries
       doc.addPage();
       doc.setFontSize(16);
-      doc.text("Logbook Entries", 10, 20);
+      doc.text("Logbook Entries", 10, 30);
   
       if (entries.length > 0) {
         entries.forEach((entry, index) => {
           const entryTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30;
           doc.setFontSize(14);
-          doc.text(`Entry ${index + 1}: ${entry.category}`, 10, entryTitleY);
+          doc.text(`Entry ${index + 1}: ${capitalize(entry.category)}`, 10, entryTitleY);
   
-          const rows = Object.entries(entry.data).map(([key, value]) => [
-            key.replace(/_/g, " "), value ? value.toString() : "N/A"
-          ]);
+          const rows = Object.entries(entry.data).map(([key, value]) => {
+            const isLink =
+              typeof value === "string" &&
+              (value.toLowerCase().startsWith("http") || value.toLowerCase().startsWith("/uploads"));
+          
+            const displayValue = isLink ? value : capitalize(value || "N/A");
+          
+            return [beautifyKey(key), displayValue];
+          });
+          
   
-          if (entry.comments) rows.push(["Doctor's Comments", entry.comments]);
+          if (entry.comments) {
+            rows.push(["Doctor's Comments", capitalize(entry.comments)]);
+          }
+  
           if (entry.score !== null && entry.score !== undefined) {
             rows.push(["Score", `${entry.score} / 100`]);
           }
@@ -184,7 +187,6 @@ lines.forEach((line) => {
           autoTable(doc, {
             startY: entryTitleY + 10,
             margin: { bottom: 30 },
-            head: [["Field", "Value"]],
             body: rows,
             theme: "grid",
             styles: { fontSize: 11 },
@@ -192,23 +194,17 @@ lines.forEach((line) => {
         });
       } else {
         doc.setFontSize(12);
-        doc.text("No log entries available for this user.", 10, 30);
+        doc.text("No log entries available.", 10, 40);
       }
   
-      // 📄 Remaining Sections
-      sections.slice(2).forEach((section) => {
-        doc.addPage();
-        doc.setFontSize(16);
-        doc.text(section, 10, 20);
-        doc.setFontSize(12);
-        doc.text(
-          "No activities have been performed that relate to this report section",
-          10,
-          30
-        );
-      });
+      // Other Activities
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text("Other Activities", 10, 20);
+      doc.setFontSize(12);
+      doc.text("No activities have been performed that relate to this report section", 10, 30);
   
-      // 📄 Footer - Page Numbers
+      // Footer
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -216,14 +212,11 @@ lines.forEach((line) => {
         doc.text(`Page ${i} of ${pageCount}`, 180, 290);
       }
   
-      // ✅ Save
-      doc.save(
-        `Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`
-      );
+      // Save file
+      doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
     };
   };
   
-
   return (
     <div className="flex text-white">
       <div className="flex-1 p-5">
@@ -308,3 +301,5 @@ lines.forEach((line) => {
 };
 
 export default ReportsPage;
+
+

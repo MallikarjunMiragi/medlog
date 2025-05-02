@@ -1,31 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-
 import LogbookCategory from "../components/logbookCategory";
 import { FaClipboardList, FaChevronRight } from "react-icons/fa"; 
 import axios from "axios";
-import "../styles.css";
 
 const LogbookPage = () => {
   const navigate = useNavigate();
   const userEmail = useSelector((state) => state.auth?.user?.email);
-
   const [categoryList, setCategoryList] = useState([]);
 
-  // ✅ Fetch categories from the backend
   useEffect(() => {
-    //const userEmail = useSelector((state) => state.auth?.user?.email); // Get logged-in user's email
-
-const fetchCategories = async () => {
-  try {
-    const response = await axios.get(`http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`);
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`
+        );
 
         const categories = response.data.map((category) => ({
           name: category.name,
           description: `Manage ${category.name}`,
-          icon: <FaClipboardList />, // Default icon
-          route: `/generated-form/${category.name}`, // ✅ Navigate dynamically
+          icon: <FaClipboardList />,
+          route: `/generated-form/${category.name}`,
         }));
         setCategoryList(categories);
       } catch (error) {

@@ -79,6 +79,7 @@ const ViewEntriesPage = () => {
                 </p>
               ))}
 
+
               {entry.comments && (
                 <p className="text-sm text-teal-100">
                   <strong className="text-white">Doctor's Comments:</strong> {entry.comments}

@@ -8,6 +8,7 @@ const StudentEntries = () => {
   const navigate = useNavigate();
   const student = location.state?.student || {};
 
+
   const [reviewedEntries, setReviewedEntries] = useState([]);
   const [notReviewedEntries, setNotReviewedEntries] = useState([]);
   const [selectedTab, setSelectedTab] = useState("not-reviewed");
@@ -113,6 +114,7 @@ const StudentEntries = () => {
           >
             Back
           </button>
+
         </div>
 
         <h2 className="text-center text-2xl text-teal-100 font-bold mb-6">
