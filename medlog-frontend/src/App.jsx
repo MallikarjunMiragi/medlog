@@ -1,5 +1,4 @@
-
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DoctorSidebar from "./components/DoctorSidebar"; // ✅ Import Doctor's Sidebar
 import LoginPage from "./pages/AdminLoginForm";
@@ -20,27 +19,33 @@ import StudentEntries from "./pages/StudentEntries";
 import DynamicForm from "./Components/DynamicCategoryForm"; 
 import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
+import AdminDashboard from "./pages/AdminDashboard";
 import AdminPage from "./pages/AdminPage";
+
 import AnalysisPage from "./pages/AnalysisPage";
+import AdminHome from "./pages/AdminHome";
+import PendingApproval from "./pages/PendingApproval";
 import "./index.css"; 
 
 const AppLayout = () => {
   const location = useLocation();
 
   // ✅ Hide sidebar only for login and registration pages
-  const hideSidebar = location.pathname === "/" || location.pathname === "/register";
+  const hideSidebar = ["/", "/register", "/pending-approval"].includes(location.pathname);
+  const isAdminRoute = location.pathname.startsWith("/admin");
 
   // ✅ Get user role from Redux store
   const { user } = useSelector((state) => state.auth);
   const role = user?.role || "student"; // Default to student if role is not available
 
   return (
-    <div className="app-layout">
-      <div className="main-content">
+    <div className="flex md:flex-row flex-col h-screen">
+      {!hideSidebar && (<div className="w-[250px] h-10 md:h-screen">
         {/* ✅ Show correct sidebar based on user role */}
-        {!hideSidebar && (role === "doctor" ? <DoctorSidebar /> : <Sidebar />)}
-
-        <div className="page-content">
+        {role === "doctor" ? <DoctorSidebar /> : <Sidebar />}
+        </div>
+        )}
+        <div className="flex-1 p-5 overflow-y-auto bg-white/10 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
@@ -59,11 +64,16 @@ const AppLayout = () => {
             <Route path="/student-entries" element={<StudentEntries />} />
             <Route path="/generated-form/:category" element={<DynamicForm />} />
             <Route path="/doctor-home" element={<DoctorHome />} />
-            <Route path="/admin" element={<AdminPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
-          </Routes>
+            <Route path="/admin" element={<AdminDashboard />}>
+            <Route index element={<Navigate to="home" replace />} />
+            <Route path="home" element={<AdminHome />} />
+            <Route path="users" element={<AdminPage />} />
+            </Route>
+            <Route path="/pending-approval" element={<PendingApproval />} />
+         </Routes>
         </div>
-      </div>
+      
     </div>
   );
 };

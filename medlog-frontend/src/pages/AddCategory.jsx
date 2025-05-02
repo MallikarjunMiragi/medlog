@@ -2,9 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addCategory } from "../reducers/categoryReducer";
-import DynamicCategoryForm from "../Components/DynamicCategoryForm";
 import Notification from "../Components/Notification";
-
 
 const categories = [
   "Admissions", "Bone Marrow Reporting", "Clinical Events", "Clinics", "CPD",
@@ -17,22 +15,16 @@ const AddCategory = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userEmail = useSelector((state) => state.auth?.user?.email);
+  const savedCategories = useSelector((state) => state.categories);
 
-  const savedCategories = useSelector((state) => state.categories); // Get categories from Redux store
-
-  //const [selectedCategory, setSelectedCategory] = useState("");
-const [selectedCategory, setSelectedCategory] = useState("");
-const [categoryExists, setCategoryExists] = useState(false);
-
- // const [fields, setFields] = useState([{ name: "", type: "text" }]);
- const [fields, setFields] = useState([]);
-
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [categoryExists, setCategoryExists] = useState(false);
+  const [fields, setFields] = useState([]);
   const [notification, setNotification] = useState({
     isOpen: false,
     message: "",
     type: "info",
   });
-  
 
   const addField = () => {
     setFields([...fields, { name: "", type: "text" }]);
@@ -48,7 +40,6 @@ const [categoryExists, setCategoryExists] = useState(false);
     if (!selectedCategory) {
       setNotification({ isOpen: true, message: "Please select a category before saving.", type: "error" });
       return;
-
     }
 
     if (fields.some((field) => field.name.trim() === "")) {
@@ -56,193 +47,114 @@ const [categoryExists, setCategoryExists] = useState(false);
       return;
     }
 
-    // Dispatch Redux action to save the category
-    //dispatch(addCategory({ name: selectedCategory, fields }))
-   
-
-dispatch(addCategory({ name: selectedCategory, fields, createdBy: userEmail }))
-
-    .unwrap()
-    .then(() => {
-      setNotification({ isOpen: true, message: "Category saved successfully!", type: "success" });
-  
-      // Delay navigation to allow the notification to appear
-      setTimeout(() => {
-        navigate("/logbookpage");
-      }, 2000); // 2-second delay (adjust if needed)
-    })
-    .catch((error) => {
-      setNotification({ isOpen: true, message: error, type: "error" });
-    });
-  
+    dispatch(addCategory({ name: selectedCategory, fields, createdBy: userEmail }))
+      .unwrap()
+      .then(() => {
+        setNotification({ isOpen: true, message: "Category saved successfully!", type: "success" });
+        setTimeout(() => {
+          navigate("/logbookpage");
+        }, 2000);
+      })
+      .catch((error) => {
+        setNotification({ isOpen: true, message: error, type: "error" });
+      });
   };
+
   const handleDeleteField = (index) => {
-    setFields(fields.filter((_, i) => i !== index)); // Remove field at `index`
+    setFields(fields.filter((_, i) => i !== index));
   };
-  
+
   return (
-    
-    <div style={styles.container}>
+    <div className="max-w-xl mx-auto p-6 text-white">
       <Notification
-      isOpen={notification.isOpen}
-      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
-      title="Notification"
-      message={notification.message}
-      type={notification.type}
+        isOpen={notification.isOpen}
+        onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+        title="Notification"
+        message={notification.message}
+        type={notification.type}
       />
 
-      <h2>Add Category</h2>
-      <p>Logbook categories help you organize your logbook.</p>
+      <h2 className="text-lg font-semibold">Add Category</h2>
+      <p className="mb-4">Logbook categories help you organize your logbook.</p>
 
-      <label>Logbook category *</label>
+      <label className="block mb-2 font-bold">Logbook category *</label>
       <select
-        style={styles.input}
+        className="w-full p-3 mb-4 rounded-md border border-gray-300 text-gray-300 bg-white/20"
         value={selectedCategory}
-        //onChange={(e) => setSelectedCategory(e.target.value)}
         onChange={async (e) => {
           const category = e.target.value;
           setSelectedCategory(category);
-      
-          if (category) {
-              //const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}`);
-              const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}&email=${encodeURIComponent(userEmail)}`);
 
-              const data = await response.json();
-              setCategoryExists(data.exists);
+          if (category) {
+            const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}&email=${encodeURIComponent(userEmail)}`);
+            const data = await response.json();
+            setCategoryExists(data.exists);
           }
-      }}
-      
+        }}
       >
         <option value="">Select a category</option>
         {categories.map((category, index) => (
-          <option key={index} value={category}>
+          <option key={index} value={category} className="bg-gray-700">
             {category}
           </option>
         ))}
       </select>
+
       {categoryExists ? (
-    <p style={{ color: "red" }}>This category already exists!</p>
-) : (
-    <>
-        <h3>Define Fields</h3>
-        {fields.map((field, index) => (
-  <div key={index} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-    <input
-      type="text"
-      placeholder="Field Name"
-      value={field.name}
-      onChange={(e) => {
-        const updatedFields = [...fields];
-        updatedFields[index].name = e.target.value;
-        setFields(updatedFields);
-      }}
-    />
-    
-    <select
-      value={field.type}
-      onChange={(e) => {
-        const updatedFields = [...fields];
-        updatedFields[index].type = e.target.value;
-        setFields(updatedFields);
-      }}
-    >
-      <option value="text">Text</option>
-      <option value="number">Number</option>
-      <option value="date">Date</option>
-      <option value="file">File</option>
-    </select>
+        <p className="text-red-500">This category already exists!</p>
+      ) : (
+        <>
+          <h3 className="mt-4 mb-2 font-semibold">Define Fields</h3>
+          {fields.map((field, index) => (
+            <div key={index} className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                placeholder="Field Name"
+                value={field.name}
+                onChange={(e) => updateField(index, "name", e.target.value)}
+                className="flex-1 p-2 rounded-md bg-white/20 text-white placeholder-gray-300"
+              />
+              <select
+                value={field.type}
+                onChange={(e) => updateField(index, "type", e.target.value)}
+                className="p-2 rounded-md bg-white/20 text-gray-300 border border-gray-300"
+              >
+                <option value="text">Text</option>
+                <option value="number">Number</option>
+                <option value="date">Date</option>
+                <option value="file">File</option>
+              </select>
+              <button onClick={() => handleDeleteField(index)} className="text-red-500 hover:text-red-700">
+                Delete
+              </button>
+            </div>
+          ))}
+        </>
+      )}
 
-    {/* ✅ Delete Button */}
-    <button onClick={() => handleDeleteField(index)} style={{ color: "red", cursor: "pointer" }}>
-      ❌ Delete
-    </button>
-  </div>
-))}
-
-    </>
-)}
-
-      <button style={styles.addButton} onClick={addField}>
+      <button
+        onClick={addField}
+        className="w-full my-4 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+      >
         + Add Field
       </button>
 
-      {/* Preview Dynamic Category Form */}
-      {/* {selectedCategory && (
-        <div style={styles.previewContainer}>
-          <h3 style={{color: "black"}}>Preview: {selectedCategory}</h3>
-          <DynamicCategoryForm categoryName={selectedCategory} fields={fields} />
-        </div>
-      )} */}
-
-      <div style={styles.buttonContainer}>
-        <button style={styles.cancelButton} onClick={() => navigate(-1)}>
+      <div className="flex justify-between gap-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-1/2 py-3 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+        >
           Cancel
         </button>
-        <button style={styles.saveButton} onClick={handleSave}>
+        <button
+          onClick={handleSave}
+          className="w-1/2 py-3 bg-teal-600 text-white rounded hover:bg-teal-700 transition"
+        >
           Save
         </button>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    padding: "20px",
-    maxWidth: "600px",
-    margin: "0 auto",
-    textAlign: "center",
-  },
-  input: {
-    width: "100%",
-    padding: "10px",
-    margin: "10px 0",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  },
-  fieldRow: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "10px",
-  },
-  select: {
-    padding: "10px",
-    borderRadius: "5px",
-    border: "1px solid #ccc",
-  },
-  addButton: {
-    margin: "10px 0",
-    padding: "8px",
-    background: "#4CAF50",
-    color: "white",
-    cursor: "pointer",
-    borderRadius: "5px",
-  },
-  previewContainer: {
-    marginTop: "20px",
-    padding: "15px",
-    border: "1px solid #ddd",
-    borderRadius: "5px",
-    background: "#f9f9f9",
-  },
-  buttonContainer: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "10px",
-  },
-  cancelButton: {
-    padding: "10px 15px",
-    background: "#ccc",
-    cursor: "pointer",
-    borderRadius: "5px",
-  },
-  saveButton: {
-    padding: "10px 15px",
-    background: "teal",
-    color: "white",
-    cursor: "pointer",
-    borderRadius: "5px",
-  },
 };
 
 export default AddCategory;

@@ -70,12 +70,12 @@ const fetchCategories = async () => {
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Manage logbook categories</h2>
-      <p>
+    <div style={styles.container} className="text-white">
+      <h2 className="font-semibold text-xl mb-4">Manage logbook categories</h2>
+      <p className="text-center mb-2 text-teal-100">
         You can change the name of a category and delete categories you no longer require.
       </p>
-      <button style={styles.addButton} onClick={() => navigate("/add-category")}>
+      <button style={styles.addButton} className="w-full p-4 bg-[#008080] font-semibold rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={() => navigate("/add-category")}>
         Add additional category
       </button>
       <div style={styles.categoryList}>

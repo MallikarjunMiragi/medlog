@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import "../styles/ViewEntriesPage.css"; // ✅ Importing specific styles
 import Notification from "../Components/Notification";
-
 
 const ViewEntriesPage = () => {
   const [entries, setEntries] = useState([]);
@@ -17,7 +15,6 @@ const ViewEntriesPage = () => {
     message: "",
     type: "info",
   });
-  
 
   useEffect(() => {
     if (!user || !user.email) {
@@ -32,7 +29,7 @@ const ViewEntriesPage = () => {
       .then((response) => response.json())
       .then((data) => {
         console.log("Raw API Data:", data);
-        setEntries(data);  // ✅ Store the fetched entries
+        setEntries(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -43,68 +40,78 @@ const ViewEntriesPage = () => {
   }, [user, navigate]);
 
   return (
-    <div className="view-entries-container">
-      <h2 className="view-entries-title">My Logbook Entries</h2>
+    <div className="max-w-4xl mx-auto p-6 text-white">
+      <h2 className="text-2xl font-bold mb-6">My Logbook Entries</h2>
 
-      {loading && <p className="loading-text">Loading entries...</p>}
-      {error && <p className="error-text">{error}</p>}
-      {!loading && !error && entries.length === 0 && (
-        <p className="no-entries-text">No log entries found.</p>
+      {/* Loader */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center space-y-2">
+          <div className="w-12 h-12 border-4 border-teal-300 border-dashed rounded-full animate-spin"></div>
+          <p className="italic text-teal-100">Loading entries...</p>
+        </div>
       )}
 
-      {entries.length > 0 &&
+      {error && <p className="text-red-400 font-semibold">{error}</p>}
+
+      {!loading && !error && entries.length === 0 && (
+        <p className="text-teal-100">No log entries found.</p>
+      )}
+
+      {!loading && entries.length > 0 &&
         entries.map((entry) => (
-          <div key={entry._id} className="entry-box">
-            <h3 className="entry-category-name">{entry.category}</h3>  {/* ✅ Fix category display */}
-            <div className="entry-details-container">
-            {Object.entries(entry.data).map(([key, value]) => (
-  <p key={key} className="entry-detail">
-    <strong>{key.replace(/_/g, " ")}:</strong>{" "}
-    {typeof value === "string" && value.startsWith("https://res.cloudinary.com/") ? (
-      <a href={value} target="_blank" rel="noopener noreferrer">
-        📄 Open File
-      </a>
-    ) : (
-      value || "N/A"
-    )}
-  </p>
-))}
+          <div key={entry._id} className="bg-[#717c9350] p-5 mb-4 rounded-lg shadow text-left">
+            <h3 className="text-xl font-bold text-teal-300 mb-2">{entry.category}</h3>
+            <div className="space-y-2">
+              {Object.entries(entry.data).map(([key, value]) => (
+                <p key={key} className="text-sm text-teal-100">
+                  <strong className="text-white">{key.replace(/_/g, " ")}:</strong>{" "}
+                  {typeof value === "string" && value.startsWith("/uploads/") ? (
+                    <a
+                      href={`http://localhost:5000${value}`}
+                      download
+                      className="text-teal-400 underline"
+                    >
+                      📄 Download File
+                    </a>
+                  ) : (
+                    value || "N/A"
+                  )}
+                </p>
+              ))}
 
 
-
-
-
-
-
-              {/* ✅ Show Comments if Available */}
               {entry.comments && (
-                <p className="entry-detail">
-                  <strong>Doctor's Comments:</strong> {entry.comments}
+                <p className="text-sm text-teal-100">
+                  <strong className="text-white">Doctor's Comments:</strong> {entry.comments}
                 </p>
               )}
 
-              {/* ✅ Show Score if Available */}
               {entry.score !== null && entry.score !== undefined && (
-                <p className="entry-detail">
-                  <strong>Score:</strong> {entry.score} / 100
+                <p className="text-sm text-teal-100">
+                  <strong className="text-white">Score:</strong> {entry.score} / 100
                 </p>
               )}
             </div>
           </div>
         ))}
 
-      <button className="back-to-jobs-btn" onClick={() => navigate("/jobs")}>
-        Back to Jobs
-      </button>
+      {/* Button */}
+      {!loading && (
+        <button
+          onClick={() => navigate("/jobs")}
+          className="mt-6 px-6 py-3 bg-[#211c2f] text-white rounded-md hover:bg-[#221544] transition"
+        >
+          Back to Jobs
+        </button>
+      )}
 
       <Notification
-      isOpen={notification.isOpen}
-      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
-      title="Notification"
-      message={notification.message}
-      type={notification.type}
+        isOpen={notification.isOpen}
+        onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+        title="Notification"
+        message={notification.message}
+        type={notification.type}
       />
-
     </div>
   );
 };

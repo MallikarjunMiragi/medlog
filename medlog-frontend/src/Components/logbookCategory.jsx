@@ -8,15 +8,15 @@ const LogbookCategory = ({ icon, title, description, route }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="logbook-category" onClick={() => navigate(route)}>
-      <div className="category-left">
-        <span className="category-icon">{icon}</span>
-        <div className="category-text">
-          <h3>{title}</h3>
-          <p>{description}</p>
+    <div className="flex justify-between items-center p-4 bg-white/10 rounded-lg shadow-md cursor-pointer transition duration-300 hover:bg-[#3C4752]" onClick={() => navigate(route)}>
+      <div className="flex items-center gap-[10px] flex-grow justify-start">
+        <span className="text-2xl text-white">{icon}</span>
+        <div>
+          <h3 className="text-base text-white m-0">{title}</h3>
+          <p className="text-xs text-white m-0">{description}</p>
         </div>
       </div>
-      <FaArrowRight className="arrow-icon" />
+      <FaArrowRight className="text-lg text-white ml-auto" />
     </div>
   );
 };

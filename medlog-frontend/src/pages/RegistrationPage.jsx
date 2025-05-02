@@ -11,9 +11,9 @@ const RegistrationPage = () => {
   const { isLoading, error } = useSelector((state) => state.auth);
   const [role, setRole] = useState("student");
 
-  const [selectedDoctorSpecialty, setSelectedDoctorSpecialty] = useState(""); 
+  const [selectedDoctorSpecialty, setSelectedDoctorSpecialty] = useState("");
 
-const doctorSpecialties = ["Allergy", "Cardiology", "Dermatology", "Emergency medicine", "Oncology", "Pediatrics", "Neurology"];
+  const doctorSpecialties = ["Allergy", "Cardiology", "Dermatology", "Emergency medicine", "Oncology", "Pediatrics", "Neurology"];
 
 
   const [notification, setNotification] = useState({ isOpen: false, title: "", message: "" });
@@ -64,198 +64,183 @@ const doctorSpecialties = ["Allergy", "Cardiology", "Dermatology", "Emergency me
     console.log("🔹 handleSubmit triggered! Role:", role);
 
     if (!fullName || !email || !password || !confirmPassword) {
-      console.log("❌ Missing required fields:", {
+      console.log("❌ Missing text-red-600 fields:", {
         fullName, email, password, confirmPassword
       });
-      setNotification({ isOpen: true, title: "Error", message: "Please fill in all required fields." });
+      setNotification({ isOpen: true, title: "Error", message: "Please fill in all text-red-600 fields." });
       return;
     }
-    
+
 
     // Validate fields based on role
     if (role === "student" && (!selectedCountry || !selectedTrainingYear || !selectedHospital || !selectedSpecialty)) {
-        console.log("❌ Missing student fields");
-        setNotification({ isOpen: true, title: "Error", message: "Please fill in all required student fields." });
-        return;
+      console.log("❌ Missing student fields");
+      setNotification({ isOpen: true, title: "Error", message: "Please fill in all text-red-600 student fields." });
+      return;
     }
-    
+
     if (role === "doctor" && !selectedDoctorSpecialty) {
       console.log("❌ Missing doctor specialty:", selectedDoctorSpecialty);
       setNotification({ isOpen: true, title: "Error", message: "Please select a specialty for doctor." });
       return;
     }
-    
+
 
     const userData = {
-        fullName,
-        email,
-        password,
-        role,
-        specialty: role === "student" ? selectedSpecialty : selectedDoctorSpecialty,
+      fullName,
+      email,
+      password,
+      role,
+      specialty: role === "student" ? selectedSpecialty : selectedDoctorSpecialty,
     };
 
     // Only add student fields if role is student
     if (role === "student") {
-        userData.country = selectedCountry;
-        userData.trainingYear = selectedTrainingYear;
-        userData.hospital = selectedHospital;
+      userData.country = selectedCountry;
+      userData.trainingYear = selectedTrainingYear;
+      userData.hospital = selectedHospital;
     }
 
     console.log("✅ Submitting Registration Data:", userData);
 
     try {
+
         console.log("🚀 Sending API request...");
         await dispatch(signupUser(userData)).unwrap();
         console.log("🎉 Registration Successful!");
         setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
         setTimeout(() => {
-          if (role === "student") {
-            navigate("/logbookpage"); // Keep it the same for students
-          } else if (role === "doctor") {
-            navigate("/doctor-home"); // Redirect doctors to doctor-home
-          }
+          navigate("/pending-approval");
         }, 2000);
-        
     } catch (err) {
-        console.error("❌ Registration Error:", err);
-        setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
+      console.error("❌ Registration Error:", err);
+      setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
-};
+  };
 
 
   return (
-    <div className="registration-container">
-      <div className="role-toggle-container">
-        <button className={`role-toggle ${role === "student" ? "active" : ""}`} onClick={handleRoleToggle}>
-          {role === "student" ? "Student" : "Doctor"}
-        </button>
+    <div className="max-w-[1000px] bg-white/10 p-6 mx-auto my-12 rounded-lg shadow-md text-white [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
+      <div className="relative" >
+        <h1 className="text-2xl font-bold mb-3 text-[#a9d0cd] text-center font-[cursive] col-span-2">Welcome to MedicalLogBook!</h1>
+        <p className="text-sm mb-5 text-center">To configure your account, please provide details about your current medical training.</p>
+
       </div>
-      <h1 className="title">Welcome to MedicalLogBook!</h1>
-      <p className="subtitle">To configure your account, please provide details about your current medical training.</p>
 
       {/* Notification Modal */}
-      <Notification 
-        isOpen={notification.isOpen} 
-        onRequestClose={() => setNotification({ isOpen: false })} 
-        title={notification.title} 
-        message={notification.message} 
+      <Notification
+        isOpen={notification.isOpen}
+        onRequestClose={() => setNotification({ isOpen: false })}
+        title={notification.title}
+        message={notification.message}
       />
 
-  {/* Show Student Fields */}
-{role === "student" && (
-  <>
-    <div className="form-group">
-      <label>Full Name <span className="required">*</span></label>
-      <input type="text" className="form-control" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-    </div>
+      {/* Show Student Fields */}
 
-    <div className="form-group">
-      <label>Email <span className="required">*</span></label>
-      <input type="email" className="form-control" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
-    </div>
 
-    <div className="form-group">
-      <label>Password <span className="required">*</span></label>
-      <input type="password" className="form-control" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
-    </div>
+      <div className="flex flex-col">
+        <div className="flex">
+          <label>Full Name <span className="text-red-600">*</span>
+          </label>
 
-    <div className="form-group">
-      <label>Confirm Password <span className="required">*</span></label>
-      <input type="password" className="form-control" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-    </div>
-
-    <div className="form-group">
-      <label>Country <span className="required">*</span></label>
-      <select className="form-control" value={selectedCountry} onChange={handleCountryChange}>
-        <option value="">Select a country</option>
-        {countries.map((country, index) => (
-          <option key={index} value={country}>{country}</option>
-        ))}
-      </select>
-    </div>
-
-    {selectedCountry && (
-      <>
-        <div className="form-group">
-          <label>Training Year <span className="required">*</span></label>
-          <select className="form-control" value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)}>
-            <option value="">Select your training year</option>
-            {trainingYears.map((year, index) => (
-              <option key={index} value={year}>{year}</option>
-            ))}
-          </select>
+          <button className={`ml-auto !w-24 px-5 py-2 -mt-4 mb-2 text-[16px] text-white rounded-lg cursor-pointer ${role === "student" ? "bg-green-600" : "bg-blue-700"}`} onClick={handleRoleToggle}>
+            {role === "student" ? "Student" : "Doctor"}
+          </button>
         </div>
 
-        <div className="form-group">
-          <label>Hospital <span className="required">*</span></label>
-          <select className="form-control" value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)}>
-            <option value="">Select a hospital</option>
-            {hospitals.map((hospital, index) => (
-              <option key={index} value={hospital}>{hospital}</option>
-            ))}
-          </select>
-        </div>
+        <input type="text" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+      </div>
 
-        <div className="form-group">
-          <label>Specialty <span className="required">*</span></label>
-          <select className="form-control" value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)}>
+      <div className="flex flex-col">
+        <label className="">Email <span className="text-red-600">*</span></label>
+        <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+
+      <div className="flex flex-col">
+        <label>Password <span className="text-red-600">*</span></label>
+        <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+
+      <div className="flex flex-col">
+        <label>Confirm Password <span className="text-red-600">*</span></label>
+        <input type="password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+      </div>
+      {role === "student" && (
+        <>
+          <div className="flex flex-col">
+            <label>Country <span className="text-red-600">*</span></label>
+            <select value={selectedCountry} onChange={handleCountryChange}>
+              <option value="">Select a country</option>
+              {countries.map((country, index) => (
+                <option key={index} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+
+          {selectedCountry && (
+            <>
+              <div className="flex flex-col">
+                <label>Training Year <span className="text-red-600">*</span></label>
+                <select value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)}>
+                  <option value="">Select your training year</option>
+                  {trainingYears.map((year, index) => (
+                    <option key={index} value={year}>{year}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label>Hospital <span className="text-red-600">*</span></label>
+                <select value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)}>
+                  <option value="">Select a hospital</option>
+                  {hospitals.map((hospital, index) => (
+                    <option key={index} value={hospital}>{hospital}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col">
+                <label>Specialty <span className="text-red-600">*</span></label>
+                <select value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)}>
+                  <option value="">Select a specialty</option>
+                  {specialties.map((specialty, index) => (
+                    <option key={index} value={specialty}>{specialty}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+        </>
+
+      )}
+
+      {/* Show Doctor Fields */}
+
+      {role === "doctor" && (
+
+        <div className="flex flex-col">
+          <label>Specialty <span className="text-red-600">*</span></label>
+          <select value={selectedDoctorSpecialty} onChange={(e) => setSelectedDoctorSpecialty(e.target.value)}>
             <option value="">Select a specialty</option>
-            {specialties.map((specialty, index) => (
+            {doctorSpecialties.map((specialty, index) => (
               <option key={index} value={specialty}>{specialty}</option>
             ))}
           </select>
         </div>
-      </>
-    )}
-  </>
-)}
 
-{/* Show Doctor Fields */}
-{role === "doctor" && (
-  <>
-    <div className="form-group">
-      <label>Full Name <span className="required">*</span></label>
-      <input type="text" className="form-control" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
-    </div>
-
-    <div className="form-group">
-      <label>Email <span className="required">*</span></label>
-      <input type="email" className="form-control" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
-    </div>
-
-    <div className="form-group">
-      <label>Password <span className="required">*</span></label>
-      <input type="password" className="form-control" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
-    </div>
-
-    <div className="form-group">
-      <label>Confirm Password <span className="required">*</span></label>
-      <input type="password" className="form-control" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-    </div>
-
-    <div className="form-group">
-      <label>Specialty <span className="required">*</span></label>
-      <select className="form-control" value={selectedDoctorSpecialty} onChange={(e) => setSelectedDoctorSpecialty(e.target.value)}>
-        <option value="">Select a specialty</option>
-        {doctorSpecialties.map((specialty, index) => (
-          <option key={index} value={specialty}>{specialty}</option>
-        ))}
-      </select>
-    </div>
-  </>
-)}
+      )}
 
 
-<button className="btn-submit" onClick={() => {
-  console.log("🟢 Button clicked! Role:", role);
-  handleSubmit();
-}} disabled={isLoading || (role === "student" && !selectedCountry)}>
-  {isLoading ? "Registering..." : "Set up Logbook!"}
-</button>
+      <button className="w-full p-3 rounded-md cursor-pointer bg-[#008080] transition ease duration-300 hover:bg-[#015b5b] font-medium" onClick={() => {
+        console.log("🟢 Button clicked! Role:", role);
+        handleSubmit();
+      }} disabled={isLoading || (role === "student" && !selectedCountry)}>
+        {isLoading ? "Registering..." : "Set up Logbook!"}
+      </button>
 
 
       {/* Go Back Button */}
-      <button className="btn-back" onClick={() => navigate("/")}>Go Back</button>
+      <button className="w-full btn-back p-3 mt-3 cursor-pointer rounded-md bg-slate-500 hover:bg-[#015b5b] font-medium" onClick={() => navigate("/")}>Go Back</button>
 
     </div>
   );

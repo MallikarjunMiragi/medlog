@@ -72,9 +72,9 @@ const Navbar = () => {
   };
 
   return (
-    <div className="navbar">
-      <div className="navbar-left">
-        <h2 className="logo-text">Medical Logbook</h2>
+    <div className="flex justify-between items-center px-5 py-2 text-lg bg-teal-500 shadow-md">
+      <div className="flex items-center gap-2">
+        <h2 className="text-lg font-bold">Medical Logbook</h2>
       </div>
       <ToastContainer />
 

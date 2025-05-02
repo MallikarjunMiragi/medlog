@@ -1,4 +1,4 @@
-.student-entries-container {
+/* .student-entries-container {
     display: flex;
     height: 100vh;
 }
@@ -16,7 +16,6 @@
     margin-bottom: 20px;
 }
 
-/* 🔹 Entry Box */
 .entry-box {
     background: rgb(41, 39, 39);
     padding: 20px;
@@ -26,7 +25,6 @@
     position: relative;
 }
 
-/* 🔹 Score Box at Top-Right */
 .score-box {
     position: absolute;
     top: 10px;
@@ -56,7 +54,6 @@
     background: #45a049;
 }
 
-/* 🔹 Entry Content */
 .entry-category-name {
     font-size: 18px;
     font-weight: bold;
@@ -74,7 +71,6 @@
     margin-bottom: 5px;
 }
 
-/* 🔹 Comment Box */
 .comment-box {
     display: flex;
     flex-direction: column;
@@ -107,14 +103,11 @@
     background: #0056b3;
 }
 
-/* 🔹 No Entries Text */
 .no-entries-text {
     text-align: center;
     font-size: 16px;
     color: #888;
 }
-
-/* 🔹 Back Button */
 
 .back-btn {
     display: block;
@@ -152,4 +145,4 @@
 .toggle-btn.active {
     background-color: teal;
     font-weight: bold;
-}
+} */
