@@ -33,36 +33,48 @@ const LogbookPage = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-5xl p-6 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold mb-4 text-[#a9d0cd] text-center font-[cursive]">Welcome to your new logbook!</h1>
-      <p className="text-[#deefed] text-center mb-4">
-        Log entries you've made in previous jobs are filed separately, and can be accessed and added via the jobs page. 
-        Logbooks from multiple jobs can still be combined to produce reports on the Reports page.
-      </p>
 
-      {/* ✅ Display dynamic categories */}
-      <div className="grid //grid-cols-2 gap-4">
-        {categoryList.map((category, index) => (
-          <LogbookCategory
-            key={index}
-            icon={category.icon}
-            title={category.name}
-            description={category.description}
-            route={category.route} // ✅ Dynamic category routing
-          />
-        ))}
+    <div className="h-screen flex flex-col bg-gray-900 text-white p-8">
+      {/* Scrollable content */}
+      <div className="flex-grow overflow-y-auto max-w-7xl w-full mx-auto">
+        <h1 className="text-3xl font-bold mb-4 text-center">
+          Welcome to your new logbook!
+        </h1>
+        <p className="text-gray-300 text-center mb-8 max-w-4xl mx-auto">
+          Log entries you've made in previous jobs are filed separately, and can be accessed and added via the jobs page. 
+          Logbooks from multiple jobs can still be combined to produce reports on the Reports page.
+        </p>
+
+        {/* Dynamic category cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+          {categoryList.map((category, index) => (
+            <LogbookCategory
+              key={index}
+              icon={category.icon}
+              title={category.name}
+              description={category.description}
+              route={category.route}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Clickable Manage Logbook Categories Section */}
-      <div className="flex bg-white/10 p-6 rounded-lg mt-5 transition-colors duration-300 ease-in-out hover:bg-[#3C4752]" onClick={() => navigate("/manage-logbook")}>
-        <h3 className="text-base font-bold text-white w-fit">Manage logbook categories</h3>
-        <FaChevronRight className="text-gray-300 ml-auto" />
+      {/* Fixed bottom section */}
+      <div className="mt-auto max-w-8xl w-full mx-auto mb-20">
+        <div
+          onClick={() => navigate("/manage-logbook")}
+          className="flex items-center cursor-pointer text-blue-400 hover:text-blue-200 font-medium mb-2"
+        >
+          <FaChevronRight className="mr-2" />
+          <h3>Manage logbook categories</h3>
+        </div>
+
+        <p className="text-sm text-gray-400 max-w-3xl text-left">
+          You can opt into one of our growing list of other, more specialist, logbook categories at any time using the 
+          "Add category" button on the category picker. If you have any questions, please contact us via email.
+        </p>
       </div>
 
-      <p className="text-sm text-[#deefed] mt-5 p-2 text-center">
-        You can opt into one of our growing list of other, more specialist, logbook categories at any time using the "Add category" 
-        button on the category picker. If you have any questions, please contact us via email.
-      </p>
     </div>
   );
 };
