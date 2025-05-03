@@ -20,13 +20,21 @@ import StudentEntries from "./pages/StudentEntries";
 import DynamicForm from "./Components/DynamicCategoryForm"; 
 import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
+import VerifyOtp from "./pages/VerifyOtp";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import "./index.css"; 
 
 const AppLayout = () => {
   const location = useLocation();
 
   // ✅ Hide sidebar only for login and registration pages
-  const hideSidebar = location.pathname === "/" || location.pathname === "/register";
+  const isAuthRoute = (path) =>
+    ["/", "/register", "/verify-otp", "/forgot-password"].includes(path) ||
+    path.startsWith("/reset-password/");
+  
+  const hideSidebar = isAuthRoute(location.pathname);
+  
 
   // ✅ Get user role from Redux store
   const { user } = useSelector((state) => state.auth);
@@ -58,6 +66,9 @@ const AppLayout = () => {
             <Route path="/student-entries" element={<StudentEntries />} />
             <Route path="/generated-form/:category" element={<DynamicForm />} />
             <Route path="/doctor-home" element={<DoctorHome />} />
+            <Route path="/verify-otp" element={<VerifyOtp />} /> 
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:userId/:token" element={<ResetPassword />} />
           </Routes>
         </div>
       

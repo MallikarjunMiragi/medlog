@@ -107,19 +107,17 @@ const RegistrationPage = () => {
       console.log("🚀 Sending API request...");
       await dispatch(signupUser(userData)).unwrap();
       console.log("🎉 Registration Successful!");
-      setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
+      setNotification({ isOpen: true, title: "Success", message: "Registration successful! Please verify OTP." });
+    
       setTimeout(() => {
-        if (role === "student") {
-          navigate("/logbookpage"); // Keep it the same for students
-        } else if (role === "doctor") {
-          navigate("/doctor-home"); // Redirect doctors to doctor-home
-        }
-      }, 2000);
-
+        navigate("/verify-otp", { state: { email } }); // Pass email to verify-otp page if needed
+      }, 1000); // you can reduce timeout to 1s or even navigate immediately
+    
     } catch (err) {
       console.error("❌ Registration Error:", err);
       setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
+    
   };
 
 

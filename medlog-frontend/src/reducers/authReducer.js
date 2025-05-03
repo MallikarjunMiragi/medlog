@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const API_URL = "http://localhost:5000/api/auth";
 
-// Login User
 export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAPI) => {
   try {
     const response = await fetch(`${API_URL}/login`, {
@@ -11,7 +10,7 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        email: userData.emailId,
+        email: userData.emailId, // Make sure the key is 'email'
         password: userData.password,
       }),
     });
@@ -21,14 +20,12 @@ export const loginUser = createAsyncThunk("auth/login", async (userData, thunkAP
       throw new Error(data.error || "Invalid email or password");
     }
 
-    // Store user data in localStorage
-    localStorage.setItem("user", JSON.stringify(data.user));
-
     return data.user; // Return full user details (email, fullName, etc.)
   } catch (error) {
     return thunkAPI.rejectWithValue({ error: error.message });
   }
 });
+
 
 // Signup User
 export const signupUser = createAsyncThunk("auth/signup", async (userData, thunkAPI) => {
@@ -43,10 +40,12 @@ export const signupUser = createAsyncThunk("auth/signup", async (userData, thunk
 
     const data = await response.json();
     if (!response.ok) {
-      throw new Error(data.error || "Something went wrong");
+      const message = data?.error || data?.message || "Something went wrong";
+      throw new Error(message);
     }
 
-    return data;
+    // Return the user object, ensuring it matches the structure expected in the login flow
+    return data.user || data;  // support both structures
   } catch (error) {
     return thunkAPI.rejectWithValue({ error: error.message });
   }
