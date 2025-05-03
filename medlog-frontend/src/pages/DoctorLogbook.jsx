@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 
+
 const DoctorLogbook = () => {
   const [students, setStudents] = useState([]);
   const navigate = useNavigate();
+
+  // ✅ Get logged-in doctor from Redux
   const doctor = useSelector((state) => state.auth.user);
 
   useEffect(() => {
@@ -13,27 +16,31 @@ const DoctorLogbook = () => {
       return;
     }
 
-    fetch(
-      `http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(
-        doctor.specialty
-      )}`
-    )
-      .then((response) => response.json())
+    // ✅ FIXED: Use backticks for template literal
+    fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to fetch students");
+        }
+        return response.json();
+      })
       .then((studentsData) => {
         console.log("✅ Filtered Students:", studentsData);
         setStudents(studentsData);
       })
       .catch((error) => console.error("❌ Error fetching students:", error));
-  }, [doctor]);
+  }, [doctor]); // ✅ Re-run if doctor changes
 
   const handleViewEntries = (student) => {
     navigate("/student-entries", { state: { student } });
   };
 
   return (
+
     <div className="flex h-screen bg-gray-900 text-white">
       <div className="flex-grow px-6 py-10 max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold mb-6 text-center">
+
           Doctor Logbook - View Student Entries
         </h2>
 
@@ -47,6 +54,7 @@ const DoctorLogbook = () => {
                   <th className="p-3 text-left">Student Name</th>
                   <th className="p-3 text-left">Email</th>
                   <th className="p-3 text-left">Actions</th>
+
                 </tr>
               </thead>
               <tbody>
@@ -61,6 +69,7 @@ const DoctorLogbook = () => {
                       <button
                         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded transition"
                         onClick={() => handleViewEntries(student)}
+
                       >
                         View Entries
                       </button>

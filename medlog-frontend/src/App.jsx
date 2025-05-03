@@ -1,5 +1,4 @@
-
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import DoctorSidebar from "./components/DoctorSidebar"; // ✅ Import Doctor's Sidebar
 import LoginPage from "./pages/AdminLoginForm";
