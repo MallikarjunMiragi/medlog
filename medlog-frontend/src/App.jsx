@@ -22,6 +22,12 @@ import { useSelector } from "react-redux";
 import VerifyOtp from "./pages/VerifyOtp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminPage from "./pages/AdminPage";
+
+import AnalysisPage from "./pages/AnalysisPage";
+import AdminHome from "./pages/AdminHome";
+import PendingApproval from "./pages/PendingApproval";
 import "./index.css"; 
 
 const AppLayout = () => {
@@ -65,6 +71,7 @@ const AppLayout = () => {
             <Route path="/student-entries" element={<StudentEntries />} />
             <Route path="/generated-form/:category" element={<DynamicForm />} />
             <Route path="/doctor-home" element={<DoctorHome />} />
+            <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/verify-otp" element={<VerifyOtp />} /> 
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:userId/:token" element={<ResetPassword />} />
