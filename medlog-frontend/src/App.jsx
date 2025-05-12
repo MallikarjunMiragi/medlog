@@ -21,7 +21,7 @@ import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPage from "./pages/AdminPage";
-
+import DoctorStudentAnalysisPage from './pages/DoctorStudentAnalysisPage';
 import AnalysisPage from "./pages/AnalysisPage";
 import AdminHome from "./pages/AdminHome";
 import PendingApproval from "./pages/PendingApproval";
@@ -64,11 +64,13 @@ const AppLayout = () => {
             <Route path="/student-entries" element={<StudentEntries />} />
             <Route path="/generated-form/:category" element={<DynamicForm />} />
             <Route path="/doctor-home" element={<DoctorHome />} />
+            <Route path="/doctor-student-analysis" element={<DoctorStudentAnalysisPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<AdminHome />} />
             <Route path="users" element={<AdminPage />} />
+            
             </Route>
             <Route path="/pending-approval" element={<PendingApproval />} />
          </Routes>

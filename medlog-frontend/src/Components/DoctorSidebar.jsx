@@ -34,6 +34,9 @@ const DoctorSidebar = () => {
           <li onClick={() => { navigate("/doctor-logbook"); setIsOpen(false); }}>
             <FaUserGraduate className="icon" /> View Students
           </li>
+          <li onClick={() => { navigate("/doctor-student-analysis"); setIsOpen(false); }}>
+    <FaUserGraduate className="icon" /> Analysis
+  </li>
           <li onClick={() => { navigate("/account"); setIsOpen(false); }}>
             <FaUserGraduate className="icon" /> Account
           </li>
