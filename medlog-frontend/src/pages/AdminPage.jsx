@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import AdminUserTable from "../Components/AdminUserTable";
 import axios from "axios";
 import Notification from "../Components/Notification";
 
@@ -12,6 +11,7 @@ const AdminPage = () => {
     message: "",
     type: "info",
   });
+const [searchTerm, setSearchTerm] = useState("");
 
   const fetchUsers = async () => {
     try {
@@ -96,6 +96,13 @@ const AdminPage = () => {
     }
   };
 
+  const filteredUsers = users.filter((user) =>
+  `${user.fullName} ${user.role} ${user.status}`
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase())
+);
+
+
   return (
     <div className="p-8 bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white">
       <h2 className="text-4xl font-bold mb-8 text-center text-teal-300 drop-shadow-lg">
@@ -106,6 +113,16 @@ const AdminPage = () => {
         <p className="text-center text-gray-400 text-lg">Loading users...</p>
       ) : (
         <div className="overflow-x-auto rounded-lg shadow-lg bg-gray-800 p-6">
+          <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search by name, role, or status..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          />
+        </div>
+
           <table className="w-full table-auto">
             <thead>
               <tr className="bg-gray-700 text-teal-300 text-left">
@@ -117,7 +134,7 @@ const AdminPage = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr
                   key={user.email}
                   className="border-b border-gray-700 hover:bg-gray-700/50 transition"
