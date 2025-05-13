@@ -25,6 +25,7 @@ import DoctorStudentAnalysisPage from './pages/DoctorStudentAnalysisPage';
 import AnalysisPage from "./pages/AnalysisPage";
 import AdminHome from "./pages/AdminHome";
 import PendingApproval from "./pages/PendingApproval";
+import AssignTaskPage from "./pages/AssignTaskPage";
 import "./index.css"; 
 
 const AppLayout = () => {
@@ -59,6 +60,7 @@ const AppLayout = () => {
             <Route path="/support" element={<Support />} />
             <Route path="/goal-progression" element={<GoalProgression />} />
             <Route path="/jobs" element={<JobsPage />} /> 
+            <Route path="/assign-task" element={<AssignTaskPage />} />
             <Route path="/view-entries" element={<ViewEntriesPage />} />
             <Route path="/doctor-logbook" element={<DoctorLogbook />} />
             <Route path="/student-entries" element={<StudentEntries />} />
@@ -67,6 +69,7 @@ const AppLayout = () => {
             <Route path="/doctor-student-analysis" element={<DoctorStudentAnalysisPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/admin" element={<AdminDashboard />}>
+            
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<AdminHome />} />
             <Route path="users" element={<AdminPage />} />

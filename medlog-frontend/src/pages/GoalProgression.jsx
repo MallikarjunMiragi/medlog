@@ -1,22 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
 
 const GoalProgression = () => {
-  const [goals, setGoals] = useState([
-    {
-      title: "Take 10 patient histories",
-      department: "General Medicine",
-      targetDate: "2025-04-20",
-      status: "In Progress",
-      progress: "60%",
-    },
-    {
-      title: "Assist in 5 surgeries",
-      department: "Surgery",
-      targetDate: "2025-04-25",
-      status: "Completed",
-      progress: "100%",
-    },
-  ]);
+  const student = useSelector((state) => state.auth.user);
+  const [goals, setGoals] = useState([]);
+
+useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      if (student && student.specialty) {
+        const response = await fetch(`http://localhost:5000/api/tasks?specialty=${student.specialty}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error("Backend error:", errorData);
+          return;
+        }
+        
+        const data = await response.json();
+        
+        // Ensure data is an array
+        if (Array.isArray(data)) {
+          const formattedTasks = data.map((task) => ({
+            title: task.title,
+            description: task.description,
+            priority: task.priority,
+            targetDate: task.targetDate,
+            department: task.department,
+          }));
+
+          setGoals(formattedTasks);
+        } else {
+          console.error("Unexpected response format:", data);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  fetchTasks();
+}, [student]);
+
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-white rounded-2xl shadow-xl mt-10">
@@ -35,10 +60,12 @@ const GoalProgression = () => {
           <div>
             <label className="block font-medium mb-1">Department</label>
             <select className="w-full p-2 border border-gray-300 rounded-xl">
-              <option>Surgery</option>
+              <option>Neurology</option>
+              <option>surgery</option>
+              <option>Cardiology</option>
+              <option>Orthopedics</option>
+              <option>Radiology</option>
               <option>Pediatrics</option>
-              <option>General Medicine</option>
-              <option>OBG</option>
             </select>
           </div>
 
@@ -70,34 +97,41 @@ const GoalProgression = () => {
         </form>
       </div>
 
-      {/* Goal Table */}
-      <div className="mb-10">
-        <h2 className="text-2xl font-semibold text-blue-700 text-center mb-4">Current Goals</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm text-center border border-gray-300">
-            <thead className="bg-blue-700 text-white">
-              <tr>
-                <th className="py-2 px-4">Goal Title</th>
-                <th className="py-2 px-4">Department</th>
-                <th className="py-2 px-4">Target Date</th>
-                <th className="py-2 px-4">Status</th>
-                <th className="py-2 px-4">Progress</th>
-              </tr>
-            </thead>
-            <tbody>
-              {goals.map((goal, index) => (
-                <tr key={index} className="border-b">
-                  <td className="py-2 px-4">{goal.title}</td>
-                  <td className="py-2 px-4">{goal.department}</td>
-                  <td className="py-2 px-4">{goal.targetDate}</td>
-                  <td className="py-2 px-4">{goal.status}</td>
-                  <td className="py-2 px-4">{goal.progress}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+{/* Goal Table */}
+<div className="mb-10">
+  <h2 className="text-2xl font-semibold text-blue-700 text-center mb-4">Current Goals</h2>
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-sm text-center border border-gray-300">
+      <thead className="bg-blue-700 text-white">
+        <tr>
+          <th className="py-2 px-4">Goal Title</th>
+          <th className="py-2 px-4">Description</th>
+          <th className="py-2 px-4">Priority</th>
+          <th className="py-2 px-4">Target Date</th>
+          <th className="py-2 px-4">Department</th>
+        </tr>
+      </thead>
+      <tbody>
+        {goals.length > 0 ? (
+          goals.map((goal, index) => (
+            <tr key={index} className="border-b">
+              <td className="py-2 px-4">{goal.title}</td>
+              <td className="py-2 px-4">{goal.description}</td>
+              <td className="py-2 px-4">{goal.priority}</td>
+              <td className="py-2 px-4">{new Date(goal.targetDate).toLocaleDateString()}</td>
+              <td className="py-2 px-4">{goal.department}</td>
+            </tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan="5" className="py-4 text-gray-500">No goals found for your specialty.</td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
       {/* Weekly Reflection */}
       <div>

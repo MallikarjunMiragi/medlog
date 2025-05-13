@@ -37,6 +37,10 @@ const DoctorSidebar = () => {
           <li onClick={() => { navigate("/doctor-student-analysis"); setIsOpen(false); }}>
     <FaUserGraduate className="icon" /> Analysis
   </li>
+  <li onClick={() => { navigate("/assign-task"); setIsOpen(false); }}>
+  <FaUserGraduate className="icon" /> Assign Task
+</li>
+
           <li onClick={() => { navigate("/account"); setIsOpen(false); }}>
             <FaUserGraduate className="icon" /> Account
           </li>
