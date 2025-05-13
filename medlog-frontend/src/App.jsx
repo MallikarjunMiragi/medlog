@@ -21,10 +21,10 @@ import DoctorHome from "./pages/DoctorHome";
 import { useSelector } from "react-redux"; 
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPage from "./pages/AdminPage";
-
 import AnalysisPage from "./pages/AnalysisPage";
 import AdminHome from "./pages/AdminHome";
 import PendingApproval from "./pages/PendingApproval";
+import AdminSupportPage from "./pages/AdminSupportPage";
 import "./index.css"; 
 
 const AppLayout = () => {
@@ -69,6 +69,7 @@ const AppLayout = () => {
             <Route index element={<Navigate to="home" replace />} />
             <Route path="home" element={<AdminHome />} />
             <Route path="users" element={<AdminPage />} />
+            <Route path="support" element={<AdminSupportPage />} />
             </Route>
             <Route path="/pending-approval" element={<PendingApproval />} />
          </Routes>
