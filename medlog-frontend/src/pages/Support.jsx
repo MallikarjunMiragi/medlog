@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import { useSelector } from "react-redux";
+import Notification from "../Components/Notification";
 
 const Support = () => {
   const [supportType, setSupportType] = useState('');
   const [detail, setDetail] = useState('');
+  const [notification, setNotification] = useState({
+        isOpen: false,
+        title: "",
+        message: "",
+        type: "info",
+      });
 
   // ✅ Get logged-in user data from Redux
   const user = useSelector((state) => state.auth.user);
@@ -15,7 +22,12 @@ const Support = () => {
 
     // ✅ Guard against missing user
     if (!studentName || !email) {
-      alert("User details not found. Please login again.");
+      setNotification({
+        isOpen: true,
+        title: "Error",
+        message: "User details not found. Please login again.",
+        type: "error",
+      });
       return;
     }
 
@@ -36,15 +48,30 @@ const Support = () => {
       });
 
       if (res.ok) {
-        alert('Support request submitted successfully!');
+        setNotification({
+        isOpen: true,
+        title: "Success",
+        message: "Support request submitted successfully!",
+        type: "success",
+      });
         setSupportType('');
         setDetail('');
       } else {
-        alert('Failed to submit support request');
+        setNotification({
+        isOpen: true,
+        title: "Error",
+        message: "Failed to submit support request",
+        type: "error",
+      });
       }
     } catch (err) {
       console.error(err);
-      alert('Something went wrong');
+      setNotification({
+        isOpen: true,
+        title: "Error",
+        message: "Something went wrong",
+        type: "error",
+      });
     }
   };
 
@@ -84,62 +111,19 @@ const Support = () => {
             required
           />
         </div>
-        <button type="submit" className='w-full p-3 bg-[#008080] rounded-md cursor-pointer transition delay-300 hover:#015b5b'>Submit</button>
+        <button type="submit" className='bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white px-6 py-2 rounded-full text-sm shadow-md hover:shadow-lg transition duration-300 mx-auto block'>Submit</button>
       </form>
+      {/* Notification Modal */}
+        <Notification
+          isOpen={notification.isOpen}
+          onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+          title={notification.title}
+          message={notification.message}
+          type={notification.type}
+        />
     </div>
   );
 };
 
 export default Support;
 
-
-
-// import React, { useState } from "react";
-// import axios from "axios";
-// import { useSelector } from "react-redux";
-
-// const Support = () => {
-//   const [query, setQuery] = useState("");
-
-//   // ✅ Get user from Redux store
-//   const user = useSelector((state) => state.auth.user);
-//   const studentEmail = user?.email;
-//   const studentName = user?.fullName;
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     // ✅ Guard against empty
-//     if (!studentEmail || !studentName) {
-//       alert("User details not found. Please log in again.");
-//       return;
-//     }
-
-//     try {
-//       await axios.post("http://localhost:5000/api/support/submit", {
-//         studentEmail,
-//         studentName,
-//         query,
-//       });
-//       alert("Query submitted!");
-//       setQuery("");
-//     } catch (error) {
-//       alert("Failed to submit");
-//     }
-//   };
-
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <textarea
-//         value={query}
-//         onChange={(e) => setQuery(e.target.value)}
-//         placeholder="Describe your issue..."
-//       />
-//       <button type="submit">Submit Query</button>
-//     </form>
-//   );
-// };
-
-
-// export default Support;
