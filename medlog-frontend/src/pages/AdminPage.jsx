@@ -102,9 +102,8 @@ const [searchTerm, setSearchTerm] = useState("");
     .includes(searchTerm.toLowerCase())
 );
 
-
   return (
-    <div className="p-8 bg-gradient-to-br from-gray-800 via-gray-900 to-black text-white">
+    <div className="p-8 text-white">
       <h2 className="text-4xl font-bold mb-8 text-center text-teal-300 drop-shadow-lg">
         Admin Panel
       </h2>

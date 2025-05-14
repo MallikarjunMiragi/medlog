@@ -61,7 +61,7 @@ const AdminSupport = () => {
   );
 
   return (
-    <div className="ml-0 p-8 text-white bg-gray-900 min-h-screen">
+    <div className="ml-0 p-8 text-white  min-h-screen">
       <h2 className="text-3xl font-bold mb-6 text-teal-300">Support Queries</h2>
 
       {/* ✅ Toggle Buttons */}
