@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from "react-redux";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import axios from "axios";
-import gangliaLogo from "../assets/ganglia-logo.png"; // Adjust path if needed
+import gangliaLogo from "../assets/ganglia-logo.png"; 
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType, AlignmentType, SimpleField, HeadingLevel, PageBreak, ImageRun } from "docx";
+import { saveAs } from "file-saver";
 
 import {
   setFromDate,
@@ -28,6 +30,11 @@ const ReportsPage = () => {
   const [entries, setEntries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filteredEntries, setFilteredEntries] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [customFrom, setCustomFrom] = useState("");
+  const [customTo, setCustomTo] = useState("");
+
 
   const [notification, setNotification] = useState({
     isOpen: false,
@@ -68,6 +75,7 @@ const ReportsPage = () => {
         );
         if (Array.isArray(entriesResponse.data)) {
           setEntries(entriesResponse.data);
+          setFilteredEntries(entriesResponse.data);  // initially show all
         } else {
           throw new Error("No entries data received");
         }
@@ -81,6 +89,84 @@ const ReportsPage = () => {
 
     fetchData();
   }, [userEmail]);
+
+const handleDateFilter = (filterType) => {
+  setSelectedFilter(filterType);
+
+  if (filterType === "custom") {
+    setFilteredEntries([]);  // wait until user clicks Apply
+    return;
+  }
+
+  let fromDate;
+  const now = new Date();
+
+  switch (filterType) {
+    case "10days":
+      fromDate = new Date();
+      fromDate.setDate(now.getDate() - 10);
+      break;
+    case "1month":
+      fromDate = new Date();
+      fromDate.setMonth(now.getMonth() - 1);
+      break;
+    case "1year":
+      fromDate = new Date();
+      fromDate.setFullYear(now.getFullYear() - 1);
+      break;
+    case "all":
+    default:
+      setFilteredEntries(entries);
+      return;
+  }
+
+  const filtered = entries.filter((entry) => {
+    const entryDate = new Date(entry.createdAt);
+    return entryDate >= fromDate && entryDate <= now;
+  });
+
+  setFilteredEntries(filtered);
+};
+
+
+const applyCustomRange = () => {
+  if (!customFrom || !customTo) {
+    setNotification({
+      isOpen: true,
+      message: "Please select both From and To dates!",
+      type: "error",
+    });
+
+    // Auto-close after 3 sec
+    setTimeout(() => {
+      setNotification((prev) => ({ ...prev, isOpen: false }));
+    }, 3000);
+
+    return;
+  }
+
+  const from = new Date(customFrom);
+  const to = new Date(customTo);
+
+  const filtered = entries.filter((entry) => {
+    const entryDate = new Date(entry.createdAt);
+    return entryDate >= from && entryDate <= to;
+  });
+
+  setFilteredEntries(filtered);
+
+  // ✅ Show success notification
+  setNotification({
+    isOpen: true,
+    message: "Custom date range applied! Now you may proceed to download the report.",
+    type: "success",
+  });
+
+  // ✅ Auto-close after 3 seconds
+  setTimeout(() => {
+    setNotification((prev) => ({ ...prev, isOpen: false }));
+  }, 3000);
+};
 
   const generatePDF = () => {
     if (!userData) {
@@ -159,8 +245,8 @@ const ReportsPage = () => {
       doc.setFontSize(16);
       doc.text("Logbook Entries", 10, 30);
   
-      if (entries.length > 0) {
-        entries.forEach((entry, index) => {
+      if (filteredEntries.length > 0) {
+        filteredEntries.forEach((entry, index) => {
           const entryTitleY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 10 : 30;
           doc.setFontSize(14);
           doc.text(`Entry ${index + 1}: ${capitalize(entry.category)}`, 10, entryTitleY);
@@ -216,7 +302,326 @@ const ReportsPage = () => {
       doc.save(`Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.pdf`);
     };
   };
-  
+
+const generateDocx = () => {
+  if (!userData) {
+    setNotification({
+      isOpen: true,
+      message: "User details are missing! Cannot generate report.",
+      type: "error",
+    });
+    return;
+  }
+
+  const capitalize = (str) =>
+    str?.toString().toLowerCase().replace(/\b\w/g, (char) => char.toUpperCase()) || "N/A";
+
+  const beautifyKey = (key) =>
+    key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
+
+  // ✅ Convert logo image to base64
+  const imgPromise = fetch(gangliaLogo)
+    .then((res) => res.blob())
+    .then(
+      (blob) =>
+        new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(blob);
+        })
+    );
+
+  imgPromise.then((base64Image) => {
+    const doc = new Document({
+      sections: [
+        {
+          properties: {
+            footers: {
+              default: new Paragraph({
+                alignment: AlignmentType.CENTER,
+                children: [
+                  new TextRun("Page "),
+                  new SimpleField("PAGE"),
+                  new TextRun(" of "),
+                  new SimpleField("NUMPAGES"),
+                ],
+              }),
+            },
+          },
+          children: [
+            // ✅ Title
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 300 },
+            children: [
+              new TextRun({
+                text: "Medical Logbook Report",
+                size: 48, // 24pt font (big title)
+                bold: true,
+                color: "2E74B5", // Blue color
+              }),
+            ],
+          }),
+
+
+          
+          new Paragraph({ text: "", spacing: { after: 1000 } }),
+          // ✅ User Info
+          new Paragraph({
+            alignment: AlignmentType.CENTER,
+            children: [
+              new TextRun({
+                text: `Prepared for: ${capitalize(userData.fullName)}`,
+                size: 28, // 14pt font
+                color: "000000", // black
+                }),
+              ],
+            }),
+            new Paragraph({ text: "", spacing: { after: 20 } }),
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: `Hospital: ${capitalize(userData.selectedHospital)}`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({ text: "", spacing: { after: 20 } }),
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: `Specialty: ${capitalize(userData.selectedSpecialty)}`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({ text: "", spacing: { after: 20 } }),
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: `Training Year: ${capitalize(userData.selectedTrainingYear)}`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({ text: "", spacing: { after: 20 } }),
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: `Reporting Period: ${fromDate} - ${toDate}`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            
+            new Paragraph({ text: "", spacing: { after: 3500 } }),
+            
+            // ✅ Logo image
+            new Paragraph({
+              alignment: AlignmentType.CENTER,
+              children: [
+                new ImageRun({
+                  data: base64Image.split(",")[1], // strip base64 prefix
+                  transformation: { width: 250, height: 250 },
+                }),
+              ],
+            }),
+            
+            new Paragraph({ children: [new PageBreak()] }),
+            
+            // ✅ Table of Contents
+            new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+            children: [
+              new TextRun({
+                text: "Table of Contents",
+                size: 32,  // ✅ 16 is default; 32 means bigger
+                bold: true,
+                color: "2E74B5", // optional, makes it bluish like Word heading
+              }),
+            ],
+          }),
+
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `1. Jobs`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `2. Logbook Entries`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({
+                  text: `3. Other Activities`,
+                  size: 28,
+                  color: "000000",
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "", spacing: { after: 300 } }),
+
+            // ✅ New Page (Page Break)
+            new Paragraph({ children: [new PageBreak()] }),
+
+            // ✅ Jobs Section
+            new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+            children: [
+              new TextRun({
+                text: "Jobs",
+                size: 32,  // ✅ 16 is default; 32 means bigger
+                bold: true,
+                color: "2E74B5", // optional, makes it bluish like Word heading
+              }),
+            ],
+          }),
+            new Table({
+              width: { size: 100, type: WidthType.PERCENTAGE },
+              rows: [
+                new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph("Training Year")] }),
+                    new TableCell({ children: [new Paragraph(capitalize(userData.selectedTrainingYear))] }),
+                  ],
+                }),
+                new TableRow({
+                  children: [
+                    new TableCell({ children: [new Paragraph("Specialty")] }),
+                    new TableCell({ children: [new Paragraph(capitalize(userData.selectedSpecialty))] }),
+                  ],
+                }),
+              ],
+            }),
+
+            new Paragraph({ text: "", spacing: { after: 300 } }),
+
+            // ✅ New Page
+            new Paragraph({ children: [new PageBreak()] }),
+
+            // ✅ Logbook Entries Section
+            new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+            children: [
+              new TextRun({
+                text: "Logbook Entries",
+                size: 32,  // ✅ 16 is default; 32 means bigger
+                bold: true,
+                color: "2E74B5", // optional, makes it bluish like Word heading
+              }),
+            ],
+          }),
+            ...(filteredEntries.length > 0
+              ? filteredEntries.flatMap((entry, index) => {
+                  const rows = Object.entries(entry.data).map(([key, value]) => {
+                    const displayValue = typeof value === "string" ? capitalize(value) : String(value);
+                    return new TableRow({
+                      children: [
+                        new TableCell({ children: [new Paragraph(beautifyKey(key))] }),
+                        new TableCell({ children: [new Paragraph(displayValue)] }),
+                      ],
+                    });
+                  });
+
+                  // ✅ Add comments row
+                  if (entry.comments) {
+                    rows.push(
+                      new TableRow({
+                        children: [
+                          new TableCell({ children: [new Paragraph("Doctor's Comments")] }),
+                          new TableCell({ children: [new Paragraph(capitalize(entry.comments))] }),
+                        ],
+                      })
+                    );
+                  }
+
+                  // ✅ Add score row
+                  if (entry.score !== null && entry.score !== undefined) {
+                    rows.push(
+                      new TableRow({
+                        children: [
+                          new TableCell({ children: [new Paragraph("Score")] }),
+                          new TableCell({ children: [new Paragraph(`${entry.score} / 100`)] }),
+                        ],
+                      })
+                    );
+                  }
+
+                  return [
+                    new Paragraph({
+                      text: `Entry ${index + 1}: ${capitalize(entry.category)}`,
+                      heading: HeadingLevel.HEADING3,
+                      spacing: { after: 200 },
+                    }),
+                    new Table({
+                      width: { size: 100, type: WidthType.PERCENTAGE },
+                      rows,
+                    }),
+                    new Paragraph({ text: "", spacing: { after: 300 } }),
+                  ];
+                })
+              : [
+                  new Paragraph({
+                    text: "No log entries available.",
+                    italics: true,
+                  }),
+                ]),
+
+            // ✅ New Page
+            new Paragraph({ children: [new PageBreak()] }),
+
+            // ✅ Other Activities Section
+            new Paragraph({
+            alignment: AlignmentType.CENTER,
+            spacing: { after: 200 },
+            children: [
+              new TextRun({
+                text: "Other Activities",
+                size: 32,  // ✅ 16 is default; 32 means bigger
+                bold: true,
+                color: "2E74B5", // optional, makes it bluish like Word heading
+              }),
+            ],
+          }),
+            new Paragraph({
+              text: "No activities have been performed that relate to this report section.",
+              italics: true,
+            }),
+          ],
+        },
+      ],
+    });
+
+    // ✅ Save .docx
+    Packer.toBlob(doc).then((blob) => {
+      saveAs(blob, `Medical_Logbook_Report_${new Date().toISOString().split("T")[0]}.docx`);
+    });
+  });
+};
+
+
   return (
     <div className="flex text-white">
       <div className="flex-1 p-5">
@@ -232,22 +637,6 @@ const ReportsPage = () => {
               <div>
                 <label>Name *</label>
                 <input type="text" value={userData.fullName || ""} readOnly />
-              </div>
-              <div>
-                <label>From Date *</label>
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => dispatch(setFromDate(e.target.value))}
-                />
-              </div>
-              <div>
-                <label>To Date *</label>
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => dispatch(setToDate(e.target.value))}
-                />
               </div>
               <div>
                 <label>Report *</label>
@@ -279,9 +668,64 @@ const ReportsPage = () => {
                   <option>Docx (editable format)</option>
                 </select>
               </div>
-              <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={generatePDF}>
-                Download Report
-              </button>
+              <div>
+              <label>Date Filter *</label>
+              <select
+                onChange={(e) => handleDateFilter(e.target.value)}
+                className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20 mb-4"
+              >
+                <option value="all">Complete Report (All Entries)</option>
+                <option value="10days">Last 10 Days</option>
+                <option value="1month">Last 1 Month</option>
+                <option value="1year">Last 1 Year</option>
+                <option value="custom">Custom Date Range</option>
+              </select>
+            </div>
+
+            {/* ✅ Show Custom Date Inputs only if filter === "custom" */}
+            {selectedFilter === "custom" && (
+              <div className="flex gap-4 mb-4">
+                <div>
+                  <label>From *</label>
+                  <input
+                    type="date"
+                    value={customFrom}
+                    onChange={(e) => setCustomFrom(e.target.value)}
+                    className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20"
+                  />
+                </div>
+                <div>
+                  <label>To *</label>
+                  <input
+                    type="date"
+                    value={customTo}
+                    onChange={(e) => setCustomTo(e.target.value)}
+                    className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20"
+                  />
+                </div>
+                {/* Apply Button */}
+                <button
+                  type="button"
+                  onClick={applyCustomRange}
+                  className="bg-gradient-to-r from-teal-400 to-teal-600 hover:from-teal-500 hover:to-teal-700 text-white px-6 py-2 rounded-full text-sm shadow-md hover:shadow-lg transition duration-300 mx-auto block"
+                >
+                  Apply
+                </button>
+                </div>
+            )}
+              {/* Download Button */}
+              <button
+              onClick={() => {
+                if (reportFileType.startsWith("PDF")) {
+                  generatePDF();
+                } else {
+                  generateDocx();
+                }
+              }}
+              className="bg-gradient-to-r from-cyan-400 to-cyan-600 hover:from-cyan-500 hover:to-cyan-700 text-white px-6 py-2 rounded-full text-sm shadow-md hover:shadow-lg transition duration-300 mx-auto block"
+            >
+              Download Report
+            </button>
             </div>
           </>
         )}
