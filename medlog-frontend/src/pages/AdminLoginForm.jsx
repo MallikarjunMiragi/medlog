@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { loginUser } from "../reducers/authReducer";
 import Image from "../assets/photo/login.mp4";
 import Notification from "../Components/Notification";
-//import "../styles.css";
-
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 const AdminLoginForm = () => {
   const [formData, setFormData] = useState({
     emailId: "",
@@ -14,7 +14,8 @@ const AdminLoginForm = () => {
 
   const [errors, setErrors] = useState({});
   const [notification, setNotification] = useState({ isOpen: false, title: "", message: "", type: "info" });
-
+  const location= useLocation();
+  const email = location.state?.email || ""; // Get email from location state 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user, error, loading } = useSelector((state) => state.auth);
@@ -36,6 +37,11 @@ const AdminLoginForm = () => {
       videoRef.current.pause();
     }
   };
+  useEffect(() => {
+    if (email) {
+      setFormData((prev) => ({ ...prev, emailId: email }));
+    }
+  }, [email]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,22 +70,14 @@ const AdminLoginForm = () => {
       
   
       setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
-  } else {
-    console.log("❌ Login failed:", result.payload?.error || "Unknown error");
-  
-    const backendError = result.payload?.error || "Invalid email or password.";
-  
-    setErrors({ login: backendError });
-    setNotification({
-      isOpen: true,
-      title: "Login Failed",
-      message: backendError,
-      type: "error",
-    });
-  }
-  
-  
+    } else {
+      console.log("❌ Invalid credentials");
+      setErrors({ login: "Invalid email or password. Please register." });
+      setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
+    }
 };
+
+
 
 
   const handleRegister = () => {
@@ -122,9 +120,14 @@ const AdminLoginForm = () => {
             {errors.login && <div className="error">{errors.login}</div>} */}
 
             {isForgotPasswordVisible && (
-              <button type="button" className="w-full p-3 text-[#22615f] bg-[#dadde0] cursor-pointer mb-4 text-sm hover:bg-[#bdc0c5] transition duration-300 rounded-md">
-                Forgot Password?
-              </button>
+              <button
+              type="button"
+              className="w-full p-3 text-[#22615f] bg-[#dadde0] cursor-pointer mb-4 text-sm hover:bg-[#bdc0c5] transition duration-300 rounded-md"
+              onClick={() => navigate("/forgot-password", { state: { email: formData.emailId } })}
+            >
+              Forgot Password?
+            </button>
+            
             )}
 
             <div className="flex mt-5 gap-4">
