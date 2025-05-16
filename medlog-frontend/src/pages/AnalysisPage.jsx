@@ -92,8 +92,10 @@ const AnalysisPage = () => {
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl text-white font-semibold">Student Analysis</h1>
-      <p className="mt-2 text-blue-300">Charts and insights based on your log entries</p>
+      <div className="text-center mb-8">
+  <h1 className="text-3xl font-bold text-white">Student Analysis</h1>
+  <p className="mt-2 text-gray-300 text-lg">Gain insights and track your progress over time</p>
+</div>
 
       {entries.length > 0 ? (
         <div className="grid grid-cols-2 gap-6 mt-10">
