@@ -70,11 +70,20 @@ const AdminLoginForm = () => {
       
   
       setNotification({ isOpen: true, title: "Success", message: "Login successful! Redirecting...", type: "success" });
-    } else {
-      console.log("❌ Invalid credentials");
-      setErrors({ login: "Invalid email or password. Please register." });
-      setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
-    }
+    // } else {
+    //   console.log("❌ Invalid credentials");
+    //   setErrors({ login: "Invalid email or password. Please register." });
+    //   setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
+    // }
+    } else if (result.payload?.error === "Account pending approval") {
+  console.log("⏳ Approval pending");
+  setErrors({ login: "Approval pending. Please wait for admin approval." });
+  setNotification({ isOpen: true, title: "Pending", message: "Approval pending. Please wait for admin approval.", type: "warning" });
+} else {
+  console.log("❌ Invalid credentials");
+  setErrors({ login: "Invalid email or password. Please register." });
+  setNotification({ isOpen: true, title: "Error", message: "Invalid email or password.", type: "error" });
+}
 };
 
 
