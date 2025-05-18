@@ -5,9 +5,9 @@ import { addCategory } from "../reducers/categoryReducer";
 import Notification from "../Components/Notification";
 
 const categories = [
-  "Admissions", "Bone Marrow Reporting", "Clinical Events", "Clinics", "CPD",
+   "Bone Marrow Reporting", "Clinical Events", "Clinics", 
   "CUSIC", "General Surgery", "Echocardiograms", "Multi-Disciplinary Team Meetings",
-  "O & G Ultrasound", "POCUS", "Procedures", "Radiology Reporting", "Research",
+  "O & G Ultrasound",  "Radiology Reporting", "Research",
   "Thoracic Ultrasound", "Ward Rounds"
 ];
 

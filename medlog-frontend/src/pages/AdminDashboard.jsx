@@ -4,9 +4,9 @@ import { Outlet } from "react-router-dom";
 
 const AdminDashboard = () => {
   return (
-    <div className="flex bg-gray-700 min-h-screen">
+    <div className=" bg-gradient-to-br from-gray-800 via-gray-900 to-black min-h-screen">
       <AdminSidebar />
-      <main className="flex-1 p-10 pl-72 bg-gray-700 min-h-screen">
+      <main className="flex-1 p-10 pr-50 pl-50 ">
         <Outlet />
       </main>
     </div>

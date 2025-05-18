@@ -104,18 +104,20 @@ const RegistrationPage = () => {
     console.log("✅ Submitting Registration Data:", userData);
 
     try {
-
-        console.log("🚀 Sending API request...");
-        await dispatch(signupUser(userData)).unwrap();
-        console.log("🎉 Registration Successful!");
-        setNotification({ isOpen: true, title: "Success", message: "Registration successful!" });
-        setTimeout(() => {
-          navigate("/pending-approval");
-        }, 2000);
+      console.log("🚀 Sending API request...");
+      await dispatch(signupUser(userData)).unwrap();
+      console.log("🎉 Registration Successful!");
+      setNotification({ isOpen: true, title: "Success", message: "Registration successful! Please verify OTP." });
+    
+      setTimeout(() => {
+        navigate("/verify-otp", { state: { email } }); // Pass email to verify-otp page if needed
+      }, 1000); // you can reduce timeout to 1s or even navigate immediately
+    
     } catch (err) {
       console.error("❌ Registration Error:", err);
       setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
+    
   };
 
 

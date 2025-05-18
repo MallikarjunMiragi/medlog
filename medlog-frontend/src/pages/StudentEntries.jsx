@@ -102,6 +102,19 @@ const StudentEntries = () => {
     }
   };
 
+const isUrl = (str) => {
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};
+
+const capitalize = (str) =>
+  str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+
   return (
     <div className="flex h-screen bg-[#0f172a]">
       
@@ -154,14 +167,14 @@ const StudentEntries = () => {
               key={entry._id}
               className="relative bg-[#717c9350] p-6 rounded-lg mb-6 shadow-md"
             >
-              <h4 className="text-lg font-semibold text-teal-100 mb-4">
-                {entry.category}
+              <h4 className="text-lg font-semibold text-teal-100 mb-4 flex items-center gap-2">
+                <span>🩺</span> {capitalize(entry.categoryName)}
               </h4>
 
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 {Object.entries(entry.data).map(([key, value]) => (
                   <p key={key} className="text-white text-sm mb-2">
-                    <strong>{key.replace(/_/g, " ")}:</strong>{" "}
+                    <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
                     {typeof value === "string" && value.startsWith("/uploads/") ? (
                       <a
                         href={`http://localhost:5000${value}`}
@@ -171,11 +184,36 @@ const StudentEntries = () => {
                         📄 Download File
                       </a>
                     ) : (
-                      value || "N/A"
+                      typeof value === "string"
+                      ? capitalize(value)
+                      : value || "N/A"
                     )}
                   </p>
                 ))}
-              </div>
+              </div> */}
+
+              <div className="mb-4">
+              {Object.entries(entry.data).map(([key, value]) => (
+                <p key={key} className="text-white text-sm mb-2">
+                  <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
+                  {typeof value === "string" && value.startsWith("/uploads/") ? (
+                    <a
+                      href={`http://localhost:5000${value}`}
+                      download
+                      className="text-teal-300 underline"
+                    >
+                      📄 Download File
+                    </a>
+                  ) : typeof value === "string" && isUrl(value) ? (
+                    <span className="text-teal-300">{value}</span>
+                  ) : typeof value === "string" ? capitalize(
+                    value
+                  ) : (
+                    value || "N/A"
+                  )}
+                </p>
+              ))}
+            </div>
 
               {/* Reviewed entries view */}
               {selectedTab === "reviewed" && (
