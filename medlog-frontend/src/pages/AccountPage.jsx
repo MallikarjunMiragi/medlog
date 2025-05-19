@@ -4,11 +4,21 @@ import { useNavigate } from "react-router-dom";
 import { FaTrash, FaCheckCircle } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useDispatch } from "react-redux";
+import { updateUserLocally } from "../reducers/authReducer";
+import Notification from "../Components/Notification";
+
 
 const AccountPage = () => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const userEmail = user?.email?.email || user?.email || "";
+  const dispatch = useDispatch();
+  const [notification, setNotification] = useState({
+    isOpen: false,
+    message: "",
+    type: "info",
+  });
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -93,7 +103,7 @@ const AccountPage = () => {
 
   const handleUpdate = async () => {
     setLoading(true);
-    const updatedUser = { ...formData };
+    const updatedUser = { ...formData, originalEmail: userEmail, };
     if (role === "doctor") {
       delete updatedUser.country;
       delete updatedUser.hospital;
@@ -107,12 +117,27 @@ const AccountPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.error) toast.error(data.error);
-        else toast.success("Profile updated successfully!");
+        if (data.error) 
+        setNotification({
+        isOpen: true,
+        message: data.error,
+        type: "error",
+      });
+        else {
+        setNotification({
+        isOpen: true,
+        message: "Profile updated successfully!",
+        type: "success",
+      });
+        dispatch(updateUserLocally(data.user));}
       })
       .catch((err) => {
         console.error("Update error:", err);
-        toast.error("Failed to update profile.");
+        setNotification({
+        isOpen: true,
+        message: "Failed to update profile.",
+        type: "error",
+      });
       })
       .finally(() => setLoading(false));
   };
@@ -128,17 +153,34 @@ const AccountPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (data.error) toast.error(data.error);
+        if (data.error) {
+        setNotification({
+        isOpen: true,
+        message: data.error,
+        type: "error",
+      });
+    }
         else {
-          toast.success("Account deleted!");
+          setNotification({
+          isOpen: true,
+          message: "Account deleted!",
+          type: "success",
+        });
           setTimeout(() => navigate("/"), 2000);
         }
       })
       .catch((err) => {
         console.error("Delete error:", err);
-        toast.error("Failed to delete account.");
+        setNotification({
+        isOpen: true,
+        message: "Failed to delete account.",
+        type: "error",
+      });
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+      setLoading(false);
+      setTimeout(() => setNotification((prev) => ({ ...prev, isOpen: false })), 3000);
+    });
   };
 
   if (loading) {
@@ -155,8 +197,48 @@ const AccountPage = () => {
       <h2 className="text-xl font-bold mb-2">Account Information</h2>
 
       <p className="flex items-center mb-6">
-        <strong>Email:</strong> {formData.email} <FaCheckCircle className="text-[#0e856f] ml-1" />
+        <strong>Email:&nbsp;</strong> {formData.email} <FaCheckCircle className="text-[#0e856f] ml-1" />
       </p>
+
+    {role === "admin" ? (
+      <>
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          placeholder="Enter Email"
+          value={formData.email}
+          onChange={handleChange}
+        />
+        <label>Full Name</label>
+        <input
+          type="text"
+          name="fullName"
+          placeholder="Enter full name"
+          value={formData.fullName}
+          onChange={handleChange}
+        />
+
+        <label>Password</label>
+        <input
+          type="password"
+          name="password"
+          placeholder="Enter new password"
+          value={formData.password}
+          onChange={handleChange}
+        />
+      </>
+    ) : role === "doctor" ? (
+      
+      <>
+      <label>Full Name</label>
+        <input
+          type="text"
+          name="fullName"
+          placeholder="Enter full name"
+          value={formData.fullName}
+          onChange={handleChange}
+        />
 
       <label className="block text-lg font-semibold mb-1">Password</label>
       <input
@@ -167,68 +249,83 @@ const AccountPage = () => {
         onChange={handleChange}
         className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
       />
+      
+    <label>Specialty*</label>
+    <select name="specialty" value={formData.specialty} onChange={handleChange}>
+      <option value="">Select specialty</option>
+      {specialtiesIndia.concat(specialtiesOther).map((s) => (
+        <option key={s} value={s}>{s}</option>
+      ))}
+    </select>
+  </>
+) : (
+  <>
+  <label className="block text-lg font-semibold mb-1">Password</label>
+      <input
+        type="password"
+        name="password"
+        placeholder="Enter new password"
+        value={formData.password}
+        onChange={handleChange}
+        className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+      /> 
 
+    <label>Country*</label>
+    <select name="country" value={formData.country} onChange={handleCountryChange}>
+      <option value="">Select a country</option>
+      <option value="India">India</option>
+      <option value="United States">United States</option>
+      <option value="United Kingdom">United Kingdom</option>
+      <option value="Australia">Australia</option>
+      <option value="Canada">Canada</option>
+      <option value="Germany">Germany</option>
+    </select>
 
-      <label>Password</label>
-      <input type="password" name="password" placeholder="Enter new password" value={formData.password} onChange={handleChange} />
+    <label>Training Year*</label>
+    <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
+      <option value="">Select training year</option>
+      {availableTrainingYears.map((year) => (
+        <option key={year} value={year}>{year}</option>
+      ))}
+    </select>
 
-      {role === "doctor" ? (
-        <>
-          <label>Specialty*</label>
-          <select name="specialty" value={formData.specialty} onChange={handleChange}>
-            <option value="">Select specialty</option>
-            {specialtiesIndia.concat(specialtiesOther).map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </>
-      ) : (
-        <>
-          <label>Country*</label>
-          <select name="country" value={formData.country} onChange={handleCountryChange}>
-            <option value="">Select a country</option>
-            <option value="India">India</option>
-            <option value="United States">United States</option>
-            <option value="United Kingdom">United Kingdom</option>
-            <option value="Australia">Australia</option>
-            <option value="Canada">Canada</option>
-            <option value="Germany">Germany</option>
-          </select>
+    <label>Hospital*</label>
+    <select name="hospital" value={formData.hospital} onChange={handleChange}>
+      <option value="">Select hospital</option>
+      {availableHospitals.map((h) => (
+        <option key={h} value={h}>{h}</option>
+      ))}
+    </select>
 
-          <label>Training Year*</label>
-          <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
-            <option value="">Select training year</option>
-            {availableTrainingYears.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
+    <label>Specialty*</label>
+    <select name="specialty" value={formData.specialty} onChange={handleChange}>
+      <option value="">Select specialty</option>
+      {availableSpecialties.map((s) => (
+        <option key={s} value={s}>{s}</option>
+      ))}
+    </select>
+  </>
+)}
 
-          <label>Hospital*</label>
-          <select name="hospital" value={formData.hospital} onChange={handleChange}>
-            <option value="">Select hospital</option>
-            {availableHospitals.map((h) => (
-              <option key={h} value={h}>{h}</option>
-            ))}
-          </select>
-
-          <label>Specialty*</label>
-          <select name="specialty" value={formData.specialty} onChange={handleChange}>
-            <option value="">Select specialty</option>
-            {availableSpecialties.map((s) => (
-              <option key={s} value={s}>{s}</option>
-
-            ))}
-          </select>
-        </>
-      )}
 
       <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition hover:bg-[#015b5b]" onClick={handleUpdate}>
         Update
       </button>
-      <button className="bg-[#2f2267] py-2 px-4 rounded-md cursor-pointer flex justify-center items-center gap-1.5 mt-2" onClick={handleDelete}>
-        <FaTrash /> Delete Account
-      </button>
-
+      {role !== "admin" && (
+        <button
+          className="bg-[#2f2267] py-2 px-4 rounded-md cursor-pointer flex justify-center items-center gap-1.5 mt-2"
+          onClick={handleDelete}
+        >
+          <FaTrash /> Delete Account
+        </button>
+      )}
+      <Notification
+      isOpen={notification.isOpen}
+      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+      title="Notification"
+      message={notification.message}
+      type={notification.type}
+    />
     </div>
   );
 };

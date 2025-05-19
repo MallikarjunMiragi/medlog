@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoClose, IoLogOutOutline, IoMenu } from "react-icons/io5";
 import { FaBook, FaBriefcase, FaChartBar, FaBullseye, FaFileAlt, FaCog, FaQuestionCircle } from "react-icons/fa";
+import { MdAccountCircle } from "react-icons/md";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -69,7 +70,7 @@ const Sidebar = () => {
             className={getLinkStyle("/account")}
             onClick={() => navigate("/account")}
           >
-            <FaCog className="icon" /> Account
+            <MdAccountCircle className="icon" /> Account
           </li>
           <li
             className={getLinkStyle("/support")}

@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import { MdDashboard, MdGroup, MdLogout, MdSupport } from "react-icons/md";
+import { MdDashboard, MdGroup, MdLogout, MdSupport, MdAccountCircle } from "react-icons/md";
 
 const AdminSidebar = () => {
   const navigate = useNavigate();
@@ -27,6 +27,9 @@ const AdminSidebar = () => {
         </NavLink>
         <NavLink to="/admin/support" className={navLinkStyles}>
           <MdSupport size={20} /> Support
+        </NavLink>
+        <NavLink to="/admin/account" className={navLinkStyles}>
+          <MdAccountCircle size={20} /> Account
         </NavLink>
         <button
           onClick={handleLogout}

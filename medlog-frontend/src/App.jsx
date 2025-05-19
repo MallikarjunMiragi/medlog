@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
-import DoctorSidebar from "./components/DoctorSidebar"; // ✅ Import Doctor's Sidebar
+import DoctorSidebar from "./Components/DoctorSidebar"; // ✅ Import Doctor's Sidebar
 import LoginPage from "./pages/AdminLoginForm";
 import RegistrationPage from "./pages/RegistrationPage";
 import LogbookPage from "./pages/LogbookPage";
@@ -89,6 +89,7 @@ const AppLayout = () => {
             
 
             <Route path="support" element={<AdminSupportPage />} />
+            <Route path="/admin/account" element={<AccountPage />} />
 
             </Route>
             <Route path="/pending-approval" element={<PendingApproval />} />

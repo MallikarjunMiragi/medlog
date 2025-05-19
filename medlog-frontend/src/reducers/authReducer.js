@@ -58,12 +58,17 @@ const authSlice = createSlice({
     isLoading: false,
     error: null,
   },
-  reducers: {
-    logout: (state) => {
-      state.user = null;
-      localStorage.removeItem("user"); // Clear user data from localStorage
-    },
+reducers: {
+  logout: (state) => {
+    state.user = null;
+    localStorage.removeItem("user");
   },
+  updateUserLocally: (state, action) => {
+    state.user = action.payload;
+    localStorage.setItem("user", JSON.stringify(action.payload));
+  }
+},
+
   extraReducers: (builder) => {
     builder
       .addCase(loginUser.pending, (state) => {
@@ -92,5 +97,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, updateUserLocally } = authSlice.actions;
 export default authSlice.reducer;
