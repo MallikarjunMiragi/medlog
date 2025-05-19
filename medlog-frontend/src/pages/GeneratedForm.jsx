@@ -135,6 +135,7 @@ const GeneratedForm = () => {
       ) : (
         <DynamicCategoryForm categoryName={category} />
       )}
+    
     </div>
   );
 };

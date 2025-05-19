@@ -1,230 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { useSelector } from "react-redux";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-
-// const DynamicCategoryForm = () => {
-//     const { category } = useParams();
-//     const categories = useSelector((state) => state.category.categories || []);
-//     const userEmail = useSelector((state) => state.auth.user?.email); // ✅ Ensure email is correctly retrieved
-
-//     const [selectedCategory, setSelectedCategory] = useState(null);
-//     const [formData, setFormData] = useState({});
-
-//     useEffect(() => {
-//         if (!category) {
-//             console.error("❌ categoryName is undefined.");
-//             return;
-//         }
-
-//         if (categories.length > 0) {
-//             const normalizedCategory = category?.trim().toLowerCase();
-//             const foundCategory = categories.find(
-//                 (c) => c.name?.trim().toLowerCase() === normalizedCategory
-//             );
-
-//             if (foundCategory) {
-//                 setSelectedCategory(foundCategory);
-
-//                 // Initialize form data
-//                 const initialFormData = {};
-//                 foundCategory.fields.forEach(field => {
-//                     initialFormData[field.name] = "";
-//                 });
-//                 setFormData(initialFormData);
-//             }
-//         }
-//     }, [categories, category]);
-
-//     const handleChange = (e) => {
-//         setFormData({
-//             ...formData,
-//             [e.target.name]: e.target.value
-//         });  
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-    
-//         // ✅ Ensure email is retrieved correctly
-//         if (!userEmail) {
-//             console.error("❌ Email is missing! Make sure the user is logged in.");
-//             alert("You must be logged in to submit an entry.");
-//             return;
-//         }
-
-//         if (!selectedCategory?._id) {
-//             console.error("❌ Category ID is missing!");
-//             alert("Category not found.");
-//             return;
-//         }
-
-//         // Normalize form data field names
-//         const normalizedData = {};
-//         Object.keys(formData).forEach(key => {
-//             const normalizedKey = key.toLowerCase().replace(/\s+/g, '');
-//             normalizedData[normalizedKey] = formData[key];
-//         });
-
-//         console.log("✅ Submitting Data:", normalizedData);
-//         console.log("✅ Category ID:", selectedCategory._id);
-//         console.log("✅ Email:", userEmail);
-
-//         try {
-//             const response = await axios.post("http://localhost:5000/api/logentry/add", {
-//                 email: userEmail,  // ✅ Use `userEmail` instead of undefined `email`
-//                 categoryId: selectedCategory._id,
-//                 data: normalizedData
-//             });
-
-//             console.log("✅ Entry saved successfully:", response.data);
-//             alert("Log entry submitted successfully!");
-//         } catch (error) {
-//             console.error("❌ Error saving entry:", error.response?.data || error.message);
-//             alert("Failed to save entry. Please try again.");
-//         }
-//     };
-
-//     if (categories.length === 0) return <p>Loading categories from database...</p>;
-//     if (!selectedCategory) return <p>Category not found!</p>;
-
-//     return (
-//         <form onSubmit={handleSubmit}>
-//             <h2>{selectedCategory.name} Form</h2>
-//             {selectedCategory.fields.map((field, index) => (
-//                 <div key={index}>
-//                     <label>{field.name}</label>
-//                     <input
-//                         type={field.type}
-//                         name={field.name}
-//                         value={formData[field.name] || ""}
-//                         onChange={handleChange}
-//                         required
-//                     />
-//                 </div>
-//             ))}
-//             <button type="submit">Submit</button>
-//         </form>
-//     );
-// };
-
-// export default DynamicCategoryForm;
-
-
-
-
-// import React, { useState, useEffect } from "react";
-// import { useSelector } from "react-redux";
-// import { useParams } from "react-router-dom";
-// import axios from "axios";
-
-// const DynamicCategoryForm = () => {
-//     const { category } = useParams();
-//     console.log("🔍 Category from useParams:", category);
-//     const [selectedFile, setSelectedFile] = useState(null); // ✅ Store selected file
-
-//     const categories = useSelector((state) => state.category.categories || []);
-//     const userEmail = useSelector((state) => state.auth.user?.email);
-
-//     const [selectedCategory, setSelectedCategory] = useState(null);
-//     const [formData, setFormData] = useState({});
-//     useEffect(() => {
-//         if (!category) {
-//             console.error("❌ categoryName is undefined in URL.");
-//             return;
-//         }
-    
-//         if (categories.length > 0) {
-//             const normalizedCategory = category.trim().toLowerCase();
-//             const foundCategory = categories.find(
-//                 (c) => c.name?.trim().toLowerCase() === normalizedCategory
-//             );
-    
-//             if (foundCategory) {
-//                 console.log("✅ Found Category:", foundCategory);
-//                 setSelectedCategory(foundCategory); // ✅ Ensure category is set
-    
-//                 // Initialize form fields
-//                 const initialFormData = foundCategory.fields.reduce((acc, field) => {
-//                     acc[field.name] = ""; // Default to empty values
-//                     return acc;
-//                 }, {});
-    
-//                 setFormData(initialFormData);
-//             } else {
-//                 console.error("❌ Category not found:", category);
-//             }
-//         }
-//     }, [categories, category]);
-    
-
-//     const handleChange = (e) => {
-//         setFormData({
-//             ...formData,
-//             [e.target.name]: e.target.value
-//         });
-//     };
-
-//     const handleSubmit = async (event) => {
-//         event.preventDefault();
-    
-//         if (!selectedCategory || !selectedCategory._id) {
-//             console.error("❌ Category ID is missing!");
-//             alert("Category not found. Please select a valid category.");
-//             return;
-//         }
-    
-//         const formData = new FormData();
-//         formData.append("email", userEmail);
-//         formData.append("categoryId", selectedCategory._id); // ✅ Use selectedCategory._id
-//         formData.append("name", formData.name); // Ensure name is passed
-//         formData.append("file", selectedFile); 
-    
-//         try {
-//             const response = await fetch("http://localhost:5000/api/logentry/add", {
-//                 method: "POST",
-//                 body: formData, // ✅ Send as multipart/form-data
-//             });
-    
-//             const result = await response.json();
-//             console.log("✅ Success:", result);
-//             alert("Entry submitted successfully!");
-//         } catch (error) {
-//             console.error("❌ Error submitting form:", error);
-//             alert("Failed to submit entry. Please try again.");
-//         }
-//     };
-    
-      
-//       const handleFileChange = (event) => {
-//         setSelectedFile(event.target.files[0]); // ✅ Store the actual file, not just the path
-//       };
-      
-
-//     if (categories.length === 0) return <p style={{color: "black"}}>Loading categories from database...</p>;
-//     if (!selectedCategory) return <p>❌ Category not found!</p>;
-
-//     return (
-//         <form onSubmit={handleSubmit}>
-//             <h2>{selectedCategory.name} Form</h2>
-//             {selectedCategory.fields.map((field, index) => (
-//                 <div key={index}>
-//                     <label>{field.name}</label>
-//                     <input
-//                         type={field.type}
-//                         name={field.name}
-//                         value={formData[field.name] || ""}
-//                         onChange={handleChange}
-//                         required
-//                     />
-//                 </div>
-//             ))}
-//             <button type="submit">Submit</button>
-//         </form>
-//     );
-// };
-
-// export default DynamicCategoryForm;
 
 
 import React, { useState, useEffect } from "react";
@@ -239,6 +12,7 @@ const DynamicCategoryForm = () => {
 
     const categories = useSelector((state) => state.category.categories || []);
     const userEmail = useSelector((state) => state.auth.user?.email);
+const [customFields, setCustomFields] = useState([]);
 
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [formData, setFormData] = useState({});
@@ -267,6 +41,19 @@ const dropdownOptions = {
     Supervision: ["Assisted", "Assisting", "First Operator", "Independent", "Observed", "Second Operator", "Supervised", "Supervising"],
     Gender: ["Female", "Male", "Other"]
   }
+};
+const addCustomField = () => {
+  setCustomFields([...customFields, { name: "", type: "text" }]);
+};
+
+const updateCustomField = (index, key, value) => {
+  const updated = [...customFields];
+  updated[index][key] = value;
+  setCustomFields(updated);
+};
+
+const deleteCustomField = (index) => {
+  setCustomFields(customFields.filter((_, i) => i !== index));
 };
 
     useEffect(() => {
@@ -400,7 +187,7 @@ const dropdownOptions = {
       className="[&_input]:placeholder:text-gray-300 [&_input]:w-full [&_input]:p-3 [&_input]:rounded-md [&_input]:bg-white/20"
     >
       <label className="mb-1 block text-white">{field.name}</label>
-      {field.type === "file" ? (
+      {/* {field.type === "file" ? (
         <input
           type="file"
           onChange={(e) => handleFileChange(e, field.name)}
@@ -443,6 +230,40 @@ const dropdownOptions = {
 
 
 </div>
+<h3 className="mt-6 mb-2 font-semibold text-white">Custom Fields</h3>
+{customFields.map((field, index) => (
+  <div key={index} className="flex items-center gap-2 mb-2">
+    <input
+      type="text"
+      placeholder="Field Name"
+      value={field.name}
+      onChange={(e) => updateCustomField(index, "name", e.target.value)}
+      className="flex-1 p-2 rounded-md bg-white/20 text-white placeholder-gray-300"
+    />
+    <select
+      value={field.type}
+      onChange={(e) => updateCustomField(index, "type", e.target.value)}
+      className="p-2 rounded-md bg-white/20 text-gray-300 border border-gray-300"
+    >
+      <option value="text">Text</option>
+      <option value="number">Number</option>
+      <option value="date">Date</option>
+      <option value="file">File</option>
+    </select>
+    <button
+      onClick={() => deleteCustomField(index)}
+      className="text-red-500 hover:text-red-700"
+    >
+      Delete
+    </button>
+  </div>
+))}
+<button
+  onClick={addCustomField}
+  className="w-full my-4 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
+>
+  + Add Field
+</button>
 
            <button
   type="submit"
@@ -458,8 +279,123 @@ const dropdownOptions = {
                 message={notification.message}
                 type={notification.type}
             />
-        </form>
-    );
+        </form> */}
+    {field.type === "file" ? (
+  <input
+    type="file"
+    name={field.name}
+    onChange={(e) => handleFileChange(e, field.name)}
+  />
+) : options ? (
+  <select
+    name={field.name}
+    value={formData[field.name] || ""}
+    onChange={handleChange}
+    className="text-black w-full p-3 rounded-md bg-white/20"
+  >
+    <option value="">Select {field.name}</option>
+    {options.map((option, idx) => (
+      <option key={idx} value={option}>
+        {option}
+      </option>
+    ))}
+  </select>
+) : (
+  <input
+    type={field.type}
+    name={field.name}
+    value={formData[field.name] || ""}
+    onChange={handleChange}
+    placeholder={`Enter ${field.name}`}
+  />
+)}
+    </div>
+  );
+})}
+</div>
+
+{/* Custom Fields Section */}
+<div className="mt-6">
+  <h3 className="text-xl mb-2">Custom Fields</h3>
+  {customFields.map((field, index) => (
+    <div key={index} className="mb-4">
+      <div className="flex gap-2 mb-2">
+        <input
+          type="text"
+          value={field.name}
+          placeholder="Field Name"
+          onChange={(e) => updateCustomField(index, "name", e.target.value)}
+          className="text-black w-full p-3 rounded-md bg-white/20"
+        />
+        <select
+          value={field.type}
+          onChange={(e) => updateCustomField(index, "type", e.target.value)}
+          className="text-black w-full p-3 rounded-md bg-white/20"
+        >
+          <option value="text">Text</option>
+          <option value="file">File</option>
+          <option value="number">Number</option>
+          <option value="date">Date</option>
+        </select>
+
+              <button
+        type="button"
+        onClick={() => deleteCustomField(index)}
+        className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded"
+      >
+        Remove
+      </button>
+      </div>
+{field.type === "file" ? (
+  <input
+    type="file"
+    name={field.name}
+    onChange={(e) => handleFileChange(e, field.name)}
+     className="text-black w-full p-3 rounded-md bg-white/20"
+
+  />
+) : (
+  <input
+    type={
+      field.type === "number"
+        ? "number"
+        : field.type === "date"
+        ? "date"
+        : "text"
+    }
+    name={field.name}
+    value={formData[field.name] || ""}
+    onChange={handleChange}
+    placeholder={`Enter ${field.name}`}
+    className="text-black w-full p-3 rounded-md bg-white/20"
+  />
+)}
+
+
+    </div>
+  ))}
+  <button
+    type="button"
+    onClick={addCustomField}
+    className="bg-green-500 px-4 py-2 mt-2 rounded"
+  >
+    Add Custom Field
+  </button>
+</div>
+
+<button
+  type="submit"
+  className="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-md font-bold"
+>
+  Submit
+</button>
+
+{/* Notification Component */}
+{notification.isOpen && (
+  <Notification message={notification.message} type={notification.type} />
+)}
+</form>
+    )
 };
 
 export default DynamicCategoryForm;
