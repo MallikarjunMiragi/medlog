@@ -231,6 +231,25 @@ const AccountPage = () => {
     ) : role === "doctor" ? (
       
       <>
+      <label>Full Name</label>
+        <input
+          type="text"
+          name="fullName"
+          placeholder="Enter full name"
+          value={formData.fullName}
+          onChange={handleChange}
+        />
+
+      <label className="block text-lg font-semibold mb-1">Password</label>
+      <input
+        type="password"
+        name="password"
+        placeholder="Enter new password"
+        value={formData.password}
+        onChange={handleChange}
+        className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+      />
+      
     <label>Specialty*</label>
     <select name="specialty" value={formData.specialty} onChange={handleChange}>
       <option value="">Select specialty</option>
