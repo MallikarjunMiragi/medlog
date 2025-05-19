@@ -42,13 +42,9 @@ const AdminPage = () => {
         email,
         status: "approved",
       });
-
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, status: "approved" } : u
-        )
+      setUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, status: "approved" } : u))
       );
-
       setNotification({
         isOpen: true,
         title: "Success",
@@ -56,7 +52,7 @@ const AdminPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to approve user", err);
+      console.error("Approve error:", err);
       setNotification({
         isOpen: true,
         title: "Error",
@@ -73,13 +69,9 @@ const AdminPage = () => {
         email,
         status: "rejected",
       });
-
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, status: "rejected" } : u
-        )
+      setUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, status: "rejected" } : u))
       );
-
       setNotification({
         isOpen: true,
         title: "Rejected",
@@ -87,7 +79,7 @@ const AdminPage = () => {
         type: "error",
       });
     } catch (err) {
-      console.error("Failed to reject user", err);
+      console.error("Reject error:", err);
       setNotification({
         isOpen: true,
         title: "Error",
@@ -103,13 +95,9 @@ const AdminPage = () => {
         email,
         role: newRole,
       });
-
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, role: newRole } : u
-        )
+      setUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, role: newRole } : u))
       );
-
       setNotification({
         isOpen: true,
         title: "Updated",
@@ -117,7 +105,7 @@ const AdminPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to update role", err);
+      console.error("Update role error:", err);
       setNotification({
         isOpen: true,
         title: "Error",
@@ -128,158 +116,143 @@ const AdminPage = () => {
   };
 
   const filteredUsers = users.filter((user) => {
-  const lowerSearch = searchTerm.toLowerCase();
-
-  if (activeTab === "requests") {
-    return user.fullName?.toLowerCase().includes(lowerSearch);
-  } else if (activeTab === "users") {
-    return user.role?.toLowerCase().includes(lowerSearch);
-  }
-
-  return false;
-});
-
+    const lowerSearch = searchTerm.toLowerCase();
+    if (activeTab === "requests") {
+      return user.fullName?.toLowerCase().includes(lowerSearch);
+    } else if (activeTab === "users") {
+      return (
+        user.role?.toLowerCase() === "student" &&
+        user.fullName?.toLowerCase().includes(lowerSearch)
+      );
+    }
+    return false;
+  });
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 py-8 text-white min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center text-teal-300 drop-shadow-lg">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 text-white min-h-screen bg-gradient-to-br from-[#1f2937] via-[#111827] to-black">
+     <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-center text-teal-300 drop-shadow-md">
         Admin Panel
       </h2>
+      <p className="text-center text-gray-400 text-lg mb-1">
+        Use the <strong>"Requests"</strong> tab to approve or reject newly registered users.
+      </p>
+      <p className="text-center text-gray-400 text-lg mb-6">
+        Use the <strong>"Users"</strong> tab to update a student's role to doctor.
+      </p>
 
-      {/* 🔘 Tabs */}
-              <div className="flex justify-center mb-6 gap-4">
-                <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "requests"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() =>
-            setActiveTab((prev) => (prev === "requests" ? null : "requests"))
-          }
-        >
-          Requests
-        </button>
-
-        <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "users"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() =>
-            setActiveTab((prev) => (prev === "users" ? null : "users"))
-          }
-        >
-          Users
-        </button>
-
-        {/* <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "users"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() => setActiveTab("users")}
-        >
-          Users
-        </button> */}
+      {/* Tabs */}
+      <div className="flex justify-center gap-4 mb-6">
+        {["requests", "users"].map((tab) => (
+          <button
+            key={tab}
+            className={`px-5 py-2 rounded-lg transition-all duration-200 ${
+              activeTab === tab
+                ? "bg-gradient-to-r from-teal-400 to-cyan-500 text-black font-semibold shadow-lg"
+                : "bg-gray-700 text-white hover:bg-gray-600"
+            }`}
+            onClick={() => setActiveTab((prev) => (prev === tab ? null : tab))}
+          >
+            {tab === "requests" ? "Requests" : "Users"}
+          </button>
+        ))}
       </div>
 
-{activeTab && (
-  <>
-    {/* 🔍 Search */}
-    <div className="mb-4">
-      <input
-        type="text"
-        placeholder={
-          activeTab === "requests"
-            ? "Search by name..."
-            : "Search by role..."
-        }
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
-      />
-    </div>
+      {/* Search */}
+      {activeTab && (
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          />
+        </div>
+      )}
 
-    {loading ? (
-      <p className="text-center text-gray-400 text-lg">Loading users...</p>
-    ) : (
-      <div className="overflow-auto bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
-          <table className="min-w-full table-auto text-sm sm:text-base">
-            <thead>
-              <tr className="bg-gray-700 text-teal-300 text-left">
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                {activeTab === "requests" && <th className="p-3">Status</th>}
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.email}
-                  className="border-b border-gray-700 hover:bg-gray-700/50 transition"
-                >
-                  <td className="p-3">{user.fullName}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3 capitalize">{user.role}</td>
+      {activeTab && (
+        <>
+          {loading ? (
+            <p className="text-center text-gray-400 text-lg">Loading users...</p>
+          ) : (
+            <div className="overflow-x-auto bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6">
+              <table className="min-w-full table-auto text-sm sm:text-base">
+                <thead>
+                  <tr className="bg-gray-700 text-teal-300 text-left">
+                    <th className="p-3">Name</th>
+                    <th className="p-3">Email</th>
+                    <th className="p-3">Role</th>
+                    {activeTab === "requests" && <th className="p-3">Status</th>}
+                    <th className="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={activeTab === "requests" ? 5 : 4} className="text-center py-6 text-gray-400">
+                        {activeTab === "users" ? "No students found." : "No requests found."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <tr key={user.email} className="border-b border-gray-700 hover:bg-gray-700/50 transition">
+                        <td className="p-3">{user.fullName}</td>
+                        <td className="p-3">{user.email}</td>
+                        <td className="p-3 capitalize">{user.role}</td>
 
-                  {activeTab === "requests" && (
-                    <td
-                      className={`p-3 font-semibold ${
-                        user.status === "approved"
-                          ? "text-green-400"
-                          : user.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-300"
-                      }`}
-                    >
-                      {user.status}
-                    </td>
+                        {activeTab === "requests" && (
+                          <td
+                            className={`p-3 font-semibold ${
+                              user.status === "approved"
+                                ? "text-green-400"
+                                : user.status === "rejected"
+                                ? "text-red-400"
+                                : "text-yellow-300"
+                            }`}
+                          >
+                            {user.status}
+                          </td>
+                        )}
+
+                        <td className="p-3 text-center">
+                          {activeTab === "requests" ? (
+                            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                              <button
+                                onClick={() => handleApprove(user.email)}
+                                className="px-4 py-1.5 bg-gradient-to-r from-green-400 to-green-600 text-black rounded-full hover:from-green-500 hover:to-green-700"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleReject(user.email)}
+                                className="px-4 py-1.5 bg-gradient-to-r from-red-400 to-red-600 text-black rounded-full hover:from-red-500 hover:to-red-700"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <select
+                              value={user.role}
+                              onChange={(e) =>
+                                handleRoleUpdate(user.email, e.target.value)
+                              }
+                              className="bg-gray-900 text-white border border-gray-600 rounded px-3 py-1"
+                            >
+                              <option value="student">Student</option>
+                              <option value="doctor">Doctor</option>
+                            </select>
+                          )}
+                        </td>
+                      </tr>
+                    ))
                   )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
 
-                  <td className="p-3">
-                    {activeTab === "requests" ? (
-                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                        <button
-                          onClick={() => handleApprove(user.email)}
-                          className="px-4 py-1.5 bg-green-500 text-black rounded-full hover:bg-green-600"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(user.email)}
-                          className="px-4 py-1.5 bg-red-500 text-black rounded-full hover:bg-red-600"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleUpdate(user.email, e.target.value)}
-                        className="bg-gray-900 text-white border border-gray-600 rounded px-3 py-1"
-                      >
-                        <option value="student">Student</option>
-                        <option value="doctor">Doctor</option>
-                      </select>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        
-      </div>
-    )}
-  </>
-)}
-
-
-      {/* 🔔 Notification */}
       <Notification
         isOpen={notification.isOpen}
         onRequestClose={() =>
@@ -294,8 +267,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
-
-
-
-
