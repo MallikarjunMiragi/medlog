@@ -140,7 +140,14 @@ const GeneratedForm = () => {
 };
 
 const styles = {
-  container: { padding: "20px", maxWidth: "500px", margin: "100px auto", textAlign: "center" },
+  container: {
+    padding: "20px",
+    maxWidth: "1200px",   // Much wider
+    margin: "40px auto",
+    textAlign: "left",    // Better for form readability
+    width: "100%",        // Allow it to grow to full width
+  },
 };
+
 
 export default GeneratedForm;
