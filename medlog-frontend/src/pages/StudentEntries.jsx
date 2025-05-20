@@ -14,6 +14,8 @@ const StudentEntries = () => {
   const [selectedTab, setSelectedTab] = useState("not-reviewed");
   const [comments, setComments] = useState({});
   const [scores, setScores] = useState({});
+  const [enhanceComment, setEnhanceComment] = useState({});
+
   const [notification, setNotification] = useState({
     isOpen: false,
     message: "",
@@ -52,12 +54,13 @@ const StudentEntries = () => {
           comments: comments[entryId],
         }),
       });
+      
 
       const result = await response.json();
       if (response.ok) {
         setNotification({
           isOpen: true,
-          message: `Comment submitted: ${comments[entryId]}`,
+          message: `Comment submitted:\n ${result.updatedEntry.comments}`,
           type: "success",
         });
 
@@ -71,6 +74,8 @@ const StudentEntries = () => {
       console.error("Server error:", error);
     }
   };
+  
+  
 
   const handleScoreSubmit = async (entryId) => {
     try {
@@ -171,26 +176,7 @@ const capitalize = (str) =>
                 <span>🩺</span> {capitalize(entry.categoryName)}
               </h4>
 
-              {/* <div className="mb-4">
-                {Object.entries(entry.data).map(([key, value]) => (
-                  <p key={key} className="text-white text-sm mb-2">
-                    <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
-                    {typeof value === "string" && value.startsWith("/uploads/") ? (
-                      <a
-                        href={`http://localhost:5000${value}`}
-                        download
-                        className="text-teal-300 underline"
-                      >
-                        📄 Download File
-                      </a>
-                    ) : (
-                      typeof value === "string"
-                      ? capitalize(value)
-                      : value || "N/A"
-                    )}
-                  </p>
-                ))}
-              </div> */}
+             
 
               <div className="mb-4">
               {Object.entries(entry.data).map(([key, value]) => (
@@ -244,6 +230,23 @@ const capitalize = (str) =>
                     >
                       Submit Comment
                     </button>
+                    <div className="flex items-center gap-2">
+  <input
+    type="checkbox"
+    id={`enhance-${entry._id}`}
+    checked={enhanceComment[entry._id] || false}
+    onChange={(e) =>
+      setEnhanceComment((prev) => ({
+        ...prev,
+        [entry._id]: e.target.checked,
+      }))
+    }
+  />
+  <label htmlFor={`enhance-${entry._id}`} className="text-white">
+    Enhance comment 
+  </label>
+</div>
+
 
                     <div className="flex items-center gap-2">
                       <input
