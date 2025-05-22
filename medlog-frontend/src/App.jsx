@@ -64,7 +64,7 @@ const AppLayout = () => {
   </div>
 )}
 
-        <div className="flex-1 p-5 overflow-y-auto bg-white/10 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
+        <div className="flex-1 p-5 overflow-y-auto bg-gradient-to-br from-gray-700 via-gray-900 to-gray-900 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />

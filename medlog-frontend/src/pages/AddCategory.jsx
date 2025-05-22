@@ -117,7 +117,7 @@ const AddCategory = () => {
               <select
                 value={field.type}
                 onChange={(e) => updateField(index, "type", e.target.value)}
-                className="p-2 rounded-md bg-white/20 text-gray-300 border border-gray-300"
+                className="p-2 rounded-md bg-gray-800 text-gray-300 border border-gray-300"
               >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
@@ -142,7 +142,7 @@ const AddCategory = () => {
       <div className="flex justify-between gap-2">
         <button
           onClick={() => navigate(-1)}
-          className="w-1/2 py-3 bg-gray-400 text-white rounded hover:bg-gray-500 transition"
+          className="w-1/2 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
         >
           Cancel
         </button>

@@ -62,12 +62,6 @@ const JobsPage = () => {
 
   return (
     <div className="p-5 text-white">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Your jobs</h2>
-        <button className="bg-[#008080] hover:bg-[#006a4e] px-3 py-2 cursor-pointer rounded-md !w-32 mb-4">
-          Add new job
-        </button>
-      </div>
       <p className="text-center text-teal-100 font-normal">
         You can tell Logitbox about new jobs, and change the hospitals and specialties associated
         with existing jobs in your account. You can also access logbook entries associated with old

@@ -34,7 +34,7 @@ const LogbookPage = () => {
 
   return (
 
-    <div className="h-screen flex flex-col bg-gray-900 text-white p-8">
+    <div className="h-screen flex flex-col text-white p-8">
       {/* Scrollable content */}
       <div className="flex-grow overflow-y-auto max-w-7xl w-full mx-auto">
         <h1 className="text-3xl font-bold mb-4 text-center">
