@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Notification from "../Components/Notification";
+import EditUserModal from "../Components/EditUserModal";
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -13,6 +14,15 @@ const AdminPage = () => {
   });
   const [activeTab, setActiveTab] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("all"); // default to show all users
+
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -42,13 +52,9 @@ const AdminPage = () => {
         email,
         status: "approved",
       });
-
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, status: "approved" } : u
-        )
+      setUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, status: "approved" } : u))
       );
-
       setNotification({
         isOpen: true,
         title: "Success",
@@ -56,7 +62,7 @@ const AdminPage = () => {
         type: "success",
       });
     } catch (err) {
-      console.error("Failed to approve user", err);
+      console.error("Approve error:", err);
       setNotification({
         isOpen: true,
         title: "Error",
@@ -66,220 +72,214 @@ const AdminPage = () => {
     }
   };
 
-  const handleReject = async (email) => {
-    const user = users.find((u) => u.email === email);
-    try {
-      await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
-        email,
-        status: "rejected",
-      });
+const handleReject = async (email) => {
+  const user = users.find((u) => u.email === email);
+  try {
+    // 🔥 DELETE request instead of update
+    await axios.delete(`http://localhost:5000/api/auth/user/delete/${email}`);
 
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, status: "rejected" } : u
-        )
-      );
+    // Remove from local state
+    setUsers((prev) => prev.filter((u) => u.email !== email));
 
-      setNotification({
-        isOpen: true,
-        title: "Rejected",
-        message: `${user?.fullName} rejected.`,
-        type: "error",
-      });
-    } catch (err) {
-      console.error("Failed to reject user", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to reject user.",
-        type: "error",
-      });
-    }
-  };
+    setNotification({
+      isOpen: true,
+      title: "Rejected",
+      message: `${user?.fullName || email} has been removed from the system.`,
+      type: "error",
+    });
+  } catch (err) {
+    console.error("Reject error:", err);
+    setNotification({
+      isOpen: true,
+      title: "Error",
+      message: "Failed to remove user from the system.",
+      type: "error",
+    });
+  }
+};
 
-  const handleRoleUpdate = async (email, newRole) => {
-    try {
-      await axios.put(`http://localhost:5000/api/auth/user/update-role`, {
-        email,
-        role: newRole,
-      });
 
-      setUsers((prevUsers) =>
-        prevUsers.map((u) =>
-          u.email === email ? { ...u, role: newRole } : u
-        )
-      );
-
-      setNotification({
-        isOpen: true,
-        title: "Updated",
-        message: `Role updated to ${newRole} for ${email}`,
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Failed to update role", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to update role.",
-        type: "error",
-      });
-    }
-  };
 
   const filteredUsers = users.filter((user) => {
-  const lowerSearch = searchTerm.toLowerCase();
+    const lowerSearch = searchTerm.toLowerCase();
+    if (activeTab === "requests") {
+      return user.fullName?.toLowerCase().includes(lowerSearch);
+    } else if (activeTab === "users") {
+  const roleMatch = roleFilter === "all" || user.role?.toLowerCase() === roleFilter;
 
-  if (activeTab === "requests") {
-    return user.fullName?.toLowerCase().includes(lowerSearch);
-  } else if (activeTab === "users") {
-    return user.role?.toLowerCase().includes(lowerSearch);
-  }
+    return (
+      roleMatch &&
+      user.fullName?.toLowerCase().includes(lowerSearch)
+    );  
+}
 
-  return false;
-});
-
+    return false;
+  });
 
   return (
-    <div className="px-4 sm:px-6 md:px-8 py-8 text-white min-h-screen bg-gradient-to-br from-gray-800 via-gray-900 to-black">
-      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-center text-teal-300 drop-shadow-lg">
+    <div className="px-4 py-6 sm:px-6 lg:px-8 text-white min-h-screen bg-gradient-to-br from-[#1f2937] via-[#111827] to-black">
+     <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-center text-teal-300 drop-shadow-md">
         Admin Panel
       </h2>
+      <p className="text-center text-gray-400 text-lg mb-1">
+        Use the <strong>"Requests"</strong> tab to approve or reject newly registered users.
+      </p>
+      <p className="text-center text-gray-400 text-lg mb-6">
+      Use the <strong>"Users"</strong> tab to modify user roles or update user profiles.
+     </p>
 
-      {/* 🔘 Tabs */}
-              <div className="flex justify-center mb-6 gap-4">
+      {/* Tabs */}
+      <div className="flex justify-center gap-4 mb-6">
+        {["requests", "users"].map((tab) => (
+          <button
+            key={tab}
+            className={`px-5 py-2 rounded-lg transition-all duration-200 ${
+              activeTab === tab
+                ? "bg-gradient-to-r from-teal-400 to-cyan-500 text-black font-semibold shadow-lg"
+                : "bg-gray-700 text-white hover:bg-gray-600"
+            }`}
+            onClick={() => setActiveTab((prev) => (prev === tab ? null : tab))}
+          >
+            {tab === "requests" ? "Requests" : "Users"}
+          </button>
+        ))}
+      </div>
+
+      {/* Search */}
+      {activeTab && (
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          />
+        </div>
+      )}
+
+      {activeTab && (
+        <>
+          {loading ? (
+            <p className="text-center text-gray-400 text-lg">Loading users...</p>
+          ) : (
+            <div className=" bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 overflow-x-hidden">
+              {activeTab === "users" && (
+            <div className="mb-4 flex gap-4 justify-center">
+              {["all", "student", "doctor"].map((role) => (
                 <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "requests"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() =>
-            setActiveTab((prev) => (prev === "requests" ? null : "requests"))
-          }
-        >
-          Requests
-        </button>
-
-        <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "users"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() =>
-            setActiveTab((prev) => (prev === "users" ? null : "users"))
-          }
-        >
-          Users
-        </button>
-
-        {/* <button
-          className={`px-4 py-2 rounded ${
-            activeTab === "users"
-              ? "bg-teal-500 text-black font-semibold"
-              : "bg-gray-700 text-white"
-          }`}
-          onClick={() => setActiveTab("users")}
-        >
-          Users
-        </button> */}
-      </div>
-
-{activeTab && (
-  <>
-    {/* 🔍 Search */}
-    <div className="mb-4">
-      <input
-        type="text"
-        placeholder={
-          activeTab === "requests"
-            ? "Search by name..."
-            : "Search by role..."
-        }
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
-      />
-    </div>
-
-    {loading ? (
-      <p className="text-center text-gray-400 text-lg">Loading users...</p>
-    ) : (
-      <div className="overflow-auto bg-gray-800 rounded-lg shadow-lg p-4 sm:p-6">
-          <table className="min-w-full table-auto text-sm sm:text-base">
-            <thead>
-              <tr className="bg-gray-700 text-teal-300 text-left">
-                <th className="p-3">Name</th>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
-                {activeTab === "requests" && <th className="p-3">Status</th>}
-                <th className="p-3 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user) => (
-                <tr
-                  key={user.email}
-                  className="border-b border-gray-700 hover:bg-gray-700/50 transition"
+                  key={role}
+                  className={`px-4 py-2 rounded-lg ${
+                    roleFilter === role
+                      ? "bg-teal-500 text-black font-semibold"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                  onClick={() => setRoleFilter(role)}
                 >
-                  <td className="p-3">{user.fullName}</td>
-                  <td className="p-3">{user.email}</td>
-                  <td className="p-3 capitalize">{user.role}</td>
-
-                  {activeTab === "requests" && (
-                    <td
-                      className={`p-3 font-semibold ${
-                        user.status === "approved"
-                          ? "text-green-400"
-                          : user.status === "rejected"
-                          ? "text-red-400"
-                          : "text-yellow-300"
-                      }`}
-                    >
-                      {user.status}
-                    </td>
-                  )}
-
-                  <td className="p-3">
-                    {activeTab === "requests" ? (
-                      <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                        <button
-                          onClick={() => handleApprove(user.email)}
-                          className="px-4 py-1.5 bg-green-500 text-black rounded-full hover:bg-green-600"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(user.email)}
-                          className="px-4 py-1.5 bg-red-500 text-black rounded-full hover:bg-red-600"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    ) : (
-                      <select
-                        value={user.role}
-                        onChange={(e) => handleRoleUpdate(user.email, e.target.value)}
-                        className="bg-gray-900 text-white border border-gray-600 rounded px-3 py-1"
-                      >
-                        <option value="student">Student</option>
-                        <option value="doctor">Doctor</option>
-                      </select>
-                    )}
-                  </td>
-                </tr>
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
               ))}
-            </tbody>
-          </table>
-        
-      </div>
-    )}
-  </>
-)}
+            </div>
+          )}
+              <table className="min-w-full table-fixed text-sm sm:text-base">
+                <thead>
+                  <tr className="bg-gray-700 text-teal-300 text-left">
+                    <th className="p-3">Name</th>
+                    <th className="p-3">Email</th>
+                    <th className="p-3">Role</th>
+                    {activeTab === "requests" && <th className="p-3">Status</th>}
+                    <th className="p-3 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.length === 0 ? (
+                    <tr>
+                      <td colSpan={activeTab === "requests" ? 5 : 4} className="text-center py-6 text-gray-400">
+                        {activeTab === "users" ? "No students found." : "No requests found."}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredUsers.map((user) => (
+                      <tr key={user.email} className="border-b border-gray-700 hover:bg-gray-700/50 transition">
+                        <td className="p-3">{user.fullName}</td>
+                        <td className="p-3">{user.email}</td>
+                        <td className="p-3 capitalize">{user.role}</td>
 
+                        {activeTab === "requests" && (
+                          <td
+                            className={`p-3 font-semibold ${
+                              user.status === "approved"
+                                ? "text-green-400"
+                                : user.status === "rejected"
+                                ? "text-red-400"
+                                : "text-yellow-300"
+                            }`}
+                          >
+                            {user.status}
+                          </td>
+                        )}
+                        <td className="p-3 text-center">
+                          {activeTab === "requests" ? (
+                            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                              <button
+                                onClick={() => handleApprove(user.email)}
+                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-green-700 via-green-800 to-blue-900 hover:from-emerald-500 hover:to-emerald-700 shadow-md transition"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() => handleReject(user.email)}
+                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-pink-800 via-red-700 to-red-700 hover:from-rose-500 hover:to-rose-700 shadow-md transition"
+                              >
+                                Reject
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center gap-2">
+                              {/* Only show Edit in Users tab */}
+                              {activeTab === "users" && (
+                                <button
+                                  onClick={() => openEditModal(user)}
+                                  className="px-4 py-1.5 bg-gradient-to-r from-blue-400 to-blue-600 text-black rounded-full hover:from-blue-500 hover:to-blue-700"
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
 
-      {/* 🔔 Notification */}
+        {isModalOpen && selectedUser && (
+          <EditUserModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            user={selectedUser}
+            onUpdate={(updatedUser) => {
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.email === selectedUser.email ? { ...u, ...updatedUser } : u
+                )
+              );
+              setNotification({
+              isOpen: true,
+              title: "Updated",
+              message: `${updatedUser.fullName || selectedUser.email}'s profile updated successfully.`,
+              type: "success",
+            });
+            setIsModalOpen(false);
+            }}
+          />
+        )}
+
       <Notification
         isOpen={notification.isOpen}
         onRequestClose={() =>
@@ -294,8 +294,3 @@ const AdminPage = () => {
 };
 
 export default AdminPage;
-
-
-
-
-

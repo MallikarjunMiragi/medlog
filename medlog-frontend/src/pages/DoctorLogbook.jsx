@@ -37,7 +37,7 @@ const DoctorLogbook = () => {
 
   return (
 
-    <div className="flex h-screen bg-gray-900 text-white">
+    <div className="flex h-screen text-white">
       <div className="flex-grow px-6 py-10 max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold mb-6 text-center">
 
