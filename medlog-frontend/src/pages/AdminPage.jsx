@@ -13,57 +13,122 @@ const AdminPage = () => {
   });
 const [searchTerm, setSearchTerm] = useState("");
 
+  // const fetchUsers = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:5000/api/auth/users/all");
+  //     setUsers(response.data);
+  //   } catch (err) {
+  //     console.error("Failed to fetch users", err);
+  //     setNotification({
+  //       isOpen: true,
+  //       title: "Error",
+  //       message: "Failed to fetch users.",
+  //       type: "error",
+  //     });
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const fetchUsers = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/auth/users/all");
-      setUsers(response.data);
-    } catch (err) {
-      console.error("Failed to fetch users", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to fetch users.",
-        type: "error",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    const [mainRes, pendingRes] = await Promise.all([
+      axios.get("http://localhost:5000/api/auth/users/all"),
+      axios.get("http://localhost:5000/api/auth/pending-users/all"),
+    ]);
+
+    const mainUsers = mainRes.data.map(user => ({ ...user, source: "main" }));
+    const pendingUsers = pendingRes.data.map(user => ({ ...user, source: "pending" }));
+
+    setUsers([...mainUsers, ...pendingUsers]);
+  } catch (err) {
+    console.error("Failed to fetch users", err);
+    setNotification({
+      isOpen: true,
+      title: "Error",
+      message: "Failed to fetch users.",
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
+  // const handleApprove = async (email) => {
+  //   const user = users.find((u) => u.email === email);
+  //   try {
+  //     await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+  //       email,
+  //       status: "approved",
+  //     });
+
+  //     setUsers((prevUsers) =>
+  //       prevUsers.map((user) =>
+  //         user.email === email ? { ...user, status: "approved" } : user
+  //       )
+  //     );
+
+  //     setNotification({
+  //       isOpen: true,
+  //       title: "Success",
+  //       message: `${user?.fullName || email} approved.`,
+  //       type: "success",
+  //     });
+  //   } catch (err) {
+  //     console.error("Failed to approve user", err);
+  //     setNotification({
+  //       isOpen: true,
+  //       title: "Error",
+  //       message: "Failed to approve user.",
+  //       type: "error",
+  //     });
+  //   }
+  // };
   const handleApprove = async (email) => {
-    const user = users.find((u) => u.email === email);
-    try {
+  const user = users.find((u) => u.email === email);
+
+  try {
+    if (user.source === "pending") {
+      // If from PendingUsers, move to main Users table
+      //await axios.post(`http://localhost:5000/api/auth/user/update-status`, { email });
+      axios.post("http://localhost:5000/api/auth/approve-pending-user", { email })
+
+    } else {
+      // If already in Users, just update status
       await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
         email,
         status: "approved",
       });
-
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.email === email ? { ...user, status: "approved" } : user
-        )
-      );
-
-      setNotification({
-        isOpen: true,
-        title: "Success",
-        message: `${user?.fullName || email} approved.`,
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Failed to approve user", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to approve user.",
-        type: "error",
-      });
     }
-  };
+
+    // Update local state
+    setUsers((prevUsers) =>
+      prevUsers.map((u) =>
+        u.email === email ? { ...u, status: "approved", source: "main" } : u
+      )
+    );
+
+    setNotification({
+      isOpen: true,
+      title: "Success",
+      message: `${user?.fullName || email} approved.`,
+      type: "success",
+    });
+  } catch (err) {
+    console.error("Failed to approve user", err);
+    setNotification({
+      isOpen: true,
+      title: "Error",
+      message: "Failed to approve user.",
+      type: "error",
+    });
+  }
+};
+
 
   const handleReject = async (email) => {
     const user = users.find((u) => u.email === email);
