@@ -48,15 +48,22 @@ const AppLayout = () => {
 
   // ✅ Get user role from Redux store
   const { user } = useSelector((state) => state.auth);
-  const role = user?.role || "student"; // Default to student if role is not available
+  const role = user?.role;
 
   return (
     <div className="flex md:flex-row flex-col h-screen">
-      {!hideSidebar && (<div className="w-[250px] h-10 md:h-screen">
-        {/* ✅ Show correct sidebar based on user role */}
-        {role === "doctor" ? <DoctorSidebar /> : <Sidebar />}
-        </div>
-        )}
+      {!hideSidebar && (
+  <div className="w-[250px] h-10 md:h-screen">
+    {role === "doctor" ? (
+      <DoctorSidebar />
+    ) : role === "admin" ? (
+      <AdminDashboard />
+    ) : role === "student" ? (
+      <Sidebar />
+    ) : null}
+  </div>
+)}
+
         <div className="flex-1 p-5 overflow-y-auto bg-white/10 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
           <Routes>
             <Route path="/" element={<LoginPage />} />
