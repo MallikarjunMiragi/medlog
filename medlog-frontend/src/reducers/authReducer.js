@@ -77,7 +77,8 @@ reducers: {
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload; // Store the full user object
+        state.user = action.payload;
+        localStorage.setItem("user", JSON.stringify(action.payload)); // ✅ Save user to localStorage
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;

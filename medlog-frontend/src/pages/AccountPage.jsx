@@ -306,8 +306,6 @@ const AccountPage = () => {
     </select>
   </>
 )}
-
-
       <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition hover:bg-[#015b5b]" onClick={handleUpdate}>
         Update
       </button>

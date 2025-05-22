@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Notification from "../Components/Notification";
+import EditUserModal from "../Components/EditUserModal";
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
@@ -13,6 +14,15 @@ const AdminPage = () => {
   });
   const [activeTab, setActiveTab] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [roleFilter, setRoleFilter] = useState("all"); // default to show all users
+
+
+  const openEditModal = (user) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
 
   const fetchUsers = async () => {
     try {
@@ -62,69 +72,47 @@ const AdminPage = () => {
     }
   };
 
-  const handleReject = async (email) => {
-    const user = users.find((u) => u.email === email);
-    try {
-      await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
-        email,
-        status: "rejected",
-      });
-      setUsers((prev) =>
-        prev.map((u) => (u.email === email ? { ...u, status: "rejected" } : u))
-      );
-      setNotification({
-        isOpen: true,
-        title: "Rejected",
-        message: `${user?.fullName} rejected.`,
-        type: "error",
-      });
-    } catch (err) {
-      console.error("Reject error:", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to reject user.",
-        type: "error",
-      });
-    }
-  };
+const handleReject = async (email) => {
+  const user = users.find((u) => u.email === email);
+  try {
+    // 🔥 DELETE request instead of update
+    await axios.delete(`http://localhost:5000/api/auth/user/delete/${email}`);
 
-  const handleRoleUpdate = async (email, newRole) => {
-    try {
-      await axios.put(`http://localhost:5000/api/auth/user/update-role`, {
-        email,
-        role: newRole,
-      });
-      setUsers((prev) =>
-        prev.map((u) => (u.email === email ? { ...u, role: newRole } : u))
-      );
-      setNotification({
-        isOpen: true,
-        title: "Updated",
-        message: `Role updated to ${newRole} for ${email}`,
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Update role error:", err);
-      setNotification({
-        isOpen: true,
-        title: "Error",
-        message: "Failed to update role.",
-        type: "error",
-      });
-    }
-  };
+    // Remove from local state
+    setUsers((prev) => prev.filter((u) => u.email !== email));
+
+    setNotification({
+      isOpen: true,
+      title: "Rejected",
+      message: `${user?.fullName || email} has been removed from the system.`,
+      type: "error",
+    });
+  } catch (err) {
+    console.error("Reject error:", err);
+    setNotification({
+      isOpen: true,
+      title: "Error",
+      message: "Failed to remove user from the system.",
+      type: "error",
+    });
+  }
+};
+
+
 
   const filteredUsers = users.filter((user) => {
     const lowerSearch = searchTerm.toLowerCase();
     if (activeTab === "requests") {
       return user.fullName?.toLowerCase().includes(lowerSearch);
     } else if (activeTab === "users") {
-      return (
-        user.role?.toLowerCase() === "student" &&
-        user.fullName?.toLowerCase().includes(lowerSearch)
-      );
-    }
+  const roleMatch = roleFilter === "all" || user.role?.toLowerCase() === roleFilter;
+
+    return (
+      roleMatch &&
+      user.fullName?.toLowerCase().includes(lowerSearch)
+    );  
+}
+
     return false;
   });
 
@@ -137,8 +125,8 @@ const AdminPage = () => {
         Use the <strong>"Requests"</strong> tab to approve or reject newly registered users.
       </p>
       <p className="text-center text-gray-400 text-lg mb-6">
-        Use the <strong>"Users"</strong> tab to update a student's role to doctor.
-      </p>
+      Use the <strong>"Users"</strong> tab to modify user roles or update user profiles.
+     </p>
 
       {/* Tabs */}
       <div className="flex justify-center gap-4 mb-6">
@@ -175,8 +163,25 @@ const AdminPage = () => {
           {loading ? (
             <p className="text-center text-gray-400 text-lg">Loading users...</p>
           ) : (
-            <div className="overflow-x-auto bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6">
-              <table className="min-w-full table-auto text-sm sm:text-base">
+            <div className=" bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 overflow-x-hidden">
+              {activeTab === "users" && (
+            <div className="mb-4 flex gap-4 justify-center">
+              {["all", "student", "doctor"].map((role) => (
+                <button
+                  key={role}
+                  className={`px-4 py-2 rounded-lg ${
+                    roleFilter === role
+                      ? "bg-teal-500 text-black font-semibold"
+                      : "bg-gray-700 text-white hover:bg-gray-600"
+                  }`}
+                  onClick={() => setRoleFilter(role)}
+                >
+                  {role.charAt(0).toUpperCase() + role.slice(1)}
+                </button>
+              ))}
+            </div>
+          )}
+              <table className="min-w-full table-fixed text-sm sm:text-base">
                 <thead>
                   <tr className="bg-gray-700 text-teal-300 text-left">
                     <th className="p-3">Name</th>
@@ -213,34 +218,34 @@ const AdminPage = () => {
                             {user.status}
                           </td>
                         )}
-
                         <td className="p-3 text-center">
                           {activeTab === "requests" ? (
                             <div className="flex flex-col sm:flex-row gap-2 justify-center">
                               <button
                                 onClick={() => handleApprove(user.email)}
-                                className="px-4 py-1.5 bg-gradient-to-r from-green-400 to-green-600 text-black rounded-full hover:from-green-500 hover:to-green-700"
+                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-green-700 via-green-800 to-blue-900 hover:from-emerald-500 hover:to-emerald-700 shadow-md transition"
                               >
                                 Approve
                               </button>
                               <button
                                 onClick={() => handleReject(user.email)}
-                                className="px-4 py-1.5 bg-gradient-to-r from-red-400 to-red-600 text-black rounded-full hover:from-red-500 hover:to-red-700"
+                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-pink-800 via-red-700 to-red-700 hover:from-rose-500 hover:to-rose-700 shadow-md transition"
                               >
                                 Reject
                               </button>
                             </div>
                           ) : (
-                            <select
-                              value={user.role}
-                              onChange={(e) =>
-                                handleRoleUpdate(user.email, e.target.value)
-                              }
-                              className="bg-gray-900 text-white border border-gray-600 rounded px-3 py-1"
-                            >
-                              <option value="student">Student</option>
-                              <option value="doctor">Doctor</option>
-                            </select>
+                            <div className="flex items-center justify-center gap-2">
+                              {/* Only show Edit in Users tab */}
+                              {activeTab === "users" && (
+                                <button
+                                  onClick={() => openEditModal(user)}
+                                  className="px-4 py-1.5 bg-gradient-to-r from-blue-400 to-blue-600 text-black rounded-full hover:from-blue-500 hover:to-blue-700"
+                                >
+                                  Edit
+                                </button>
+                              )}
+                            </div>
                           )}
                         </td>
                       </tr>
@@ -252,6 +257,28 @@ const AdminPage = () => {
           )}
         </>
       )}
+
+        {isModalOpen && selectedUser && (
+          <EditUserModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            user={selectedUser}
+            onUpdate={(updatedUser) => {
+              setUsers((prev) =>
+                prev.map((u) =>
+                  u.email === selectedUser.email ? { ...u, ...updatedUser } : u
+                )
+              );
+              setNotification({
+              isOpen: true,
+              title: "Updated",
+              message: `${updatedUser.fullName || selectedUser.email}'s profile updated successfully.`,
+              type: "success",
+            });
+            setIsModalOpen(false);
+            }}
+          />
+        )}
 
       <Notification
         isOpen={notification.isOpen}
