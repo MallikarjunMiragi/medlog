@@ -61,22 +61,29 @@ const ViewEntriesPage = () => {
         entries.map((entry) => (
           <div key={entry._id} className="bg-[#717c9350] p-5 mb-4 rounded-lg shadow text-left">
             <h3 className="text-xl font-bold text-teal-300 mb-2">{entry.category}</h3>
-            <div className="space-y-2">
-              {Object.entries(entry.data).map(([key, value]) => (
-                <p key={key} className="text-sm text-teal-100">
-                  <strong className="text-white">{key.replace(/_/g, " ")}:</strong>{" "}
-                  {typeof value === "string" && value.startsWith("/uploads/") ? (
-                    <a
-                      href={`http://localhost:5000${value}`}
-                      download
-                      className="text-teal-400 underline"
-                    >
-                      📄 Download File
-                    </a>
-                  ) : (
-                    value || "N/A"
-                  )}
-                </p>
+           <div className="space-y-2">
+  {Object.entries(entry.data).map(([key, value]) => (
+    <p key={key} className="text-sm text-teal-100">
+      <strong className="text-white">{key.replace(/_/g, " ")}:</strong>{" "}
+      {typeof value === "string" &&
+      (value.startsWith("/uploads/") || value.startsWith("http")) ? (
+        <a
+          href={
+            value.startsWith("/uploads/")
+              ? `http://localhost:5000${value}`
+              : value
+          }
+          download
+          className="text-teal-400 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          📄 Download File
+        </a>
+      ) : (
+        value || "N/A"
+      )}
+    </p>
               ))}
 
 

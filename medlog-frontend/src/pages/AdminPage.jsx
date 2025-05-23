@@ -177,31 +177,63 @@ const handleApprove = async (email) => {
   
 
 
-const handleReject = async (email) => {
-  const user = users.find((u) => u.email === email);
-  try {
-    // 🔥 DELETE request instead of update
-    await axios.delete(`http://localhost:5000/api/auth/user/delete/${email}`);
+// const handleReject = async (email) => {
+//   const user = users.find((u) => u.email === email);
+//   try {
+//     // 🔥 DELETE request instead of update
+//     await axios.delete(`http://localhost:5000/api/auth/user/delete/${email}`);
 
-    // Remove from local state
-    setUsers((prev) => prev.filter((u) => u.email !== email));
+//     // Remove from local state
+//     setUsers((prev) => prev.filter((u) => u.email !== email));
 
-    setNotification({
-      isOpen: true,
-      title: "Rejected",
-      message: `${user?.fullName || email} has been removed from the system.`,
-      type: "error",
-    });
-  } catch (err) {
-    console.error("Reject error:", err);
-    setNotification({
-      isOpen: true,
-      title: "Error",
-      message: "Failed to remove user from the system.",
-      type: "error",
-    });
-  }
-};
+//     setNotification({
+//       isOpen: true,
+//       title: "Rejected",
+//       message: `${user?.fullName || email} has been removed from the system.`,
+//       type: "error",
+//     });
+//   } catch (err) {
+//     console.error("Reject error:", err);
+//     setNotification({
+//       isOpen: true,
+//       title: "Error",
+//       message: "Failed to remove user from the system.",
+//       type: "error",
+//     });
+//   }
+// };
+
+  const handleReject = async (email) => {
+    const user = users.find((u) => u.email === email);
+    try {
+      await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+        email,
+        status: "rejected",
+      });
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.email === email ? { ...user, status: "rejected" } : user
+        )
+      );
+
+      setNotification({
+        isOpen: true,
+        title: "Rejected",
+        message: `${user?.fullName} rejected.`,
+        type: "error",
+      });
+    } catch (err) {
+      console.error("Failed to reject user", err);
+      setNotification({
+        isOpen: true,
+        title: "Error",
+        message: "Failed to reject user.",
+        type: "error",
+      });
+    }
+  };
+
 
 
 
