@@ -115,6 +115,63 @@ const isUrl = (str) => {
     return false;
   }
 };
+const handleReviewSubmit = async (entryId) => {
+  const comment = comments[entryId];
+  const score = scores[entryId];
+
+  if (!comment || !score) {
+    setNotification({
+      isOpen: true,
+      message: "Please enter both comment and score before submitting.",
+      type: "warning",
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:5000/api/logentry/update", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        entryId,
+        comments: comment,
+        score: score,
+        enhance: enhanceComment[entryId] || false, // retain enhance flag
+      }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      setNotification({
+        isOpen: true,
+        message: `Review submitted successfully:\nComment: ${comment}\nScore: ${score}`,
+        type: "success",
+      });
+
+      setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
+      setNotReviewedEntries(notReviewedEntries.filter(entry => entry._id !== entryId));
+
+      // Clear inputs
+      setComments(prev => ({ ...prev, [entryId]: "" }));
+      setScores(prev => ({ ...prev, [entryId]: "" }));
+      setEnhanceComment(prev => ({ ...prev, [entryId]: false }));
+    } else {
+      setNotification({
+        isOpen: true,
+        message: `Failed to submit review: ${result.error}`,
+        type: "error",
+      });
+    }
+  } catch (error) {
+    console.error("Server error:", error);
+    setNotification({
+      isOpen: true,
+      message: "Something went wrong while submitting review.",
+      type: "error",
+    });
+  }
+};
 
 const capitalize = (str) =>
   str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
@@ -182,21 +239,29 @@ const capitalize = (str) =>
               {Object.entries(entry.data).map(([key, value]) => (
                 <p key={key} className="text-white text-sm mb-2">
                   <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
-                  {typeof value === "string" && value.startsWith("/uploads/") ? (
-                    <a
-                      href={`http://localhost:5000${value}`}
-                      download
-                      className="text-teal-300 underline"
-                    >
-                      📄 Download File
-                    </a>
-                  ) : typeof value === "string" && isUrl(value) ? (
-                    <span className="text-teal-300">{value}</span>
-                  ) : typeof value === "string" ? capitalize(
-                    value
-                  ) : (
-                    value || "N/A"
-                  )}
+{typeof value === "string" && value.startsWith("/uploads/") ? (
+  <a
+    href={`http://localhost:5000${value}`}
+    download
+    className="text-teal-300 underline"
+  >
+    📄 Download File
+  </a>
+) : typeof value === "string" && isUrl(value) ? (
+  <a
+    href={value}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="text-teal-300 underline"
+  >
+    📄 View File
+  </a>
+) : typeof value === "string" ? (
+  capitalize(value)
+) : (
+  value || "N/A"
+)}
+
                 </p>
               ))}
             </div>
@@ -216,56 +281,55 @@ const capitalize = (str) =>
               {/* Not reviewed inputs */}
               {selectedTab === "not-reviewed" && (
                 <div className="flex flex-col gap-4">
-                  <textarea
-                    className="w-full min-h-[80px] p-3 rounded-md border border-gray-300 bg-[#0f172a] text-white resize-none"
-                    placeholder="Write a comment..."
-                    value={comments[entry._id] || ""}
-                    onChange={(e) => handleCommentChange(entry._id, e.target.value)}
-                  />
+<textarea
+  className="w-full min-h-[80px] p-3 rounded-md border border-gray-300 bg-[#0f172a] text-white resize-none"
+  placeholder="Write a comment..."
+  value={comments[entry._id] || ""}
+  onChange={(e) => handleCommentChange(entry._id, e.target.value)}
+/>
 
-                  <div className="flex justify-between items-center">
-                    <button
-                      className="bg-[#211c2f] hover:bg-[#221544] text-white py-2 px-4 rounded-md"
-                      onClick={() => handleCommentSubmit(entry._id)}
-                    >
-                      Submit Comment
-                    </button>
-                    <div className="flex items-center gap-2">
-  <input
-    type="checkbox"
-    id={`enhance-${entry._id}`}
-    checked={enhanceComment[entry._id] || false}
-    onChange={(e) =>
-      setEnhanceComment((prev) => ({
-        ...prev,
-        [entry._id]: e.target.checked,
-      }))
-    }
-  />
-  <label htmlFor={`enhance-${entry._id}`} className="text-white">
-    Enhance comment 
-  </label>
+<div className="flex justify-between items-center flex-wrap gap-4">
+  {/* Enhance Comment Checkbox */}
+  <div className="flex items-center gap-2">
+    <input
+      type="checkbox"
+      id={`enhance-${entry._id}`}
+      checked={enhanceComment[entry._id] || false}
+      onChange={(e) =>
+        setEnhanceComment((prev) => ({
+          ...prev,
+          [entry._id]: e.target.checked,
+        }))
+      }
+    />
+    <label htmlFor={`enhance-${entry._id}`} className="text-white">
+      Enhance comment
+    </label>
+  </div>
+
+  {/* Score Input */}
+  <div className="flex items-center gap-2">
+    <input
+      type="number"
+      min="0"
+      max="100"
+      placeholder="Score"
+      className="w-20 py-2 px-2 rounded-md bg-[#0f172a] text-white border border-gray-300 text-center"
+      value={scores[entry._id] || ""}
+      onChange={(e) => handleScoreChange(entry._id, e.target.value)}
+    />
+  </div>
+
+  {/* Submit Button */}
+  <button
+    className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-md"
+    onClick={() => handleReviewSubmit(entry._id)}
+  >
+    Submit Review
+  </button>
 </div>
 
-
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="Score"
-                        className="w-20 py-2 px-2 rounded-md bg-[#0f172a] text-white border border-gray-300 text-center"
-                        value={scores[entry._id] || ""}
-                        onChange={(e) => handleScoreChange(entry._id, e.target.value)}
-                      />
-                      <button
-                        className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-md"
-                        onClick={() => handleScoreSubmit(entry._id)}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
+                 
                 </div>
               )}
             </div>
