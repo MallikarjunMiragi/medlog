@@ -390,10 +390,17 @@ const deleteCustomField = (index) => {
   Submit
 </button>
 
-{/* Notification Component */}
+{/* Notification Component
 {notification.isOpen && (
   <Notification message={notification.message} type={notification.type} />
-)}
+)} */}
+<Notification
+      isOpen={notification.isOpen}
+      onRequestClose={() => setNotification({ ...notification, isOpen: false })}
+      title="Notification"
+      message={notification.message}
+      type={notification.type}
+    />
 </form>
     )
 };
