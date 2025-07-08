@@ -5,6 +5,16 @@ import { signupUser } from "../reducers/authReducer";
 import Notification from "../Components/Notification"; // Import Notification Component
 import "../styles.css"; // Ensure correct path to styles.css
 
+// Helper function to generate a random code
+function generateRegistrationCode(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 const RegistrationPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -28,8 +38,9 @@ const RegistrationPage = () => {
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  // Password should be auto-generated and displayed, not editable
+  const [password, setPassword] = useState(() => generateRegistrationCode(10));
+  // Confirm password is not needed since password is auto-generated
   const [selectedCountry, setSelectedCountry] = useState("");
   const [trainingYears, setTrainingYears] = useState([]);
   const [selectedTrainingYear, setSelectedTrainingYear] = useState("");
@@ -60,17 +71,18 @@ const RegistrationPage = () => {
     setSelectedSpecialty("");
   };
 
+
+
   const handleSubmit = async () => {
     console.log("🔹 handleSubmit triggered! Role:", role);
 
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (!fullName || !email || !password) {
       console.log("❌ Missing text-red-600 fields:", {
-        fullName, email, password, confirmPassword
+        fullName, email, password
       });
       setNotification({ isOpen: true, title: "Error", message: "Please fill in all text-red-600 fields." });
       return;
     }
-
 
     // Validate fields based on role
     if (role === "student" && (!selectedCountry || !selectedTrainingYear || !selectedHospital || !selectedSpecialty)) {
@@ -85,6 +97,8 @@ const RegistrationPage = () => {
       return;
     }
 
+    // Generate a registration code
+    const registrationCode = generateRegistrationCode();
 
     const userData = {
       fullName,
@@ -92,6 +106,7 @@ const RegistrationPage = () => {
       password,
       role,
       specialty: role === "student" ? selectedSpecialty : selectedDoctorSpecialty,
+      registrationCode, // Add the generated code
     };
 
     // Only add student fields if role is student
@@ -107,17 +122,16 @@ const RegistrationPage = () => {
       console.log("🚀 Sending API request...");
       await dispatch(signupUser(userData)).unwrap();
       console.log("🎉 Registration Successful!");
-      setNotification({ isOpen: true, title: "Success", message: "Registration successful! Please verify OTP." });
+      setNotification({ isOpen: true, title: "Success", message: "Registration successful! you can now login." });
     
       setTimeout(() => {
-        navigate("/verify-otp", { state: { email } }); // Pass email to verify-otp page if needed
+        navigate("/login"); // Pass email to verify-otp page if needed
       }, 1000); // you can reduce timeout to 1s or even navigate immediately
     
     } catch (err) {
       console.error("❌ Registration Error:", err);
       setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
-    
   };
 
 
@@ -160,12 +174,13 @@ const RegistrationPage = () => {
 
       <div className="flex flex-col">
         <label>Password <span className="text-red-600">*</span></label>
-        <input type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
-      </div>
-
-      <div className="flex flex-col">
-        <label>Confirm Password <span className="text-red-600">*</span></label>
-        <input type="password" placeholder="Re-enter your password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+        <input
+          type="text"
+          value={password}
+          readOnly
+          className="bg-gray-200 text-black cursor-not-allowed"
+        />
+        <span className="text-xs text-gray-400">This password is auto-generated and cannot be changed.</span>
       </div>
       {role === "student" && (
         <>
