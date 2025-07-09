@@ -58,6 +58,16 @@ const AdminSidebar = () => {
             <MdDashboard className="icon" /> Home
           </li>
           <li
+  className={getLinkStyle("/admin/register")}
+  onClick={() => {
+    navigate("/admin/register");
+    setIsOpen(false);
+  }}
+>
+  <MdAccountCircle className="icon" /> Register User
+</li>
+
+          <li
             className={getLinkStyle("/admin/users")}
             onClick={() => {
               navigate("/admin/users");
