@@ -97,6 +97,8 @@ const AppLayout = () => {
 
             <Route path="support" element={<AdminSupportPage />} />
             <Route path="/admin/account" element={<AccountPage />} />
+            <Route path="/admin/register" element={<RegistrationPage />} />
+
 
             </Route>
             <Route path="/pending-approval" element={<PendingApproval />} />
