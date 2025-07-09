@@ -143,17 +143,17 @@ const AdminLoginForm = () => {
               <button type="submit" className="w-full p-3 bg-[#008080] cursor-pointer mb-4 text-sm hover:bg-[#283e3e] transition duration-300 rounded-md" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
-              <button type="button" onClick={handleRegister} className="w-full p-3 bg-[#44266c] cursor-pointer mb-4 text-sm hover:bg-[#261d32] transition duration-300 rounded-md">
+              {/*<button type="button" onClick={handleRegister} className="w-full p-3 bg-[#44266c] cursor-pointer mb-4 text-sm hover:bg-[#261d32] transition duration-300 rounded-md">
                 Register
-              </button>
+              </button>*/}
             </div>
           </form>
         </div>
-        <div className="flex-1 hidden md:block relative min-w-[300px] h-full">
+        {/*<div className="flex-1 hidden md:block relative min-w-[300px] h-full">
           <video ref={videoRef} className="w-full h-full object-cover" autoPlay loop muted>
             <source src={Image} type="video/mp4" />
           </video>
-        </div>
+        </div>*/}
       </div>
 
       {/* Notification Modal */}
