@@ -34,7 +34,7 @@ const Sidebar = () => {
         className={`bg-[#008080] w-[250px] h-screen text-white flex flex-col pt-5 fixed top-0 z-40 transition-transform duration-300 shadow-lg
         ${isOpen ? "left-0" : "-left-[250px]"} md:left-0`}
       >
-        <div className="pl-5 text-[22px] font-bold mb-5 text-gray-100">Medical Logbook</div>
+        <div className="pl-5 text-[22px] font-bold mb-5 text-gray-100">Student Logbook</div>
         <ul>
           <li
             className={getLinkStyle("/logbookpage")}
