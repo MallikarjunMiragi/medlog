@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { signupUser } from "../reducers/authReducer";
 import Notification from "../Components/Notification"; // Import Notification Component
 import "../styles.css"; // Ensure correct path to styles.css
+import * as Papa from "papaparse";
 
 // Helper function to generate a random code
 function generateRegistrationCode(length = 8) {
@@ -133,6 +134,55 @@ const RegistrationPage = () => {
       setNotification({ isOpen: true, title: "Error", message: err.error || "Registration failed" });
     }
   };
+   
+  const handleCSVUpload = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: async function (results) {
+      console.log("🟢 CSV Parsed:", results.data);
+
+      const users = results.data.map((row) => ({
+        fullName: row.fullName,
+        email: row.email,
+        password: generateRegistrationCode(10),
+        role: row.role.toLowerCase(),
+        specialty: row.specialty,
+        registrationCode: generateRegistrationCode(),
+        ...(row.role.toLowerCase() === "student"
+          ? {
+              country: row.country,
+              trainingYear: row.trainingYear,
+              hospital: row.hospital,
+            }
+          : {}),
+      }));
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (const user of users) {
+        try {
+          await dispatch(signupUser(user)).unwrap();
+          console.log(`✅ Registered ${user.email}`);
+          successCount++;
+        } catch (err) {
+          console.error(`❌ Failed to register ${user.email}:`, err);
+          failCount++;
+        }
+      }
+
+      setNotification({
+        isOpen: true,
+        title: "Bulk Registration",
+        message: `✔️ ${successCount} succeeded, ❌ ${failCount} failed.`,
+      });
+    },
+  });
+};
 
 
   return (
@@ -254,7 +304,17 @@ const RegistrationPage = () => {
       }} disabled={isLoading || (role === "student" && !selectedCountry)}>
         {isLoading ? "Registering..." : "Set up Logbook!"}
       </button>
-
+      {/* CSV Upload Button */}
+      <div className="flex flex-col mb-4">
+  <label className="font-bold mb-1.5">Upload CSV for Bulk Registration</label>
+  <input
+    type="file"
+    accept=".csv"
+    onChange={(e) => handleCSVUpload(e)}
+    className="p-2 rounded-md bg-white/20 text-gray-300"
+  />
+  <span className="text-xs text-gray-400 mt-1">CSV should include: fullName, email, role, specialty, country, trainingYear, hospital</span>
+</div>
 
       {/* Go Back Button */}
       <button className="w-full btn-back p-3 mt-3 cursor-pointer rounded-md bg-slate-500 hover:bg-[#015b5b] font-medium" onClick={() => navigate("/")}>Go Back</button>
