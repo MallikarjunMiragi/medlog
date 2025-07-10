@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import DoctorSidebar from "../components/DoctorSidebar";
+import DoctorSidebar from "../Components/DoctorSidebar";
 import Notification from "../Components/Notification";
 
 const StudentEntries = () => {
@@ -22,6 +22,9 @@ const StudentEntries = () => {
     type: "info",
   });
 
+  const [searchTerm, setSearchTerm] = useState("");
+const [filterDate, setFilterDate] = useState("");
+
   useEffect(() => {
     if (student.email) {
       fetch(`http://localhost:5000/api/logentry/review-status/${encodeURIComponent(student.email)}`)
@@ -34,7 +37,22 @@ const StudentEntries = () => {
     }
   }, [student]);
 
-  const displayedEntries = selectedTab === "reviewed" ? reviewedEntries : notReviewedEntries;
+  const rawEntries = selectedTab === "reviewed" ? reviewedEntries : notReviewedEntries;
+
+const displayedEntries = rawEntries.filter((entry) => {
+  const matchesCategory = entry.categoryName
+    ?.toLowerCase()
+    .includes(searchTerm.toLowerCase());
+
+  const entryDate = entry.data?.Date
+    ? new Date(entry.data.Date).toISOString().slice(0, 10)
+    : null;
+
+  const matchesDate = filterDate === "" || entryDate === filterDate;
+
+  return matchesCategory && matchesDate;
+});
+
 
   const handleCommentChange = (entryId, value) => {
     setComments({ ...comments, [entryId]: value });
@@ -219,6 +237,36 @@ const capitalize = (str) =>
             Reviewed
           </button>
         </div>
+        {/* Filters */}
+{/* Search & Filter */}
+<div className="flex flex-wrap justify-center items-center gap-4 mb-6">
+  <input
+    type="text"
+    placeholder="Search by category..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="px-4 py-2 rounded-md border border-gray-400 bg-white/20 text-white placeholder:text-gray-300"
+  />
+
+  <input
+    type="date"
+    value={filterDate}
+    onChange={(e) => setFilterDate(e.target.value)}
+    className="px-4 py-2 rounded-md border border-gray-400 bg-white/20 text-white"
+  />
+
+  <button
+    onClick={() => {
+      setSearchTerm("");
+      setFilterDate("");
+    }}
+    className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white"
+  >
+    Clear Filters
+  </button>
+</div>
+
+
 
         {/* Entries */}
         {displayedEntries.length === 0 ? (
