@@ -281,11 +281,32 @@ const deleteCustomField = (index) => {
             />
         </form> */}
     {field.type === "file" ? (
-  <input
-    type="file"
-    name={field.name}
-    onChange={(e) => handleFileChange(e, field.name)}
-  />
+  <>
+    <input
+      type="file"
+      name={field.name}
+      onChange={(e) => handleFileChange(e, field.name)}
+      className="text-black w-full p-3 rounded-md bg-white/20"
+    />
+    <input
+      type="text"
+      placeholder="Title (required)"
+      name={`${field.name}_title`}
+      onChange={handleChange}
+      value={formData[`${field.name}_title`] || ""}
+      required
+      className="text-black w-full p-3 rounded-md bg-white/20 mt-2"
+    />
+    <input
+      type="text"
+      placeholder="Description (required)"
+      name={`${field.name}_description`}
+      onChange={handleChange}
+      value={formData[`${field.name}_description`] || ""}
+      required
+      className="text-black w-full p-3 rounded-md bg-white/20 mt-2"
+    />
+  </>
 ) : options ? (
   <select
     name={field.name}
