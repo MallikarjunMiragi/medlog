@@ -125,7 +125,7 @@ const RegistrationPage = () => {
       setNotification({ isOpen: true, title: "Success", message: "Registration successful! you can now login." });
     
       setTimeout(() => {
-        navigate("/login"); // Pass email to verify-otp page if needed
+        navigate("/admin/register"); // Pass email to verify-otp page if needed
       }, 1000); // you can reduce timeout to 1s or even navigate immediately
     
     } catch (err) {
