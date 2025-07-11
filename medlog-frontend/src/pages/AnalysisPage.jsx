@@ -25,7 +25,7 @@ const AnalysisPage = () => {
 
     const userEmail = user.email.email || user.email;
 
-    fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(userEmail)}`)
+    fetch(`http://localhost:5001/api/logentry/${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("📊 Fetched log entries:", data);

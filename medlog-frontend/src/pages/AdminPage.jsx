@@ -26,7 +26,7 @@ const AdminPage = () => {
 
   // const fetchUsers = async () => {
   //   try {
-  //     const response = await axios.get("http://localhost:5000/api/auth/users/all");
+  //     const response = await axios.get("http://localhost:5001/api/auth/users/all");
   //     setUsers(response.data);
   //   } catch (err) {
   //     console.error("Failed to fetch users", err);
@@ -43,8 +43,8 @@ const AdminPage = () => {
   const fetchUsers = async () => {
   try {
     const [mainRes, pendingRes] = await Promise.all([
-      axios.get("http://localhost:5000/api/auth/users/all"),
-      axios.get("http://localhost:5000/api/auth/pending-users/all"),
+      axios.get("http://localhost:5001/api/auth/users/all"),
+      axios.get("http://localhost:5001/api/auth/pending-users/all"),
     ]);
 
     const mainUsers = mainRes.data.map(user => ({ ...user, source: "main" }));
@@ -72,7 +72,7 @@ const AdminPage = () => {
   // const handleApprove = async (email) => {
   //   const user = users.find((u) => u.email === email);
   //   try {
-  //     await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+  //     await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
   //       email,
   //       status: "approved",
   //     });
@@ -105,12 +105,12 @@ const AdminPage = () => {
   // try {
   //   if (user.source === "pending") {
   //     // If from PendingUsers, move to main Users table
-  //     //await axios.post(`http://localhost:5000/api/auth/user/update-status`, { email });
-  //     axios.post("http://localhost:5000/api/auth/approve-pending-user", { email })
+  //     //await axios.post(`http://localhost:5001/api/auth/user/update-status`, { email });
+  //     axios.post("http://localhost:5001/api/auth/approve-pending-user", { email })
 
   //   } else {
   //     // If already in Users, just update status
-  //     await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+  //     await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
   //       email,
   //       status: "approved",
   //     });
@@ -141,10 +141,10 @@ const handleApprove = async (email) => {
   try {
     if (user.source === "pending") {
       // Await moving from pending to main
-      await axios.post("http://localhost:5000/api/auth/approve-pending-user", { email });
+      await axios.post("http://localhost:5001/api/auth/approve-pending-user", { email });
     } else {
       // If already in main users, update status
-      await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+      await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
         email,
         status: "approved",
       });
@@ -181,7 +181,7 @@ const handleApprove = async (email) => {
 //   const user = users.find((u) => u.email === email);
 //   try {
 //     // 🔥 DELETE request instead of update
-//     await axios.delete(`http://localhost:5000/api/auth/user/delete/${email}`);
+//     await axios.delete(`http://localhost:5001/api/auth/user/delete/${email}`);
 
 //     // Remove from local state
 //     setUsers((prev) => prev.filter((u) => u.email !== email));
@@ -206,7 +206,7 @@ const handleApprove = async (email) => {
   const handleReject = async (email) => {
     const user = users.find((u) => u.email === email);
     try {
-      await axios.put(`http://localhost:5000/api/auth/user/update-status`, {
+      await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
         email,
         status: "rejected",
       });

@@ -27,7 +27,7 @@ const [filterDate, setFilterDate] = useState("");
 
   useEffect(() => {
     if (student.email) {
-      fetch(`http://localhost:5000/api/logentry/review-status/${encodeURIComponent(student.email)}`)
+      fetch(`http://localhost:5001/api/logentry/review-status/${encodeURIComponent(student.email)}`)
         .then((res) => res.json())
         .then((data) => {
           setReviewedEntries(data.reviewed);
@@ -64,7 +64,7 @@ const displayedEntries = rawEntries.filter((entry) => {
 
   const handleCommentSubmit = async (entryId) => {
     try {
-      const response = await fetch("http://localhost:5000/api/logentry/update", {
+      const response = await fetch("http://localhost:5001/api/logentry/update", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -97,7 +97,7 @@ const displayedEntries = rawEntries.filter((entry) => {
 
   const handleScoreSubmit = async (entryId) => {
     try {
-      const response = await fetch("http://localhost:5000/api/logentry/update", {
+      const response = await fetch("http://localhost:5001/api/logentry/update", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -147,7 +147,7 @@ const handleReviewSubmit = async (entryId) => {
   }
 
   try {
-    const response = await fetch("http://localhost:5000/api/logentry/update", {
+    const response = await fetch("http://localhost:5001/api/logentry/update", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -289,7 +289,7 @@ const capitalize = (str) =>
                   <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
 {typeof value === "string" && value.startsWith("/uploads/") ? (
   <a
-    href={`http://localhost:5000${value}`}
+    href={`http://localhost:5001${value}`}
     download
     className="text-teal-300 underline"
   >

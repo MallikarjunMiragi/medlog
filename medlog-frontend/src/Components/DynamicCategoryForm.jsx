@@ -146,7 +146,7 @@ const deleteCustomField = (index) => {
         });
 
         try {
-            const response = await axios.post("http://localhost:5000/api/logentry/add", formDataToSend, {
+            const response = await axios.post("http://localhost:5001/api/logentry/add", formDataToSend, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 

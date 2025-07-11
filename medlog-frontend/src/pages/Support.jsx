@@ -39,7 +39,7 @@ const Support = () => {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/api/support/submit', {
+      const res = await fetch('http://localhost:5001/api/support/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

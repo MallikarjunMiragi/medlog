@@ -23,7 +23,7 @@
 // // // // // //     };
 
 // // // // // //     try {
-// // // // // //       const response = await fetch("http://localhost:5000/api/assign-task", {
+// // // // // //       const response = await fetch("http://localhost:5001/api/assign-task", {
 
 // // // // // //         method: "POST",
 // // // // // //         headers: {
@@ -149,7 +149,7 @@
 // // // // //     };
 
 // // // // //     try {
-// // // // //       const response = await fetch("http://localhost:5000/api/assign-task", {
+// // // // //       const response = await fetch("http://localhost:5001/api/assign-task", {
 // // // // //         method: "POST",
 // // // // //         headers: {
 // // // // //           "Content-Type": "application/json",
@@ -298,7 +298,7 @@
 // // // //     };
 
 // // // //     try {
-// // // //       const response = await fetch("http://localhost:5000/api/assign-task", {
+// // // //       const response = await fetch("http://localhost:5001/api/assign-task", {
 // // // //         method: "POST",
 // // // //         headers: {
 // // // //           "Content-Type": "application/json",
@@ -433,7 +433,7 @@
 // // //     };
 
 // // //     try {
-// // //       const response = await fetch("http://localhost:5000/api/assign-task", {
+// // //       const response = await fetch("http://localhost:5001/api/assign-task", {
 // // //         method: "POST",
 // // //         headers: {
 // // //           "Content-Type": "application/json",
@@ -576,7 +576,7 @@
 // //     };
 
 // //     try {
-// //       const response = await fetch("http://localhost:5000/api/assign-task", {
+// //       const response = await fetch("http://localhost:5001/api/assign-task", {
 // //         method: "POST",
 // //         headers: {
 // //           "Content-Type": "application/json",
@@ -603,7 +603,7 @@
 
 // //   const fetchTasks = async () => {
 // //     try {
-// //       const response = await fetch(`http://localhost:5000/api/tasks/${doctor.email}`);
+// //       const response = await fetch(`http://localhost:5001/api/tasks/${doctor.email}`);
 // //       const data = await response.json();
 // //       setAssignedTasks(data);
 // //     } catch (error) {
@@ -705,7 +705,7 @@
 //   // Fetch tasks assigned by the logged-in doctor
 //   const fetchTasks = async () => {
 //     try {
-//       const response = await fetch(`http://localhost:5000/api/tasks?assignedBy=${doctor.email}`);
+//       const response = await fetch(`http://localhost:5001/api/tasks?assignedBy=${doctor.email}`);
 //       const data = await response.json();
 //       setAssignedTasks(data);
 //     } catch (error) {
@@ -737,7 +737,7 @@
 //     };
 
 //     try {
-//       const response = await fetch("http://localhost:5000/api/assign-task", {
+//       const response = await fetch("http://localhost:5001/api/assign-task", {
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
@@ -883,7 +883,7 @@ const AssignTaskPage = () => {
   // Fetch tasks assigned by the logged-in doctor
   const fetchTasks = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/tasks?assignedBy=${doctor.email}`);
+      const response = await fetch(`http://localhost:5001/api/tasks?assignedBy=${doctor.email}`);
       const data = await response.json();
       setAssignedTasks(data);
     } catch (error) {
@@ -916,7 +916,7 @@ const handleSubmit = async (e) => {
     };
 
     try {
-        const response = await fetch("http://localhost:5000/api/assign-task", {
+        const response = await fetch("http://localhost:5001/api/assign-task", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

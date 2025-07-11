@@ -14,7 +14,7 @@ const LogbookPage = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`
+          `http://localhost:5001/api/category/all?email=${encodeURIComponent(userEmail)}`
         );
 
         const categories = response.data.map((category) => ({
