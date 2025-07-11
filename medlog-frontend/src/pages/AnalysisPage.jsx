@@ -1,4 +1,7 @@
 import React, { useEffect, useState } from "react";
+import GoalProgression from "../pages/GoalProgression"; // or wherever it's located
+// Adjust the path as needed
+
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
   LineChart, Line, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
@@ -163,6 +166,13 @@ const AnalysisPage = () => {
       ) : (
         <p className="mt-10 text-gray-500">Loading or no data available...</p>
       )}
+       <hr className="my-10 border-gray-600" />
+      <div className="mt-10">
+        <h2 className="text-2xl font-bold mb-4 text-white text-center">🎯 Goal Progression</h2>
+        <div className="bg-[#1f2937] p-6 rounded-lg shadow">
+  <GoalProgression />
+</div>
+      </div>
     </div>
   );
 };
