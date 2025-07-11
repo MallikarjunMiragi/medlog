@@ -46,7 +46,7 @@ const Sidebar = () => {
             className={getLinkStyle("/jobs")}
             onClick={() => navigate("/jobs")}
           >
-            <FaBriefcase className="icon" /> Jobs
+            <FaBriefcase className="icon" /> Assignment history
           </li>
           <li
             className={getLinkStyle("/analysis")}
@@ -54,12 +54,12 @@ const Sidebar = () => {
           >
             <FaChartBar className="icon" /> Analysis
           </li>
-          <li
+          {/*<li
             className={getLinkStyle("/goal-progression")}
             onClick={() => navigate("/goal-progression")}
           >
             <FaBullseye className="icon" /> Goal Progression
-          </li>
+          </li>*/}
           <li
             className={getLinkStyle("/reports")}
             onClick={() => navigate("/reports")}
