@@ -28,7 +28,11 @@ const StudentEntries = () => {
 
   useEffect(() => {
     if (student.email) {
-      fetch(`http://localhost:5000/api/logentry/review-status/${encodeURIComponent(student.email)}`)
+      fetch(
+        `http://localhost:5000/api/logentry/review-status/${encodeURIComponent(
+          student.email
+        )}`
+      )
         .then((res) => res.json())
         .then((data) => {
           setReviewedEntries(data.reviewed);
@@ -77,80 +81,42 @@ const StudentEntries = () => {
     setScores({ ...scores, [entryId]: value });
   };
 
-  const handleCommentSubmit = async (entryId) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/logentry/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entryId,
-          comments: comments[entryId],
-        }),
-      });
-      
+  const handleBreakdownChange = (entryId, index, value) => {
+    setScoreBreakdown((prev) => {
+      const updated = [...(prev[entryId] || [])];
+      updated[index].value = Number(value);
+      return { ...prev, [entryId]: updated };
+    });
 
-      const result = await response.json();
-      if (response.ok) {
-        setNotification({
-          isOpen: true,
-          message: `Comment submitted:\n ${result.updatedEntry.comments}`,
-          type: "success",
-        });
-
-        setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
-        setNotReviewedEntries(notReviewedEntries.filter(entry => entry._id !== entryId));
-        setComments({ ...comments, [entryId]: "" });
-      } else {
-        console.error("Error saving comment:", result.error);
-      }
-    } catch (error) {
-      console.error("Server error:", error);
-    }
-  };
-  
-  
-
-  const handleScoreSubmit = async (entryId) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/logentry/update", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entryId,
-          score: scores[entryId],
-        }),
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setNotification({
-          isOpen: true,
-          message: `Score submitted: ${scores[entryId]}`,
-          type: "success",
-        });
-
-        setReviewedEntries([...reviewedEntries, { ...result.updatedEntry }]);
-        setNotReviewedEntries(notReviewedEntries.filter(entry => entry._id !== entryId));
-        setScores({ ...scores, [entryId]: "" });
-      } else {
-        console.error("Error saving score:", result.error);
-      }
-    } catch (error) {
-      console.error("Server error:", error);
-    }
+    setScores((prev) => {
+      const updated = [...(scoreBreakdown[entryId] || [])];
+      updated[index].value = Number(value);
+      const total = updated.reduce(
+        (acc, item, idx) => (idx === index ? acc + Number(value) : acc + (item.value || 0)),
+        0
+      );
+      return { ...prev, [entryId]: total };
+    });
   };
 
-const isUrl = (str) => {
-  try {
-    new URL(str);
-    return true;
-  } catch (_) {
-    return false;
-  }
-};
-const handleReviewSubmit = async (entryId) => {
-  const comment = comments[entryId];
-  const score = scores[entryId];
+  const addBreakdown = (entryId) => {
+    setScoreBreakdown((prev) => ({
+      ...prev,
+      [entryId]: [...(prev[entryId] || []), { value: 0, max: 10 }],
+    }));
+  };
+
+  const removeBreakdown = (entryId, index) => {
+    const updated = [...(scoreBreakdown[entryId] || [])];
+    updated.splice(index, 1);
+    const total = updated.reduce((acc, item) => acc + Number(item.value || 0), 0);
+    setScoreBreakdown((prev) => ({ ...prev, [entryId]: updated }));
+    setScores((prev) => ({ ...prev, [entryId]: total }));
+  };
+
+  const handleReviewSubmit = async (entryId) => {
+    const comment = comments[entryId];
+    const score = scores[entryId];
 
     if (!comment || !score) {
       setNotification({
@@ -161,17 +127,18 @@ const handleReviewSubmit = async (entryId) => {
       return;
     }
 
-  try {
-    const response = await fetch("http://localhost:5000/api/logentry/update", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        entryId,
-        comments: comment,
-        score: score,
-        enhance: enhanceComment[entryId] || false, // retain enhance flag
-      }),
-    });
+    try {
+      const response = await fetch("http://localhost:5000/api/logentry/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          entryId,
+          comments: comment,
+          score: score,
+          enhance: enhanceComment[entryId] || false,
+          scoreBreakdown: scoreBreakdown[entryId] || [],
+        }),
+      });
 
       const result = await response.json();
 
@@ -287,35 +254,34 @@ const handleReviewSubmit = async (entryId) => {
               </h4>
 
               <div className="mb-4">
-              {Object.entries(entry.data).map(([key, value]) => (
-                <p key={key} className="text-white text-sm mb-2">
-                  <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
-{typeof value === "string" && value.startsWith("/uploads/") ? (
-  <a
-    href={`http://localhost:5000${value}`}
-    download
-    className="text-teal-300 underline"
-  >
-    📄 Download File
-  </a>
-) : typeof value === "string" && isUrl(value) ? (
-  <a
-    href={value}
-    target="_blank"
-    rel="noopener noreferrer"
-    className="text-teal-300 underline"
-  >
-    📄 View File
-  </a>
-) : typeof value === "string" ? (
-  capitalize(value)
-) : (
-  value || "N/A"
-)}
-
-                </p>
-              ))}
-            </div>
+                {Object.entries(entry.data).map(([key, value]) => (
+                  <p key={key} className="text-white text-sm mb-2">
+                    <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
+                    {typeof value === "string" && value.startsWith("/uploads/") ? (
+                      <a
+                        href={`http://localhost:5000${value}`}
+                        download
+                        className="text-teal-300 underline"
+                      >
+                        📄 Download File
+                      </a>
+                    ) : typeof value === "string" && isUrl(value) ? (
+                      <a
+                        href={value}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-teal-300 underline"
+                      >
+                        📄 View File
+                      </a>
+                    ) : typeof value === "string" ? (
+                      capitalize(value)
+                    ) : (
+                      value || "N/A"
+                    )}
+                  </p>
+                ))}
+              </div>
 
               {selectedTab === "reviewed" ? (
                 <>
@@ -391,49 +357,39 @@ const handleReviewSubmit = async (entryId) => {
                   </div>
 
                   {scoresBreakdownVisible[entry._id] && (
-                    <div className="mt-2 w-full max-w-xs rounded bg-[#1a2236] shadow-sm p-2">
-                      <h3 className="text-sm font-bold text-teal-300 mb-2">Score Breakdown</h3>
-                      <div className="flex flex-col gap-2">
-                        {scoreBreakdown[entry._id]?.map((item, idx) => (
-                          <div key={idx} className="flex gap-2 items-center">
-                            <input
-                              type="text"
-                              placeholder="Label"
-                              value={item.name || ''}
-                              onChange={(e) => handleBreakdownChange(entry._id, idx, 'name', e.target.value)}
-                              className="bg-[#232b43] text-white text-sm font-semibold rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-teal-400"
-                            />
-                            <div className="flex gap-2 items-center bg-[#232b43] rounded px-3 py-2 w-24 justify-center">
-                              <input
-                                type="number"
-                                min="0"
-                                max={item.max}
-                                value={item.value}
-                                onChange={(e) => handleBreakdownChange(entry._id, idx, 'value', e.target.value)}
-                                className="bg-transparent text-white text-sm font-semibold w-8 text-center focus:outline-none"
-                              />
-                              <span className="text-white text-sm font-semibold">/</span>
-                              <input
-                                type="number"
-                                min="1"
-                                value={item.max}
-                                onChange={(e) => handleBreakdownChange(entry._id, idx, 'max', e.target.value)}
-                                className="bg-transparent text-white text-sm font-semibold w-8 text-center focus:outline-none"
-                              />
-                            </div>
-                            <button
-                              onClick={() => removeBreakdown(entry._id, idx)}
-                              className="ml-1 text-red-400 hover:text-red-600 text-base font-bold"
-                              title="Remove"
-                            >
-                              ✖
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="mt-2 w-full max-w-md bg-white text-black rounded-md p-4 border">
+                      {scoreBreakdown[entry._id]?.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between mb-2 gap-2"
+                        >
+                          <input
+                            type="number"
+                            min="0"
+                            max={item.max}
+                            value={item.value}
+                            onChange={(e) =>
+                              handleBreakdownChange(
+                                entry._id,
+                                idx,
+                                e.target.value
+                              )
+                            }
+                            className="w-16 px-2 py-1 rounded-md border text-center"
+                          />
+                          <span className="text-sm">/ {item.max}</span>
+                          <button
+                            onClick={() => removeBreakdown(entry._id, idx)}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            ✖
+                          </button>
+                        </div>
+                      ))}
+
                       <button
                         onClick={() => addBreakdown(entry._id)}
-                        className="mt-2 text-xs text-blue-500 hover:underline font-semibold"
+                        className="mt-2 text-sm text-blue-600 hover:underline"
                       >
                         + Add Breakdown
                       </button>
