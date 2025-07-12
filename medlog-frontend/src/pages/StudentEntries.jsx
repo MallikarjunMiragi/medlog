@@ -99,12 +99,13 @@ const StudentEntries = () => {
     });
   };
 
-  const addBreakdown = (entryId) => {
-    setScoreBreakdown((prev) => ({
-      ...prev,
-      [entryId]: [...(prev[entryId] || []), { value: 0, max: 10 }],
-    }));
-  };
+ const addBreakdown = (entryId) => {
+  setScoreBreakdown((prev) => ({
+    ...prev,
+    [entryId]: [...(prev[entryId] || []), { criterion: "", value: 0, max: 10 }],
+  }));
+};
+ 
 
   const removeBreakdown = (entryId, index) => {
     const updated = [...(scoreBreakdown[entryId] || [])];
@@ -357,44 +358,56 @@ const StudentEntries = () => {
                   </div>
 
                   {scoresBreakdownVisible[entry._id] && (
-                    <div className="mt-2 w-full max-w-md bg-white text-black rounded-md p-4 border">
-                      {scoreBreakdown[entry._id]?.map((item, idx) => (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between mb-2 gap-2"
-                        >
-                          <input
-                            type="number"
-                            min="0"
-                            max={item.max}
-                            value={item.value}
-                            onChange={(e) =>
-                              handleBreakdownChange(
-                                entry._id,
-                                idx,
-                                e.target.value
-                              )
-                            }
-                            className="w-16 px-2 py-1 rounded-md border text-center"
-                          />
-                          <span className="text-sm">/ {item.max}</span>
-                          <button
-                            onClick={() => removeBreakdown(entry._id, idx)}
-                            className="text-red-500 hover:text-red-700"
-                          >
-                            ✖
-                          </button>
-                        </div>
-                      ))}
+  <div className="mt-2 w-full max-w-md bg-white text-black rounded-md p-4 border">
+    {scoreBreakdown[entry._id]?.map((item, idx) => (
+      <div
+        key={idx}
+        className="flex items-center justify-between mb-2 gap-2 flex-wrap"
+      >
+        <input
+          type="text"
+          placeholder="Criterion"
+          value={item.criterion || ""}
+          onChange={(e) => {
+            const updated = [...(scoreBreakdown[entry._id] || [])];
+            updated[idx].criterion = e.target.value;
+            setScoreBreakdown((prev) => ({
+              ...prev,
+              [entry._id]: updated,
+            }));
+          }}
+          className="flex-1 px-2 py-1 rounded-md border text-sm"
+        />
 
-                      <button
-                        onClick={() => addBreakdown(entry._id)}
-                        className="mt-2 text-sm text-blue-600 hover:underline"
-                      >
-                        + Add Breakdown
-                      </button>
-                    </div>
-                  )}
+        <input
+          type="number"
+          min="0"
+          max={item.max}
+          value={item.value}
+          onChange={(e) =>
+            handleBreakdownChange(entry._id, idx, e.target.value)
+          }
+          className="w-16 px-2 py-1 rounded-md border text-center"
+        />
+        <span className="text-sm">/ {item.max}</span>
+        <button
+          onClick={() => removeBreakdown(entry._id, idx)}
+          className="text-red-500 hover:text-red-700"
+        >
+          ✖
+        </button>
+      </div>
+    ))}
+
+    <button
+      onClick={() => addBreakdown(entry._id)}
+      className="mt-2 text-sm text-blue-600 hover:underline"
+    >
+      + Add Breakdown
+    </button>
+  </div>
+)}
+
                 </div>
               )}
             </div>
