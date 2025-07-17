@@ -186,9 +186,33 @@ const RegistrationPage = () => {
 
 
   return (
-    <div className="max-w-[1000px] bg-white/10 p-6 mx-auto my-12 rounded-lg shadow-md text-white [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
+    <div
+  className="max-w-[1350px] bg-white/10 p-6 mx-auto my-12 rounded-lg shadow-md text-black 
+             [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 
+             [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 
+             [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md 
+             [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 
+             [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:white"
+  style={{
+    background: "linear-gradient(0deg, rgb(255, 255, 255) 0%, rgba(219, 239, 245, 1) 100%)",
+    borderRadius: "40px",
+    padding: "25px 35px",
+    border: "5px solid rgb(255, 255, 255)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 30px 30px -20px",
+    margin: "20px auto",
+    position: "relative"
+  }}
+>
+
       <div className="relative" >
-        <h1 className="text-2xl font-bold mb-3 text-[#a9d0cd] text-center font-[cursive] col-span-2">Welcome to MedicalLogBook!</h1>
+        
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Welcome to MedicalLogBook!</h2>
         <p className="text-sm mb-5 text-center">To configure your account, please provide details about your current medical training.</p>
 
       </div>
@@ -209,17 +233,55 @@ const RegistrationPage = () => {
           <label>Full Name <span className="text-red-600">*</span>
           </label>
 
-          <button className={`ml-auto !w-24 px-5 py-2 -mt-4 mb-2 text-[16px] text-white rounded-lg cursor-pointer ${role === "student" ? "bg-green-600" : "bg-blue-700"}`} onClick={handleRoleToggle}>
+          <button className={`ml-auto !w-24 px-5 py-2 -mt-1 mb-2 text-[16px] text-white rounded-full cursor-pointer ${role === "student" ? "bg-blue-400" : "bg-blue-300"}`} onClick={handleRoleToggle}>
             {role === "student" ? "Student" : "Doctor"}
           </button>
         </div>
 
-        <input type="text" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        <input type="text" placeholder="Enter your full name" value={fullName} onChange={(e) => setFullName(e.target.value)} 
+         style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }/>
       </div>
 
       <div className="flex flex-col">
         <label className="">Email <span className="text-red-600">*</span></label>
-        <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} 
+         style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }/>
       </div>
 
       <div className="flex flex-col">
@@ -228,7 +290,26 @@ const RegistrationPage = () => {
           type="text"
           value={password}
           readOnly
-          className="bg-gray-200 text-black cursor-not-allowed"
+          className="white200 text-black cursor-not-allowed"
+           style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
         <span className="text-xs text-gray-400">This password is auto-generated and cannot be changed.</span>
       </div>
@@ -236,7 +317,26 @@ const RegistrationPage = () => {
         <>
           <div className="flex flex-col">
             <label>Country <span className="text-red-600">*</span></label>
-            <select value={selectedCountry} onChange={handleCountryChange}>
+            <select value={selectedCountry} onChange={handleCountryChange}
+            style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  } >
               <option value="">Select a country</option>
               {countries.map((country, index) => (
                 <option key={index} value={country}>{country}</option>
@@ -248,7 +348,26 @@ const RegistrationPage = () => {
             <>
               <div className="flex flex-col">
                 <label>Training Year <span className="text-red-600">*</span></label>
-                <select value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)}>
+                <select value={selectedTrainingYear} onChange={(e) => setSelectedTrainingYear(e.target.value)}
+                   style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
                   <option value="">Select your training year</option>
                   {trainingYears.map((year, index) => (
                     <option key={index} value={year}>{year}</option>
@@ -258,7 +377,25 @@ const RegistrationPage = () => {
 
               <div className="flex flex-col">
                 <label>Hospital <span className="text-red-600">*</span></label>
-                <select value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)}>
+                <select value={selectedHospital} onChange={(e) => setSelectedHospital(e.target.value)} style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
                   <option value="">Select a hospital</option>
                   {hospitals.map((hospital, index) => (
                     <option key={index} value={hospital}>{hospital}</option>
@@ -268,7 +405,25 @@ const RegistrationPage = () => {
 
               <div className="flex flex-col">
                 <label>Specialty <span className="text-red-600">*</span></label>
-                <select value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)}>
+                <select value={selectedSpecialty} onChange={(e) => setSelectedSpecialty(e.target.value)} style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
                   <option value="">Select a specialty</option>
                   {specialties.map((specialty, index) => (
                     <option key={index} value={specialty}>{specialty}</option>
@@ -287,7 +442,25 @@ const RegistrationPage = () => {
 
         <div className="flex flex-col">
           <label>Specialty <span className="text-red-600">*</span></label>
-          <select value={selectedDoctorSpecialty} onChange={(e) => setSelectedDoctorSpecialty(e.target.value)}>
+          <select value={selectedDoctorSpecialty} onChange={(e) => setSelectedDoctorSpecialty(e.target.value)}  style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
             <option value="">Select a specialty</option>
             {doctorSpecialties.map((specialty, index) => (
               <option key={index} value={specialty}>{specialty}</option>
@@ -298,7 +471,14 @@ const RegistrationPage = () => {
       )}
 
 
-      <button className="w-full p-3 rounded-md cursor-pointer bg-[#008080] transition ease duration-300 hover:bg-[#015b5b] font-medium" onClick={() => {
+      <button className="w-full p-3 rounded-full cursor-pointer bg-[#008080] transition ease duration-300 hover:bg-[#015b5b] font-medium text-white"
+     style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+     onClick={() => {
         console.log("🟢 Button clicked! Role:", role);
         handleSubmit();
       }} disabled={isLoading || (role === "student" && !selectedCountry)}>
@@ -317,7 +497,14 @@ const RegistrationPage = () => {
 </div>
 
       {/* Go Back Button */}
-      <button className="w-full btn-back p-3 mt-3 cursor-pointer rounded-md bg-slate-500 hover:bg-[#015b5b] font-medium" onClick={() => navigate("/")}>Go Back</button>
+      <button className="w-full px-6 py-3 rounded-[16px] cursor-pointer flex justify-center items-center gap-1.5 mt-2 text-white font-semibold transition-transform duration-200 shadow-md"
+  style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+   onClick={() => navigate("/")}>Go Back</button>
 
     </div>
   );

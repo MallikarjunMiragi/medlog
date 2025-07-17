@@ -3,14 +3,21 @@ import React from "react";
 const AdminHome = () => {
   return (
 
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="bg-[#253b50] text-white p-6 rounded-lg shadow-lg max-w-2xl w-full text-center font-sans">
-        <h2 className="text-5xl font-bold mb-4 bg-gradient-to-r from-teal-300 via-cyan-400 to-blue-400 text-transparent bg-clip-text">Welcome, Admin!</h2>
-        <p className="mb-4 text-lg !text-blue-300">
+    <div className="min-h-screen flex items-center justify-center p-4 mb-50">
+      <div className="bg-white text-white p-6 rounded-lg shadow-lg max-w-2xl w-full text-center font-sans mb-50">
+       
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Welcome, Admin!</h2>
+        <p className="mb-4 text-lg !text-black">
           Manage your users and system efficiently.
         </p>
-        <p className="text-lg">
-          Navigate to <strong className="text-[#00d9c0]">View Users</strong> to approve or reject the registered users or log out when you're done.
+        <p className="text-lg text-black">
+          Navigate to <strong className="text-black">View Users</strong> to approve or reject the registered users or log out when you're done.
           <br />
           Thank you!!
         </p>

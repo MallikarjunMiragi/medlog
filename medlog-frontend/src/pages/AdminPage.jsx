@@ -5,6 +5,7 @@ import EditUserModal from "../Components/EditUserModal";
 
 const AdminPage = () => {
   const [users, setUsers] = useState([]);
+  const [pendingUsers, setPendingUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState({
     isOpen: false,
@@ -12,410 +13,320 @@ const AdminPage = () => {
     message: "",
     type: "info",
   });
-  const [activeTab, setActiveTab] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [roleFilter, setRoleFilter] = useState("all"); // default to show all users
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const handleSelectUser = (email) => {
+    setSelectedUsers((prev) =>
+      prev.includes(email)
+        ? prev.filter((e) => e !== email)
+        : [...prev, email]
+    );
+  };
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedUsers(filteredUsers.map((u) => u.email));
+    } else {
+      setSelectedUsers([]);
+    }
+  };
+
+  const handleBatchStatus = async (status) => {
+    for (const email of selectedUsers) {
+      try {
+        await axios.put("http://localhost:5000/api/auth/user/update-status", {
+          email,
+          status,
+        });
+        setUsers((prev) =>
+          prev.map((u) => (u.email === email ? { ...u, status } : u))
+        );
+      } catch (err) {
+        setNotification({
+          isOpen: true,
+          title: "Error",
+          message: `Failed to update status for ${email}`,
+          type: "error",
+        });
+      }
+    }
+    setNotification({
+      isOpen: true,
+      title: "Status Updated",
+      message: `Selected users have been ${status}.`,
+      type: "success",
+    });
+    setSelectedUsers([]);
+  };
 
   const openEditModal = (user) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  // const fetchUsers = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:5001/api/auth/users/all");
-  //     setUsers(response.data);
-  //   } catch (err) {
-  //     console.error("Failed to fetch users", err);
-  //     setNotification({
-  //       isOpen: true,
-  //       title: "Error",
-  //       message: "Failed to fetch users.",
-  //       type: "error",
-  //     });
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const fetchUsers = async () => {
-  try {
-    const [mainRes, pendingRes] = await Promise.all([
-      axios.get("http://localhost:5001/api/auth/users/all"),
-      axios.get("http://localhost:5001/api/auth/pending-users/all"),
-    ]);
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/users/all");
+      setUsers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+      setNotification({
+        isOpen: true,
+        title: "Error",
+        message: "Failed to fetch users.",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const mainUsers = mainRes.data.map(user => ({ ...user, source: "main" }));
-    const pendingUsers = pendingRes.data.map(user => ({ ...user, source: "pending" }));
-
-    setUsers([...mainUsers, ...pendingUsers]);
-  } catch (err) {
-    console.error("Failed to fetch users", err);
-    setNotification({
-      isOpen: true,
-      title: "Error",
-      message: "Failed to fetch users.",
-      type: "error",
-    });
-  } finally {
-    setLoading(false);
-  }
-};
-
+  const fetchPendingUsers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/pending-users");
+      setPendingUsers(res.data);
+    } catch (err) {
+      console.error("Failed to fetch pending users", err);
+    }
+  };
 
   useEffect(() => {
     fetchUsers();
+    fetchPendingUsers();
   }, []);
 
-  // const handleApprove = async (email) => {
-  //   const user = users.find((u) => u.email === email);
-  //   try {
-  //     await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
-  //       email,
-  //       status: "approved",
-  //     });
-
-  //     setUsers((prevUsers) =>
-  //       prevUsers.map((user) =>
-  //         user.email === email ? { ...user, status: "approved" } : user
-  //       )
-  //     );
-
-  //     setNotification({
-  //       isOpen: true,
-  //       title: "Success",
-  //       message: `${user?.fullName || email} approved.`,
-  //       type: "success",
-  //     });
-  //   } catch (err) {
-  //     console.error("Failed to approve user", err);
-  //     setNotification({
-  //       isOpen: true,
-  //       title: "Error",
-  //       message: "Failed to approve user.",
-  //       type: "error",
-  //     });
-  //   }
-  // };
-  // const handleApprove = async (email) => {
-  // const user = users.find((u) => u.email === email);
-
-  // try {
-  //   if (user.source === "pending") {
-  //     // If from PendingUsers, move to main Users table
-  //     //await axios.post(`http://localhost:5001/api/auth/user/update-status`, { email });
-  //     axios.post("http://localhost:5001/api/auth/approve-pending-user", { email })
-
-  //   } else {
-  //     // If already in Users, just update status
-  //     await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
-  //       email,
-  //       status: "approved",
-  //     });
-
-  //     setUsers((prev) =>
-  //       prev.map((u) => (u.email === email ? { ...u, status: "approved" } : u))
-  //     );
-  //     setNotification({
-  //       isOpen: true,
-  //       title: "Success",
-  //       message: `${user?.fullName || email} approved.`,
-  //       type: "success",
-  //     });
-  //   } catch (err) {
-  //     console.error("Approve error:", err);
-  //     setNotification({
-  //       isOpen: true,
-  //       title: "Error",
-  //       message: "Failed to approve user.",
-  //       type: "error",
-  //     });
-
-    
-  //   }
-const handleApprove = async (email) => {
-  const user = users.find((u) => u.email === email);
-
-  try {
-    if (user.source === "pending") {
-      // Await moving from pending to main
-      await axios.post("http://localhost:5001/api/auth/approve-pending-user", { email });
-    } else {
-      // If already in main users, update status
-      await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
-        email,
-        status: "approved",
-      });
-    }
-
-    // Update local state after successful API call
-    setUsers((prevUsers) =>
-      prevUsers.map((u) =>
-        u.email === email ? { ...u, status: "approved", source: "main" } : u
-      )
-    );
-
-    setNotification({
-      isOpen: true,
-      title: "Success",
-      message: `${user?.fullName || email} approved.`,
-      type: "success",
-    });
-  } catch (err) {
-    console.error("Failed to approve user", err);
-    setNotification({
-      isOpen: true,
-      title: "Error",
-      message: "Failed to approve user.",
-      type: "error",
-    });
-  }
-};
-
-  
-
-
-// const handleReject = async (email) => {
-//   const user = users.find((u) => u.email === email);
-//   try {
-//     // 🔥 DELETE request instead of update
-//     await axios.delete(`http://localhost:5001/api/auth/user/delete/${email}`);
-
-//     // Remove from local state
-//     setUsers((prev) => prev.filter((u) => u.email !== email));
-
-//     setNotification({
-//       isOpen: true,
-//       title: "Rejected",
-//       message: `${user?.fullName || email} has been removed from the system.`,
-//       type: "error",
-//     });
-//   } catch (err) {
-//     console.error("Reject error:", err);
-//     setNotification({
-//       isOpen: true,
-//       title: "Error",
-//       message: "Failed to remove user from the system.",
-//       type: "error",
-//     });
-//   }
-// };
-
-  const handleReject = async (email) => {
+  const handleToggleStatus = async (email) => {
     const user = users.find((u) => u.email === email);
+    const newStatus = user.status === "disabled" ? "enabled" : "disabled";
+console.log("Sending to backend:", { email, status: newStatus });
+
     try {
-      await axios.put(`http://localhost:5001/api/auth/user/update-status`, {
+      await axios.put("http://localhost:5000/api/auth/user/update-status", {
         email,
-        status: "rejected",
+        status: newStatus,
       });
 
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.email === email ? { ...user, status: "rejected" } : user
-        )
+      setUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, status: newStatus } : u))
       );
 
       setNotification({
         isOpen: true,
-        title: "Rejected",
-        message: `${user?.fullName} rejected.`,
-        type: "error",
+        title: "Status Updated",
+        message: `${user.fullName || user.email} is now ${newStatus}.`,
+        type: "success",
       });
     } catch (err) {
-      console.error("Failed to reject user", err);
+      console.error("Failed to update status", err);
       setNotification({
         isOpen: true,
         title: "Error",
-        message: "Failed to reject user.",
+        message: "Failed to update user status.",
         type: "error",
       });
     }
   };
 
+  // Merge users and pending users, always showing rejected users (from either list) with status 'rejected'
+  // 1. Build a map of users by email, preferring rejected status if present
+  const userMap = new Map();
+  // Add all users from main users array
+  users.forEach(u => {
+    userMap.set(u.email, { ...u });
+  });
+  // Add/override with pending users
+  pendingUsers.forEach(u => {
+    if (u.status === 'rejected') {
+      userMap.set(u.email, { ...u });
+    } else if (!userMap.has(u.email)) {
+      userMap.set(u.email, { ...u });
+    }
+  });
+  // If a user is in both lists and is rejected in either, set status to rejected
+  users.forEach(u => {
+    const pending = pendingUsers.find(p => p.email === u.email);
+    if (pending && (pending.status === 'rejected' || u.status === 'rejected')) {
+      userMap.set(u.email, { ...u, status: 'rejected' });
+    }
+  });
+  let allUsers = Array.from(userMap.values());
 
-
-
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = allUsers.filter((user) => {
     const lowerSearch = searchTerm.toLowerCase();
-    if (activeTab === "requests") {
-      return user.fullName?.toLowerCase().includes(lowerSearch);
-    } else if (activeTab === "users") {
-  const roleMatch = roleFilter === "all" || user.role?.toLowerCase() === roleFilter;
-
+    const roleMatch =
+      roleFilter === "all" || user.role?.toLowerCase() === roleFilter;
     return (
-      roleMatch &&
-      user.fullName?.toLowerCase().includes(lowerSearch)
-    );  
-}
-
-    return false;
+      roleMatch && user.fullName?.toLowerCase().includes(lowerSearch)
+    );
   });
 
   return (
-    <div className="px-4 py-6 sm:px-6 lg:px-8 text-white min-h-screen bg-gradient-to-br from-[#1f2937] via-[#111827] to-black">
-     <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-center text-teal-300 drop-shadow-md">
-        Admin Panel
-      </h2>
-      <p className="text-center text-gray-400 text-lg mb-1">
-        Use the <strong>"Requests"</strong> tab to approve or reject newly registered users.
-      </p>
-      <p className="text-center text-gray-400 text-lg mb-6">
-      Use the <strong>"Users"</strong> tab to modify user roles or update user profiles.
-     </p>
+    
+    <div
+  className=" px-4 py-6 text-black min-h-screen"
+  style={{
+    maxWidth: "1400px", // or whatever wide value you want
+    width: "100%", 
+    background: "linear-gradient(0deg, rgb(255, 255, 255), rgba(219, 239, 245, 1))",
+    borderRadius: "40px",
+    border: "5px solid bg-gray",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 30px 30px -20px",
+  }}
+>
 
-      {/* Tabs */}
+      {/* Batch Enable/Disable Buttons */}
       <div className="flex justify-center gap-4 mb-6">
-        {["requests", "users"].map((tab) => (
-          <button
-            key={tab}
-            className={`px-5 py-2 rounded-lg transition-all duration-200 ${
-              activeTab === tab
-                ? "bg-gradient-to-r from-teal-400 to-cyan-500 text-black font-semibold shadow-lg"
-                : "bg-gray-700 text-white hover:bg-gray-600"
-            }`}
-            onClick={() => setActiveTab((prev) => (prev === tab ? null : tab))}
-          >
-            {tab === "requests" ? "Requests" : "Users"}
-          </button>
-        ))}
+        <button
+          className="px-4 py-2 rounded-lg bg-green-500 text-black font-semibold disabled:opacity-50"
+          disabled={selectedUsers.length === 0}
+          onClick={() => handleBatchStatus("enabled")}
+        >
+          Enable
+        </button>
+        <button
+          className="px-4 py-2 rounded-lg bg-red-600 text-white font-semibold disabled:opacity-50"
+          disabled={selectedUsers.length === 0}
+          onClick={() => handleBatchStatus("disabled")}
+        >
+          Disable
+        </button>
       </div>
+      
+      <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Admin Panel</h2>
+      <p className="text-center text-gray-400 text-lg mb-6">
+        Manage users, update their roles, or enable/disable access.
+      </p>
+
+      {/* Role Filters */}
+        <div className="mb-6 flex justify-center gap-4">
+          {["student", "doctor"].map((role) => (
+            <button
+              key={role}
+              className={`px-4 py-2 rounded-lg ${
+                roleFilter === role
+                  ? "bg-blue-400 text-white font-semibold"
+                  : "bg-gray-700 text-white hover:bg-gray-600"
+              }`}
+              onClick={() => setRoleFilter(role)}
+            >
+              {role.charAt(0).toUpperCase() + role.slice(1)}
+            </button>
+          ))}
+        </div>
 
       {/* Search */}
-      {activeTab && (
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
-          />
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search by name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full px-4 py-2 rounded-lg border border-gray-600 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-400"
+          style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
+        />
+      </div>
+
+      {loading ? (
+        <p className="text-center text-gray-400 text-lg">Loading users...</p>
+      ) : (
+        <div className="bg-white rounded-lg shadow-xl p-4 sm:p-6 overflow-x-auto w-[700px] ml-0">
+          <table className="min-w-[700px] table-fixed text-sm sm:text-base">
+            <thead>
+              <tr className="bg-white text-black text-left">
+                <th className="p-3 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.length === filteredUsers.length && filteredUsers.length > 0}
+                    onChange={e => handleSelectAll(e.target.checked)}
+                  />
+                </th>
+                <th className="p-3">Name</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="text-center py-6 text-gray-400">
+                    No users found.
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map((user) => (
+                  <tr
+                    key={user.email}
+                    className={`border-b border-gray-700 hover:bg-gray-700/50 transition ${(user.status === 'disabled' || user.status === 'rejected') ? 'opacity-60 bg-gray-900' : ''}`}
+                  >
+                    <td className="p-3 text-center">
+                      <input
+                        type="checkbox"
+                        checked={selectedUsers.includes(user.email)}
+                        onChange={() => handleSelectUser(user.email)}
+                        disabled={user.status === 'rejected'}
+                      />
+                    </td>
+                    <td className={`p-3 ${user.status === 'disabled' || user.status === 'rejected' ? 'line-through text-gray-400' : user.status === 'pending' ? 'text-yellow-400 font-semibold' : ''}`}>{user.fullName}</td>
+                    <td className={`p-3 ${user.status === 'disabled' || user.status === 'rejected' ? 'text-gray-400' : user.status === 'pending' ? 'text-yellow-400 font-semibold' : ''}`}>{user.email}</td>
+                    <td className={`p-3 capitalize ${user.status === 'disabled' || user.status === 'rejected' ? 'text-gray-400' : user.status === 'pending' ? 'text-yellow-400 font-semibold' : ''}`}>{user.role}</td>
+                    <td className={`p-3 capitalize ${user.status === 'disabled' || user.status === 'rejected' ? 'text-gray-400' : user.status === 'pending' ? 'text-yellow-400 font-semibold' : ''}`}>{user.status}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {activeTab && (
-        <>
-          {loading ? (
-            <p className="text-center text-gray-400 text-lg">Loading users...</p>
-          ) : (
-            <div className=" bg-gray-800 rounded-lg shadow-xl p-4 sm:p-6 overflow-x-hidden">
-              {activeTab === "users" && (
-            <div className="mb-4 flex gap-4 justify-center">
-              {["all", "student", "doctor"].map((role) => (
-                <button
-                  key={role}
-                  className={`px-4 py-2 rounded-lg ${
-                    roleFilter === role
-                      ? "bg-teal-500 text-black font-semibold"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
-                  }`}
-                  onClick={() => setRoleFilter(role)}
-                >
-                  {role.charAt(0).toUpperCase() + role.slice(1)}
-                </button>
-              ))}
-            </div>
-          )}
-              <table className="min-w-full table-fixed text-sm sm:text-base">
-                <thead>
-                  <tr className="bg-gray-700 text-teal-300 text-left">
-                    <th className="p-3">Name</th>
-                    <th className="p-3">Email</th>
-                    <th className="p-3">Role</th>
-                    {activeTab === "requests" && <th className="p-3">Status</th>}
-                    <th className="p-3 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length === 0 ? (
-                    <tr>
-                      <td colSpan={activeTab === "requests" ? 5 : 4} className="text-center py-6 text-gray-400">
-                        {activeTab === "users" ? "No students found." : "No requests found."}
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredUsers.map((user) => (
-                      <tr key={user.email} className="border-b border-gray-700 hover:bg-gray-700/50 transition">
-                        <td className="p-3">{user.fullName}</td>
-                        <td className="p-3">{user.email}</td>
-                        <td className="p-3 capitalize">{user.role}</td>
-
-                        {activeTab === "requests" && (
-                          <td
-                            className={`p-3 font-semibold ${
-                              user.status === "approved"
-                                ? "text-green-400"
-                                : user.status === "rejected"
-                                ? "text-red-400"
-                                : "text-yellow-300"
-                            }`}
-                          >
-                            {user.status}
-                          </td>
-                        )}
-                        <td className="p-3 text-center">
-                          {activeTab === "requests" ? (
-                            <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                              <button
-                                onClick={() => handleApprove(user.email)}
-                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-green-700 via-green-800 to-blue-900 hover:from-emerald-500 hover:to-emerald-700 shadow-md transition"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() => handleReject(user.email)}
-                                className="px-4 py-2 rounded-full text-white font-medium bg-gradient-to-r from-pink-800 via-red-700 to-red-700 hover:from-rose-500 hover:to-rose-700 shadow-md transition"
-                              >
-                                Reject
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-2">
-                              {/* Only show Edit in Users tab */}
-                              {activeTab === "users" && (
-                                <button
-                                  onClick={() => openEditModal(user)}
-                                  className="px-4 py-1.5 bg-gradient-to-r from-blue-400 to-blue-600 text-black rounded-full hover:from-blue-500 hover:to-blue-700"
-                                >
-                                  Edit
-                                </button>
-                              )}
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
-
-        {isModalOpen && selectedUser && (
-          <EditUserModal
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            user={selectedUser}
-            onUpdate={(updatedUser) => {
-              setUsers((prev) =>
-                prev.map((u) =>
-                  u.email === selectedUser.email ? { ...u, ...updatedUser } : u
-                )
-              );
-              setNotification({
+      {isModalOpen && selectedUser && (
+        <EditUserModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          user={selectedUser}
+          onUpdate={(updatedUser) => {
+            setUsers((prev) =>
+              prev.map((u) =>
+                u.email === selectedUser.email ? { ...u, ...updatedUser } : u
+              )
+            );
+            setNotification({
               isOpen: true,
               title: "Updated",
               message: `${updatedUser.fullName || selectedUser.email}'s profile updated successfully.`,
               type: "success",
             });
             setIsModalOpen(false);
-            }}
-          />
-        )}
+          }}
+        />
+      )}
 
       <Notification
         isOpen={notification.isOpen}

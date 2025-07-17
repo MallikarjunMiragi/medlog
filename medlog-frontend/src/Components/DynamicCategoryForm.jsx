@@ -146,7 +146,7 @@ const deleteCustomField = (index) => {
         });
 
         try {
-            const response = await axios.post("http://localhost:5001/api/logentry/add", formDataToSend, {
+            const response = await axios.post("http://localhost:5173/api/logentry/add", formDataToSend, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
@@ -172,9 +172,15 @@ const deleteCustomField = (index) => {
     if (!selectedCategory) return <p>❌ Category not found!</p>;
 
     return (
-        <form onSubmit={handleSubmit} className="text-white font-semibold">
+        <form onSubmit={handleSubmit} className="text-black font-semibold">
            
-            <h2 className="text-2xl font-bold text-center mb-6">{selectedCategory.name} Form</h2>
+            <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>{selectedCategory.name} Form</h2>
 
 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 {selectedCategory.fields.map((field, index) => {
@@ -186,7 +192,7 @@ const deleteCustomField = (index) => {
       key={index}
       className="[&_input]:placeholder:text-gray-300 [&_input]:w-full [&_input]:p-3 [&_input]:rounded-md [&_input]:bg-white/20"
     >
-      <label className="mb-1 block text-white">{field.name}</label>
+      <label className="mb-1 block text-black">{field.name}</label>
       {/* {field.type === "file" ? (
         <input
           type="file"
@@ -287,6 +293,25 @@ const deleteCustomField = (index) => {
       name={field.name}
       onChange={(e) => handleFileChange(e, field.name)}
       className="text-black w-full p-3 rounded-md bg-white/20"
+      style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
     />
     <input
       type="text"
@@ -296,6 +321,25 @@ const deleteCustomField = (index) => {
       value={formData[`${field.name}_title`] || ""}
       required
       className="text-black w-full p-3 rounded-md bg-white/20 mt-2"
+      style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
     />
     <input
       type="text"
@@ -305,6 +349,25 @@ const deleteCustomField = (index) => {
       value={formData[`${field.name}_description`] || ""}
       required
       className="text-black w-full p-3 rounded-md bg-white/20 mt-2"
+      style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
     />
   </>
 ) : options ? (
@@ -313,6 +376,25 @@ const deleteCustomField = (index) => {
     value={formData[field.name] || ""}
     onChange={handleChange}
     className="text-black w-full p-3 rounded-md bg-white/20"
+    style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
   >
     <option value="">Select {field.name}</option>
     {options.map((option, idx) => (
@@ -328,6 +410,25 @@ const deleteCustomField = (index) => {
     value={formData[field.name] || ""}
     onChange={handleChange}
     placeholder={`Enter ${field.name}`}
+    style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
   />
 )}
     </div>
@@ -347,11 +448,49 @@ const deleteCustomField = (index) => {
           placeholder="Field Name"
           onChange={(e) => updateCustomField(index, "name", e.target.value)}
           className="text-black w-full p-3 rounded-md bg-white/20"
+          style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
         <select
           value={field.type}
           onChange={(e) => updateCustomField(index, "type", e.target.value)}
           className="text-black w-full p-3 rounded-md bg-white/20"
+          style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         >
           <option value="text">Text</option>
           <option value="file">File</option>
@@ -373,6 +512,25 @@ const deleteCustomField = (index) => {
     name={field.name}
     onChange={(e) => handleFileChange(e, field.name)}
      className="text-black w-full p-3 rounded-md bg-white/20"
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
 
   />
 ) : (
@@ -389,6 +547,25 @@ const deleteCustomField = (index) => {
     onChange={handleChange}
     placeholder={`Enter ${field.name}`}
     className="text-black w-full p-3 rounded-md bg-white/20"
+    style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
   />
 )}
 
@@ -398,7 +575,13 @@ const deleteCustomField = (index) => {
   <button
     type="button"
     onClick={addCustomField}
-    className="bg-green-500 px-4 py-2 mt-2 rounded"
+    className="bg-green-500 px-4 py-2 mt-2 rounded text-white"
+    style={{
+    background: "linear-gradient(45deg, #84bdf7ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
   >
     Add Custom Field
   </button>
@@ -406,7 +589,13 @@ const deleteCustomField = (index) => {
 
 <button
   type="submit"
-  className="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-md font-bold"
+  className="mt-6 bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-md font-bold text-white"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
 >
   Submit
 </button>

@@ -17,7 +17,7 @@ const DoctorLogbook = () => {
     }
 
     // ✅ FIXED: Use backticks for template literal
-    fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+    fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch students");
@@ -37,12 +37,16 @@ const DoctorLogbook = () => {
 
   return (
 
-    <div className="flex h-screen text-white">
+    <div className="flex h-screen text-black">
       <div className="flex-grow px-6 py-10 max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold mb-6 text-center">
-
-          Doctor Logbook - View Student Entries
-        </h2>
+        
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Doctor Logbook - View Student Entries</h2>
 
         {students.length === 0 ? (
           <p className="text-center text-gray-400">No students found.</p>
@@ -50,7 +54,7 @@ const DoctorLogbook = () => {
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-700 rounded-lg overflow-hidden">
               <thead>
-                <tr className="bg-gray-800 text-gray-300">
+                <tr className="bg-white text-gray-800">
                   <th className="p-3 text-left">Student Name</th>
                   <th className="p-3 text-left">Email</th>
                   <th className="p-3 text-left">Actions</th>
@@ -61,13 +65,19 @@ const DoctorLogbook = () => {
                 {students.map((student) => (
                   <tr
                     key={student._id}
-                    className="odd:bg-gray-700 even:bg-gray-800"
+                    className="odd:bg-gray even:bg-gray-800"
                   >
                     <td className="p-3">{student.fullName}</td>
                     <td className="p-3">{student.email}</td>
                     <td className="p-3">
                       <button
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded transition"
+                         className=" px-6 py-3 rounded-[20px] cursor-pointer font-semibold text-white shadow-md transition-transform duration-200"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                         onClick={() => handleViewEntries(student)}
 
                       >

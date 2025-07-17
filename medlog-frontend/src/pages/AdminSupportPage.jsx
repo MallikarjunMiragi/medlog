@@ -14,7 +14,7 @@ const AdminSupport = () => {
 
   // ✅ Fetch queries
   useEffect(() => {
-    fetch("http://localhost:5001/api/support/all")
+    fetch("http://localhost:5000/api/support/all")
       .then((res) => res.json())
       .then((data) => setQueries(data))
       .catch((err) => console.error(err));
@@ -23,7 +23,7 @@ const AdminSupport = () => {
   // ✅ Handle resolve
   const handleResolve = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/support/resolve/${id}`, {
+      const res = await fetch(`http://localhost:5000/api/support/resolve/${id}`, {
         method: "PUT",
       });
 
@@ -61,8 +61,15 @@ const AdminSupport = () => {
   );
 
   return (
-    <div className="ml-0 p-8 text-white  min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-teal-300">Support Queries</h2>
+    <div className="ml-0 p-8 text-black  min-h-screen">
+      
+      <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Support Queries</h2>
 
       {/* ✅ Toggle Buttons */}
       <div className="mb-6 flex gap-3">
@@ -77,7 +84,7 @@ const AdminSupport = () => {
                   : f === "resolved"
                   ? "bg-green-500 text-black"
                   : "bg-blue-500 text-black"
-                : "bg-gray-700 hover:bg-gray-600"
+                : "bg-white hover:bg-white"
             }`}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -86,40 +93,46 @@ const AdminSupport = () => {
       </div>
 
       {/* ✅ Query Cards */}
-      <div className="space-y-6">
+      <div className="space-y-6" 
+      >
         {filteredQueries.map((query) => (
           <div
             key={query._id}
-            className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700"
+            className="bg-white p-6 rounded-lg shadow-lg"
+            style={{
+    borderRadius: "50px",
+    background: "#e0e0e0",
+    boxShadow: "20px 20px 60px #bebebe, -20px -20px 60px #ffffff"
+  }}
           >
             <p className="mb-1">
-              <span className="font-bold text-teal-300">Name:</span>{" "}
+              <span className="font-bold text-black">Name:</span>{" "}
               {query.studentName}
             </p>
             <p className="mb-1">
-              <span className="font-bold text-teal-300">Email:</span>{" "}
+              <span className="font-bold text-black">Email:</span>{" "}
               {query.studentEmail}
             </p>
             <p className="mb-1">
-              <span className="font-bold text-teal-300">Type:</span>{" "}
+              <span className="font-bold text-black">Type:</span>{" "}
               {query.supportType}
             </p>
             <p className="mb-1">
-              <span className="font-bold text-teal-300">Detail:</span>{" "}
+              <span className="font-bold text-black">Detail:</span>{" "}
               {query.detail}
             </p>
             <p className="mb-1">
-              <span className="font-bold text-teal-300">Status:</span>{" "}
+              <span className="font-bold text-black">Status:</span>{" "}
               <span
                 className={
-                  query.status === "resolved" ? "text-green-400" : "text-yellow-400"
+                  query.status === "resolved" ? "text-green-600" : "text-yellow-600"
                 }
               >
                 {query.status}
               </span>
             </p>
             <p className="mb-4">
-              <span className="font-bold text-teal-300">Submitted:</span>{" "}
+              <span className="font-bold text-black">Submitted:</span>{" "}
               {new Date(query.submittedAt).toLocaleString()}
             </p>
 
@@ -130,7 +143,13 @@ const AdminSupport = () => {
                 href={`mailto:${query.studentEmail}?subject=${encodeURIComponent(
                   "Support Response"
                 )}&body=${encodeURIComponent(`Hi ${query.studentName},\n\n`)}`}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow transition"
+                className="px-10 py-2 rounded-[16px] cursor-pointer flex justify-center items-center gap-1.5 mt-2 text-white font-semibold transition-transform duration-200 shadow-md"
+  style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               >
                 <FaEnvelope /> Send Email
               </a>
@@ -139,7 +158,13 @@ const AdminSupport = () => {
               {query.status !== "resolved" && (
                 <button
                   onClick={() => handleResolve(query._id)}
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded shadow transition"
+                  className=" px-10 py-2 rounded-[20px] cursor-pointer font-semibold text-white shadow-md transition-transform duration-200"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                 >
                   <FaCheckCircle /> Mark Resolved
                 </button>

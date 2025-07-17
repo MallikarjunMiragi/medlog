@@ -97,32 +97,86 @@ const AdminLoginForm = () => {
 
   return (
     <section className="flex justify-center items-center h-full w-full">
-      <div className="flex w-[800px] max-w-[90%] bg-white/10 shadow-md rounded-md text-white">
+      <div className="flex w-[800px] max-w-[90%] bg-white/10 shadow-md rounded-md text-black"
+       style={{
+    maxWidth: "1350px",
+    background: "linear-gradient(0deg, rgb(255, 255, 255) 0%, rgba(219, 239, 245, 1) 100%)",
+    borderRadius: "40px",
+    padding: "25px 35px",
+    border: "5px solid rgb(255, 255, 255)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 30px 30px -20px",
+    margin: "20px auto",
+    position: "relative"
+  }}>
         <div className="flex-1 p-8 flex flex-col justify-center">
-          <h2 className="text-center text-xl mb-5 font-bold">Login</h2>
+         
+          <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Login</h2>
           <form onSubmit={handleSubmit}>
             <label className="mb-1 block font-bold">Email</label>
             <input
-              className="w-full p-3 mb-4 rounded-md bg-white/20"
+              className="w-full p-3 mb-4 rounded-md bg-white"
               type="email"
               placeholder="Enter your email"
               name="emailId"
               value={formData.emailId}
               onChange={handleChange}
-              onBlur={handleBlur}
+              style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
               required
+              
             />
             {errors.emailId && <div className="text-red-800 bg-red-200 border-l-2 border-red-500">{errors.emailId}</div>}
 
             <label className="mb-1 block font-bold">Password</label>
             <input
-              className="w-full p-3 mb-4 rounded-md bg-white/20"
+              className="w-full p-3 mb-4 rounded-md bg-black/20"
               type="password"
               placeholder="Enter your password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              onBlur={handleBlur}
+              style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
               required
             />
             {/* {errors.password && <div className="error">{errors.password}</div>}
@@ -131,7 +185,13 @@ const AdminLoginForm = () => {
             {isForgotPasswordVisible && (
               <button
               type="button"
-              className="w-full p-3 text-[#22615f] bg-[#dadde0] cursor-pointer mb-4 text-sm hover:bg-[#bdc0c5] transition duration-300 rounded-md"
+              className="w-full px-6 py-3 rounded-[16px] cursor-pointer flex justify-center items-center gap-1.5 mt-2 text-white font-semibold transition-transform duration-200 shadow-md"
+  style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               onClick={() => navigate("/forgot-password", { state: { email: formData.emailId } })}
             >
               Forgot Password?
@@ -140,7 +200,13 @@ const AdminLoginForm = () => {
             )}
 
             <div className="flex mt-5 gap-4">
-              <button type="submit" className="w-full p-3 bg-[#008080] cursor-pointer mb-4 text-sm hover:bg-[#283e3e] transition duration-300 rounded-md" disabled={loading}>
+              <button type="submit" className="w-full px-6 py-3 rounded-[20px] cursor-pointer font-semibold text-white shadow-md transition-transform duration-200"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")} disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </button>
               {/*<button type="button" onClick={handleRegister} className="w-full p-3 bg-[#44266c] cursor-pointer mb-4 text-sm hover:bg-[#261d32] transition duration-300 rounded-md">

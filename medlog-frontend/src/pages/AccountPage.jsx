@@ -50,7 +50,7 @@ const AccountPage = () => {
   useEffect(() => {
     if (!userEmail) return;
 
-    fetch(`http://localhost:5001/api/auth/user/${encodeURIComponent(userEmail)}`)
+    fetch(`http://localhost:5000/api/auth/user/${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         if (!data || data.error) {
@@ -110,7 +110,7 @@ const AccountPage = () => {
       delete updatedUser.trainingYear;
     }
 
-    fetch("http://localhost:5001/api/auth/user/update", {
+    fetch("http://localhost:5000/api/auth/user/update", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedUser),
@@ -148,7 +148,7 @@ const AccountPage = () => {
 
     setLoading(true);
 
-    fetch(`http://localhost:5001/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
+    fetch(`http://localhost:5000/api/auth/user/delete/${encodeURIComponent(formData.email)}`, {
       method: "DELETE",
     })
       .then((res) => res.json())
@@ -185,19 +185,38 @@ const AccountPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#1e2a38] text-white">
+      <div className="flex items-center justify-center h-screen bg-[#1e2a38] text-black">
         <div className="animate-spin rounded-full h-14 w-14 border-t-4 border-b-4 border-teal-400"></div>
       </div>
     );
   }
 
   return (
-    <div className="w-[80%] flex flex-col m-auto p-5 bg-[#364454] rounded-md font-arial text-white [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
+   <div
+  className="w-[80%] flex flex-col m-auto p-5 rounded-[30px] font-arial text-black 
+    [&_label]:mb-1.5 [&_label]:font-bold 
+    [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-[16px] [&_input]:border-0 [&_input]:bg-white/30 [&_input]:placeholder:text-gray-200 
+    [&_select]:p-3 [&_select]:rounded-[16px] [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-100 [&_select]:bg-white/20 [&_select]:mb-4 
+    [&_option]:bg-gray-800"
+  style={{
+    background: "linear-gradient(135deg, #dbeeff, #f0f7ff)",
+    color: "#1c1c1c",
+    boxShadow: "0px 15px 30px rgba(0, 123, 255, 0.1)"
+  }}
+>
+
       <ToastContainer />
-      <h2 className="text-xl font-bold mb-2">Account Information</h2>
+      
+       <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Account Information</h2>
 
       <p className="flex items-center mb-6">
-        <strong>Email:&nbsp;</strong> {formData.email} <FaCheckCircle className="text-[#0e856f] ml-1" />
+        <strong>Email:&nbsp;</strong> {formData.email} <FaCheckCircle className="text-black ml-1" />
       </p>
 
     {role === "admin" ? (
@@ -208,7 +227,28 @@ const AccountPage = () => {
           name="email"
           placeholder="Enter Email"
           value={formData.email}
+          readOnly
+          disabled
           onChange={handleChange}
+           style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
         <label>Full Name</label>
         <input
@@ -216,7 +256,27 @@ const AccountPage = () => {
           name="fullName"
           placeholder="Enter full name"
           value={formData.fullName}
+          disabled
           onChange={handleChange}
+           style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
 
         <label>Password</label>
@@ -226,6 +286,25 @@ const AccountPage = () => {
           placeholder="Enter new password"
           value={formData.password}
           onChange={handleChange}
+           style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
       </>
     ) : role === "doctor" ? (
@@ -237,7 +316,27 @@ const AccountPage = () => {
           name="fullName"
           placeholder="Enter full name"
           value={formData.fullName}
+          disabled
           onChange={handleChange}
+           style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         />
 
       <label className="block text-lg font-semibold mb-1">Password</label>
@@ -248,10 +347,48 @@ const AccountPage = () => {
         value={formData.password}
         onChange={handleChange}
         className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+         style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
       />
       
     <label>Specialty*</label>
-    <select name="specialty" value={formData.specialty} onChange={handleChange}>
+    <select name="specialty" value={formData.specialty} disabled onChange={handleChange}
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
       <option value="">Select specialty</option>
       {specialtiesIndia.concat(specialtiesOther).map((s) => (
         <option key={s} value={s}>{s}</option>
@@ -266,12 +403,51 @@ const AccountPage = () => {
         name="password"
         placeholder="Enter new password"
         value={formData.password}
+
         onChange={handleChange}
-        className="w-full p-3 mb-4 rounded bg-gray-800 border border-gray-600 focus:outline-none"
+        className="w-full p-3 mb-4 rounded white800 border border-gray-600 focus:outline-none"
+         style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
       /> 
 
     <label>Country*</label>
-    <select name="country" value={formData.country} onChange={handleCountryChange}>
+    <select name="country" value={formData.country} disabled onChange={handleCountryChange}
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
       <option value="">Select a country</option>
       <option value="India">India</option>
       <option value="United States">United States</option>
@@ -282,7 +458,26 @@ const AccountPage = () => {
     </select>
 
     <label>Training Year*</label>
-    <select name="trainingYear" value={formData.trainingYear} onChange={handleChange}>
+    <select name="trainingYear" value={formData.trainingYear} disabled onChange={handleChange}
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
       <option value="">Select training year</option>
       {availableTrainingYears.map((year) => (
         <option key={year} value={year}>{year}</option>
@@ -290,7 +485,26 @@ const AccountPage = () => {
     </select>
 
     <label>Hospital*</label>
-    <select name="hospital" value={formData.hospital} onChange={handleChange}>
+    <select name="hospital" value={formData.hospital} disabled onChange={handleChange}
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
       <option value="">Select hospital</option>
       {availableHospitals.map((h) => (
         <option key={h} value={h}>{h}</option>
@@ -298,7 +512,26 @@ const AccountPage = () => {
     </select>
 
     <label>Specialty*</label>
-    <select name="specialty" value={formData.specialty} onChange={handleChange}>
+    <select name="specialty" value={formData.specialty} disabled onChange={handleChange}
+     style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
       <option value="">Select specialty</option>
       {availableSpecialties.map((s) => (
         <option key={s} value={s}>{s}</option>
@@ -306,16 +539,35 @@ const AccountPage = () => {
     </select>
   </>
 )}
-      <button className="w-full p-3 bg-[#008080] rounded-md cursor-pointer transition hover:bg-[#015b5b]" onClick={handleUpdate}>
-        Update
-      </button>
+    <button
+  onClick={handleUpdate}
+  className=" px-6 py-3 rounded-[20px] cursor-pointer font-semibold text-white shadow-md transition-transform duration-200"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+>
+  Update
+</button>
+
+
+
       {role !== "admin" && (
-        <button
-          className="bg-[#2f2267] py-2 px-4 rounded-md cursor-pointer flex justify-center items-center gap-1.5 mt-2"
-          onClick={handleDelete}
-        >
-          <FaTrash /> Delete Account
-        </button>
+       <button
+  className="px-6 py-3 rounded-[16px] cursor-pointer flex justify-center items-center gap-1.5 mt-2 text-white font-semibold transition-transform duration-200 shadow-md"
+  style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onClick={handleDelete}
+>
+  <FaTrash /> Delete Account
+</button>
+
       )}
       <Notification
       isOpen={notification.isOpen}

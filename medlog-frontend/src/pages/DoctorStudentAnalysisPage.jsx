@@ -15,12 +15,12 @@
 // // // // //     }
 
 // // // // //     // Fetch students based on doctor's specialty
-// // // // //     fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+// // // // //     fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
 // // // // //       .then((response) => response.json())
 // // // // //       .then((students) => {
 // // // // //         // Fetch average scores for each student
 // // // // //         const studentPromises = students.map((student) =>
-// // // // //           fetch(`http://localhost:5001/api/logentry/average-score/${encodeURIComponent(student.email)}`)
+// // // // //           fetch(`http://localhost:5000/api/logentry/average-score/${encodeURIComponent(student.email)}`)
 // // // // //             .then((res) => res.json())
 // // // // //             .then((data) => ({
 // // // // //               name: student.fullName,
@@ -73,12 +73,12 @@
 // // // //     }
 
 // // // //     // Fetch students based on doctor's specialty
-// // // //     fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+// // // //     fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
 // // // //       .then((response) => response.json())
 // // // //       .then((students) => {
 // // // //         // Fetch average scores for each student
 // // // //         const studentPromises = students.map((student) =>
-// // // //           fetch(`http://localhost:5001/api/logentry/average-score/${encodeURIComponent(student.email)}`)
+// // // //           fetch(`http://localhost:5000/api/logentry/average-score/${encodeURIComponent(student.email)}`)
 // // // //             .then((res) => res.json())
 // // // //             .then((data) => ({
 // // // //               name: student.fullName,
@@ -160,7 +160,7 @@
 // // // //   useEffect(() => {
 // // // //     if (!studentEmail) return;
 
-// // // //     fetch(`http://localhost:5001/api/logentry/${encodeURIComponent(studentEmail)}`)
+// // // //     fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(studentEmail)}`)
 // // // //       .then((res) => res.json())
 // // // //       .then((data) => {
 // // // //         setEntries(data);
@@ -259,12 +259,12 @@
 // //     }
 
 // //     // Fetch students based on doctor's specialty
-// //     fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+// //     fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
 // //       .then((response) => response.json())
 // //       .then((students) => {
 // //         // Fetch average scores for each student
 // //         const studentPromises = students.map((student) =>
-// //           fetch(`http://localhost:5001/api/logentry/average-score/${encodeURIComponent(student.email)}`)
+// //           fetch(`http://localhost:5000/api/logentry/average-score/${encodeURIComponent(student.email)}`)
 // //             .then((res) => res.json())
 // //             .then((data) => ({
 // //               name: student.fullName,
@@ -362,12 +362,12 @@
 //     }
 
 //     // Fetch students based on doctor's specialty
-//     fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+//     fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
 //       .then((response) => response.json())
 //       .then((students) => {
 //         // Fetch average scores for each student
 //         const studentPromises = students.map((student) =>
-//           fetch(`http://localhost:5001/api/logentry/average-score/${encodeURIComponent(student.email)}`)
+//           fetch(`http://localhost:5000/api/logentry/average-score/${encodeURIComponent(student.email)}`)
 //             .then((res) => res.json())
 //             .then((data) => ({
 //               name: student.fullName,
@@ -489,11 +489,11 @@ const [selectedStudentEntries, setSelectedStudentEntries] = useState([]);
       return;
     }
 
-    fetch(`http://localhost:5001/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
+    fetch(`http://localhost:5000/api/auth/users?specialty=${encodeURIComponent(doctor.specialty)}`)
       .then((response) => response.json())
       .then((students) => {
         const studentPromises = students.map((student) =>
-          fetch(`http://localhost:5001/api/logentry/average-score/${encodeURIComponent(student.email)}`)
+          fetch(`http://localhost:5000/api/logentry/average-score/${encodeURIComponent(student.email)}`)
             .then((res) => res.json())
             .then((data) => ({
               name: student.fullName,
@@ -516,7 +516,7 @@ const [selectedStudentEntries, setSelectedStudentEntries] = useState([]);
   // ✅ Fetch Selected Student's Log Entries
   useEffect(() => {
     if (selectedStudent) {
-      fetch(`http://localhost:5001/api/logentry/${encodeURIComponent(selectedStudent)}`)
+      fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(selectedStudent)}`)
         .then((res) => res.json())
         .then((data) => {
           console.log("📊 Fetched log entries:", data);
@@ -532,7 +532,7 @@ const handleViewEntries = (studentEmail) => {
   setIsPopupOpen(true);
 
   // Fetch the entries for the selected student
-  fetch(`http://localhost:5001/api/logentry/${encodeURIComponent(studentEmail)}`)
+  fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(studentEmail)}`)
     .then((res) => res.json())
     .then((data) => {
       console.log("📊 Fetched log entries for selected student:", data);
@@ -601,7 +601,14 @@ const handleViewEntries = (studentEmail) => {
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-semibold text-center mb-6">Student Average Scores</h1>
+      
+      <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Student Average Scores</h2>
       
       {/* Student Average Score Chart */}
       {loading ? (
@@ -681,7 +688,7 @@ const handleViewEntries = (studentEmail) => {
       ) : (
         <div className="grid gap-8 grid-cols-1 md:grid-cols-2">
           {/* Entries Per Category */}
-          <div className="p-5 rounded-lg shadow-md border border-gray-200 bg-gray-50">
+          <div className="p-5 rounded-lg shadow-md border border-gray-200 white50">
             <h2 className="text-center text-xl font-semibold mb-5">Entries Per Category</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={getCategoryCounts()}>
@@ -695,7 +702,7 @@ const handleViewEntries = (studentEmail) => {
           </div>
 
           {/* Average Score Per Category */}
-          <div className="p-5 rounded-lg shadow-md border border-gray-200 bg-gray-50">
+          <div className="p-5 rounded-lg shadow-md border border-gray-200 white50">
             <h2 className="text-center text-xl font-semibold mb-5">Average Score Per Category</h2>
             <ResponsiveContainer width="100%" height={300}>
               <RadarChart data={getAverageScores()}>
@@ -709,7 +716,7 @@ const handleViewEntries = (studentEmail) => {
           </div>
 
           {/* Entries Per Month */}
-          <div className="p-5 rounded-lg shadow-md border border-gray-200 bg-gray-50">
+          <div className="p-5 rounded-lg shadow-md border border-gray-200 white50">
             <h2 className="text-center text-xl font-semibold mb-5">Entries Per Month</h2>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={getEntriesPerMonth()}>
@@ -723,7 +730,7 @@ const handleViewEntries = (studentEmail) => {
           </div>
 
           {/* Category Contribution */}
-          <div className="p-5 rounded-lg shadow-md border border-gray-200 bg-gray-50">
+          <div className="p-5 rounded-lg shadow-md border border-gray-200 white50">
             <h2 className="text-center text-xl font-semibold mb-5">Category Contribution (%)</h2>
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>

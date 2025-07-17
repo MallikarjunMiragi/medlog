@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./Components/Sidebar";
 import DoctorSidebar from "./Components/DoctorSidebar"; // ✅ Import Doctor's Sidebar
 import LoginPage from "./pages/AdminLoginForm";
 import RegistrationPage from "./pages/RegistrationPage";
@@ -24,6 +24,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPage from "./pages/AdminPage";
+import AssignedTasksPage from "./pages/AssignedTasksPage";
 
 import DoctorStudentAnalysisPage from './pages/DoctorStudentAnalysisPage';
 import AnalysisPage from "./pages/AnalysisPage";
@@ -64,7 +65,11 @@ const AppLayout = () => {
   </div>
 )}
 
-        <div className="flex-1 p-5 overflow-y-auto bg-gradient-to-br from-gray-700 via-gray-900 to-gray-900 rounded-lg m-2.5"    style={{scrollbarWidth:"thin"}}>
+         <div
+  className="flex-1 p-5 overflow-y-auto bg-gradient-to-br from-white via-[#e8f5fe] to-[#dbefff] rounded-[30px] m-2.5"
+  style={{ scrollbarWidth: "thin" }}
+>
+
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegistrationPage />} />
@@ -86,6 +91,8 @@ const AppLayout = () => {
             <Route path="/doctor-home" element={<DoctorHome />} />
             <Route path="/doctor-student-analysis" element={<DoctorStudentAnalysisPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
+            
+<Route path="/assigned-tasks" element={<AssignedTasksPage />} />
 
             <Route path="/admin" element={<AdminDashboard />}>
             

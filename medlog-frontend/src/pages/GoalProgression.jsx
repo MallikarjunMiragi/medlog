@@ -9,7 +9,7 @@
 // //   const fetchTasks = async () => {
 // //     try {
 // //       if (student && student.specialty) {
-// //         const response = await fetch(`http://localhost:5001/api/tasks?specialty=${student.specialty}`);
+// //         const response = await fetch(`http://localhost:5000/api/tasks?specialty=${student.specialty}`);
         
 // //         if (!response.ok) {
 // //           const errorData = await response.json();
@@ -183,7 +183,7 @@
 // //     setLoading(true);
 // //     try {
 // //       // const res = await axios.post('/api/goal/suggest', { speciality: selectedSpecialty });
-// //       const res = await axios.post('http://localhost:5001/api/suggest-courses', { specialty: selectedSpecialty });
+// //       const res = await axios.post('http://localhost:5000/api/suggest-courses', { specialty: selectedSpecialty });
 
 // //       setResources(res.data.suggestions);
 // //     } catch (err) {
@@ -236,7 +236,7 @@
 //     if (!selectedSpecialty) return;
 //     setLoading(true);
 //     try {
-//       const res = await axios.post('http://localhost:5001/api/suggest-courses', {
+//       const res = await axios.post('http://localhost:5000/api/suggest-courses', {
 //         specialty: selectedSpecialty
 //       });
 //       setResources(res.data.suggestions);
@@ -350,7 +350,7 @@ function GoalProgression() {
     if (!selectedSpecialty) return;
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5001/api/suggest-courses', {
+      const res = await axios.post('http://localhost:5000/api/suggest-courses', {
         specialty: selectedSpecialty
       });
       setResources(res.data.suggestions);
@@ -362,14 +362,32 @@ function GoalProgression() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-4xl mx-auto p-6 bg-white " >
       {/* <h2 className="text-2xl font-bold mb-4 text-gray-800">Goal Progression</h2> */}
-      <h2 className="text-2xl font-bold mb-4 text-white">Goal Progression</h2>
+      <h2 className="text-2xl font-bold mb-4 text-black">Goal Progression</h2>
 
 
       <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
         <select
-          className="w-full md:w-1/2 p-2 border border-gray-300 rounded-md shadow-sm bg-white text-gray-900"
+          style={{
+    width: "75%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
           value={selectedSpecialty}
           onChange={(e) => setSelectedSpecialty(e.target.value)}
         >
@@ -379,13 +397,20 @@ function GoalProgression() {
           ))}
         </select>
 
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-md disabled:opacity-50"
-        >
-          {loading ? 'Loading...' : 'Get Suggestions'}
-        </button>
+       <button
+  onClick={handleSubmit}
+  disabled={loading}
+  className="text-white font-semibold px-6 py-3 rounded-[20px] transition-transform duration-200 disabled:opacity-50"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211), rgb(18, 177, 209))",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => !loading && (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+>
+  {loading ? 'Loading...' : 'Get Suggestions'}
+</button>
+
       </div>
 
       {resources && (

@@ -20,7 +20,7 @@ const JobsPage = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5001/api/auth/userDetails/${email}`);
+        const response = await axios.get(`http://localhost:5000/api/auth/userDetails/${email}`);
         const { selectedTrainingYear, selectedSpecialty } = response.data;
 
         if (!selectedTrainingYear || !selectedSpecialty) {
@@ -61,8 +61,8 @@ const JobsPage = () => {
   }, [email]);
 
   return (
-    <div className="p-5 text-white">
-      <p className="text-center text-teal-100 font-normal">
+    <div className="p-5 text-black">
+      <p className="text-center text-black font-normal">
         You can tell Logitbox about new jobs, and change the hospitals and specialties associated
         with existing jobs in your account. You can also access logbook entries associated with old
         jobs. Click on job names to edit job properties.
@@ -92,18 +92,25 @@ const JobsPage = () => {
                       <h4 className="font-semibold">
                         {job.trainingYear} {job.specialty}
                       </h4>
-                      <p className="text-center text-teal-100">
+                      <p className="text-center text-black">
                         {job.startDate} - {job.endDate}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <button
-                      className="bg-[#211c2f] px-4 py-3 rounded cursor-pointer font-[Times_New_Roman] hover:bg-[#352743]"
-                      onClick={() => navigate("/view-entries")}
-                    >
-                      View entries
-                    </button>
+  className="px-5 py-3 text-white font-[Times_New_Roman] rounded-[20px] transition-transform duration-200 shadow-md"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211), rgb(18, 177, 209))",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+  onClick={() => navigate("/view-entries")}
+>
+  View entries
+</button>
+
                   </div>
                 </div>
               ))}

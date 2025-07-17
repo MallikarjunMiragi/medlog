@@ -45,14 +45,14 @@ const handleSave = async () => {
     const originalEmail = user.email;
 
     // First, update all fields (excluding role)
-    await axios.put("http://localhost:5001/api/auth/user/update", {
+    await axios.put("http://localhost:5000/api/auth/user/update", {
       originalEmail,
       ...formData,
     });
 
     // Then, update the role if it has changed
     if (formData.role !== user.role) {
-      await axios.put("http://localhost:5001/api/auth/user/update-role", {
+      await axios.put("http://localhost:5000/api/auth/user/update-role", {
         email: originalEmail,
         role: formData.role,
       });
@@ -99,7 +99,7 @@ const handleSave = async () => {
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
-                className="bg-gray-800 text-white border border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                className="white800 text-white border border-gray-400 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 >
                 <option value="student">Student</option>
                 <option value="doctor">Doctor</option>

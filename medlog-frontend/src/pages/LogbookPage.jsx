@@ -14,7 +14,7 @@ const LogbookPage = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/api/category/all?email=${encodeURIComponent(userEmail)}`
+          `http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`
         );
 
         const categories = response.data.map((category) => ({
@@ -34,19 +34,24 @@ const LogbookPage = () => {
 
   return (
 
-    <div className="h-screen flex flex-col text-white p-8">
+    <div className="h-screen flex flex-col text-black p-8">
       {/* Scrollable content */}
       <div className="flex-grow overflow-y-auto max-w-7xl w-full mx-auto">
-        <h1 className="text-3xl font-bold mb-4 text-center">
-          Welcome to your new logbook!
-        </h1>
-        <p className="text-gray-300 text-center mb-8 max-w-4xl mx-auto">
+        
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}> Welcome to your new logbook!</h2>
+        <p className="text-gray-900 text-center mb-8 max-w-4xl mx-auto">
           Log entries you've made in previous jobs are filed separately, and can be accessed and added via the jobs page. 
           Logbooks from multiple jobs can still be combined to produce reports on the Reports page.
         </p>
 
         {/* Dynamic category cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 text-black">
           {categoryList.map((category, index) => (
             <LogbookCategory
               key={index}
@@ -60,7 +65,7 @@ const LogbookPage = () => {
       </div>
 
       {/* Fixed bottom section */}
-      <div className="mt-auto max-w-8xl w-full mx-auto mb-20">
+      {/*<div className="mt-auto max-w-8xl w-full mx-auto mb-20">
         <div
           onClick={() => navigate("/manage-logbook")}
           className="flex items-center cursor-pointer text-blue-400 hover:text-blue-200 font-medium mb-2"
@@ -73,7 +78,7 @@ const LogbookPage = () => {
           You can opt into one of our growing list of other, more specialist, logbook categories at any time using the 
           "Add category" button on the category picker. If you have any questions, please contact us via email.
         </p>
-      </div>
+      </div>*/}
 
     </div>
   );

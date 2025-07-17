@@ -7,6 +7,8 @@ const StudentEntries = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const student = location.state?.student || {};
+  const [summaries, setSummaries] = useState({});
+  const [isSummarizing, setIsSummarizing] = useState({});
 
   const [reviewedEntries, setReviewedEntries] = useState([]);
   const [notReviewedEntries, setNotReviewedEntries] = useState([]);
@@ -81,6 +83,14 @@ const StudentEntries = () => {
     setScores({ ...scores, [entryId]: value });
   };
 
+  const handleLabelChange = (entryId, index, newLabel) => {
+    setScoreBreakdown((prev) => {
+      const updated = [...(prev[entryId] || [])];
+      updated[index].label = newLabel;
+      return { ...prev, [entryId]: updated };
+    });
+  };
+
   const handleBreakdownChange = (entryId, index, value) => {
     setScoreBreakdown((prev) => {
       const updated = [...(prev[entryId] || [])];
@@ -92,20 +102,23 @@ const StudentEntries = () => {
       const updated = [...(scoreBreakdown[entryId] || [])];
       updated[index].value = Number(value);
       const total = updated.reduce(
-        (acc, item, idx) => (idx === index ? acc + Number(value) : acc + (item.value || 0)),
+        (acc, item, idx) =>
+          idx === index ? acc + Number(value) : acc + (item.value || 0),
         0
       );
       return { ...prev, [entryId]: total };
     });
   };
 
- const addBreakdown = (entryId) => {
-  setScoreBreakdown((prev) => ({
-    ...prev,
-    [entryId]: [...(prev[entryId] || []), { criterion: "", value: 0, max: 10 }],
-  }));
-};
- 
+  const addBreakdown = (entryId) => {
+    setScoreBreakdown((prev) => ({
+      ...prev,
+      [entryId]: [
+        ...(prev[entryId] || []),
+        { label: "", value: 0, max: 10 },
+      ],
+    }));
+  };
 
   const removeBreakdown = (entryId, index) => {
     const updated = [...(scoreBreakdown[entryId] || [])];
@@ -174,8 +187,62 @@ const StudentEntries = () => {
     }
   };
 
+  const handleGenerateSummary = async (entry) => {
+  const entryId = entry._id;
+  setIsSummarizing((prev) => ({ ...prev, [entryId]: true }));
+
+  try {
+    const formData = new FormData();
+    const dataWithoutPII = { ...entry.data };
+    delete dataWithoutPII.Name;
+    delete dataWithoutPII.PatientName;
+    delete dataWithoutPII.Location;
+
+    formData.append("entryData", JSON.stringify(dataWithoutPII));
+
+    // If a file is present, append it (only first file if multiple)
+    for (const key in entry.data) {
+      if (typeof entry.data[key] === "string" && entry.data[key].startsWith("/uploads/")) {
+        const fileUrl = `http://localhost:5000${entry.data[key]}`;
+        const response = await fetch(fileUrl);
+        const blob = await response.blob();
+        formData.append("file", blob, "attachedFile.txt");
+        break; // only attach one file
+      }
+    }
+
+    const response = await fetch("http://localhost:5000/api/ai/summarize", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setSummaries((prev) => ({ ...prev, [entryId]: data.summary }));
+      setNotification({
+        isOpen: true,
+        message: "Summary generated successfully.",
+        type: "success",
+      });
+    } else {
+      throw new Error(data.error || "Unknown error");
+    }
+  } catch (error) {
+    console.error("Summary generation failed:", error);
+    setNotification({
+      isOpen: true,
+      message: "Failed to generate summary.",
+      type: "error",
+    });
+  } finally {
+    setIsSummarizing((prev) => ({ ...prev, [entryId]: false }));
+  }
+};
+
+
   return (
-    <div className="flex h-screen bg-[#0f172a]">
+    <div className="flex h-screen bg-white">
       <DoctorSidebar />
 
       <div className="flex-grow p-5 overflow-y-auto">
@@ -186,27 +253,32 @@ const StudentEntries = () => {
           Back
         </button>
 
-        <h2 className="text-center text-2xl text-teal-100 font-bold mb-6">
-          Entries for {student.fullName}
-        </h2>
+        
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Entries for {student.fullName}</h2>
 
         {/* Filters */}
         <div className="flex justify-center mb-6">
           <button
-            className={`px-6 py-2 rounded-md mx-2 ${
+            className={`px-6 py-2 rounded-full mx-2 ${
               selectedTab === "not-reviewed"
-                ? "bg-teal-600 text-white"
-                : "bg-gray-700 text-teal-100"
+                ? "bg-blue-400 text-white"
+                : "bg-blue-300 text-white"
             }`}
             onClick={() => setSelectedTab("not-reviewed")}
           >
             Not Reviewed
           </button>
           <button
-            className={`px-6 py-2 rounded-md mx-2 ${
+            className={`px-6 py-2 rounded-full mx-2 ${
               selectedTab === "reviewed"
-                ? "bg-teal-600 text-white"
-                : "bg-gray-700 text-teal-100"
+                ? "bg-blue-400 text-white"
+                : "bg-blue-300 text-white"
             }`}
             onClick={() => setSelectedTab("reviewed")}
           >
@@ -220,13 +292,13 @@ const StudentEntries = () => {
             placeholder="Search by category..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 rounded-md border bg-white/20 text-white placeholder:text-gray-300"
+            className="px-4 py-2 rounded-full border bg-white text-black placeholder:text-gray-500"
           />
           <input
             type="date"
             value={filterDate}
             onChange={(e) => setFilterDate(e.target.value)}
-            className="px-4 py-2 rounded-md border bg-white/20 text-white"
+            className="px-4 py-2 rounded-full border bg-white text-black"
           />
           <button
             onClick={() => {
@@ -248,21 +320,26 @@ const StudentEntries = () => {
           displayedEntries.map((entry) => (
             <div
               key={entry._id}
-              className="relative bg-[#717c9350] p-6 rounded-lg mb-6 shadow-md"
+              className="relative bg-[#717c9350] p-6 rounded-lg mb-8 shadow-md"
+               style={{
+    borderRadius: "50px",
+    background: "#e0e0e0ff",
+    boxShadow: "20px 20px 60px #bebebe, -20px -20px 60px #ffffff"
+  }}
             >
-              <h4 className="text-lg font-semibold text-teal-100 mb-4 flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
                 <span>🩺</span> {capitalize(entry.categoryName)}
-              </h4>
+              </h3>
 
               <div className="mb-4">
                 {Object.entries(entry.data).map(([key, value]) => (
-                  <p key={key} className="text-white text-sm mb-2">
+                  <p key={key} className="text-black text-sm mb-2">
                     <strong>{capitalize(key.replace(/_/g, " "))}:</strong>{" "}
                     {typeof value === "string" && value.startsWith("/uploads/") ? (
                       <a
                         href={`http://localhost:5000${value}`}
                         download
-                        className="text-teal-300 underline"
+                        className="text-teal-600 underline"
                       >
                         📄 Download File
                       </a>
@@ -271,7 +348,7 @@ const StudentEntries = () => {
                         href={value}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-teal-300 underline"
+                        className="text-teal-600 underline"
                       >
                         📄 View File
                       </a>
@@ -286,23 +363,68 @@ const StudentEntries = () => {
 
               {selectedTab === "reviewed" ? (
                 <>
-                  <p className="text-white text-sm mb-2">
+                  <p className="text-black text-sm mb-2">
                     <strong>Doctor's Comments:</strong> {entry.comments}
                   </p>
-                  <p className="text-white text-sm">
+                  <p className="text-black text-sm">
                     <strong>Score:</strong> {entry.score}/100
                   </p>
                 </>
               ) : (
                 <div className="flex flex-col gap-4">
-                  <textarea
-                    className="w-full min-h-[80px] p-3 rounded-md border border-gray-300 bg-[#0f172a] text-white resize-none"
-                    placeholder="Write a comment..."
-                    value={comments[entry._id] || ""}
-                    onChange={(e) =>
-                      handleCommentChange(entry._id, e.target.value)
-                    }
-                  />
+                  <div className="flex flex-col w-full">
+                    <textarea
+                      className="w-full min-h-[80px] p-3 rounded-md border border-gray-300 bg-white text-black resize-none"
+                      placeholder="Write a comment..."
+                      value={comments[entry._id] || ""}
+                      onChange={(e) =>
+                        handleCommentChange(entry._id, e.target.value)
+                      }
+                    />
+                    <button
+                      onClick={() => handleGenerateSummary(entry)}
+                      disabled={isSummarizing[entry._id]}
+                      className="text-xs mt-1 w-max bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded-md disabled:opacity-50"
+                      style={{
+    display: "block",
+    width: "100%",
+    fontWeight: "bold",
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    color: "white",
+    paddingBlock: "15px",
+    margin: "20px auto",
+    borderRadius: "20px",
+    boxShadow: "rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px",
+    border: "none",
+    transition: "all 0.2s ease-in-out",
+    cursor: "pointer"
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "scale(1.03)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px";
+  }}
+  onMouseDown={(e) => {
+    e.currentTarget.style.transform = "scale(0.95)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 15px 10px -10px";
+  }}
+  onMouseUp={(e) => {
+    e.currentTarget.style.transform = "scale(1.03)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px";
+  }}
+                    >
+                      {isSummarizing[entry._id] ? "Generating..." : "Generate Summary from Entry"}
+                    </button>
+                    {summaries[entry._id] && (
+                      <div className="mt-2 bg-white p-3 rounded-full text-sm text-blue border-l-4 border-teal-500"
+                      >
+                        <strong>Generated Summary:</strong> {summaries[entry._id]}
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex items-center gap-4 flex-wrap">
                     <div className="flex items-center gap-2">
@@ -319,7 +441,7 @@ const StudentEntries = () => {
                       />
                       <label
                         htmlFor={`enhance-${entry._id}`}
-                        className="text-white"
+                        className="text-black"
                       >
                         Enhance comment
                       </label>
@@ -330,7 +452,7 @@ const StudentEntries = () => {
                       min="0"
                       max="100"
                       placeholder="Score"
-                      className="w-20 py-2 px-2 rounded-md bg-[#0f172a] text-white border text-center"
+                      className="w-20 py-2 px-2 rounded-md bg-white text-black border text-center"
                       value={scores[entry._id] || ""}
                       onChange={(e) =>
                         handleScoreChange(entry._id, e.target.value)
@@ -345,12 +467,24 @@ const StudentEntries = () => {
                         }))
                       }
                       className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-3 rounded-md"
+                        style={{
+    background: "linear-gradient(45deg, #8abff4ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                     >
                       Score Valuation ⬇
                     </button>
 
                     <button
                       className="bg-teal-600 hover:bg-teal-700 text-white py-2 px-4 rounded-md"
+                       style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
                       onClick={() => handleReviewSubmit(entry._id)}
                     >
                       Submit Review
@@ -358,56 +492,54 @@ const StudentEntries = () => {
                   </div>
 
                   {scoresBreakdownVisible[entry._id] && (
-  <div className="mt-2 w-full max-w-md bg-white text-black rounded-md p-4 border">
-    {scoreBreakdown[entry._id]?.map((item, idx) => (
-      <div
-        key={idx}
-        className="flex items-center justify-between mb-2 gap-2 flex-wrap"
-      >
-        <input
-          type="text"
-          placeholder="Criterion"
-          value={item.criterion || ""}
-          onChange={(e) => {
-            const updated = [...(scoreBreakdown[entry._id] || [])];
-            updated[idx].criterion = e.target.value;
-            setScoreBreakdown((prev) => ({
-              ...prev,
-              [entry._id]: updated,
-            }));
-          }}
-          className="flex-1 px-2 py-1 rounded-md border text-sm"
-        />
-
-        <input
-          type="number"
-          min="0"
-          max={item.max}
-          value={item.value}
-          onChange={(e) =>
-            handleBreakdownChange(entry._id, idx, e.target.value)
-          }
-          className="w-16 px-2 py-1 rounded-md border text-center"
-        />
-        <span className="text-sm">/ {item.max}</span>
-        <button
-          onClick={() => removeBreakdown(entry._id, idx)}
-          className="text-red-500 hover:text-red-700"
-        >
-          ✖
-        </button>
-      </div>
-    ))}
-
-    <button
-      onClick={() => addBreakdown(entry._id)}
-      className="mt-2 text-sm text-blue-600 hover:underline"
-    >
-      + Add Breakdown
-    </button>
-  </div>
-)}
-
+                    <div className="mt-2 w-full max-w-xs rounded bg-white shadow-sm p-2">
+                      <h3 className="text-sm font-bold text-black mb-2">Score Breakdown</h3>
+                      <div className="flex flex-col gap-2">
+                        {scoreBreakdown[entry._id]?.map((item, idx) => (
+                          <div key={idx} className="flex gap-2 items-center">
+                            <input
+                              type="text"
+                              placeholder="Label"
+                              value={item.label}
+                              onChange={(e) => handleLabelChange(entry._id, idx, e.target.value)}
+                              className="bg-white border text-black text-sm font-semibold rounded px-3 py-2 w-28 focus:outline-none focus:ring-2 focus:ring-teal-400"
+                            />
+                            <div className="flex gap-2 items-center bg-white rounded px-3 py-2 w-24 justify-center">
+                              <input
+                                type="number"
+                                min="0"
+                                max={item.max}
+                                value={item.value}
+                                onChange={(e) => handleBreakdownChange(entry._id, idx, e.target.value)}
+                                className="bg-white text-black text-sm font-semibold w-8 text-center focus:outline-none"
+                              />
+                              <span className="text-black text-sm font-semibold">/</span>
+                              <input
+                                type="number"
+                                min="1"
+                                value={item.max}
+                                onChange={(e) => handleLabelChange(entry._id, idx, e.target.value)}
+                                className="bg-transparent text-black text-sm font-semibold w-8 text-center focus:outline-none"
+                              />
+                            </div>
+                            <button
+                              onClick={() => removeBreakdown(entry._id, idx)}
+                              className="ml-1 text-red-400 hover:text-red-600 text-base font-bold"
+                              title="Remove"
+                            >
+                              ✖
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={() => addBreakdown(entry._id)}
+                        className="mt-2 text-xs text-blue-500 hover:underline font-semibold"
+                      >
+                        + Add Breakdown
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

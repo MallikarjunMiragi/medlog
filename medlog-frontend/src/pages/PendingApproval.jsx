@@ -5,7 +5,7 @@ const RegistrationPending = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-700 px-4">
+    <div className="flex items-center justify-center min-h-screen white px-4">
       <div className="bg-white shadow-2xl rounded-2xl p-10 max-w-md w-full text-center">
         <h1 className="text-3xl font-bold !text-gray-800 mb-4">
           Registration Pending

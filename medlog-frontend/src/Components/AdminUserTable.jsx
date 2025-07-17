@@ -4,7 +4,7 @@ const AdminUserTable = ({ users, onApprove, onReject }) => {
   return (
     <div className="overflow-x-auto rounded-lg shadow-lg">
       <table className="min-w-full bg-black border border-gray-300">
-        <thead className="bg-green-900 text-white">
+        <thead className="bg-white text-black">
           <tr>
             <th className="px-6 py-3 text-left">Name</th>
             <th className="px-6 py-3 text-left">Email</th>
@@ -22,7 +22,7 @@ const AdminUserTable = ({ users, onApprove, onReject }) => {
             </tr>
           ) : (
             users.map((user) => (
-              <tr key={user.email} className="border-b hover:bg-gray-800 text-white">
+              <tr key={user.email} className="border-b hover:bg-white text-black">
                 <td className="px-6 py-4">{user.fullName}</td>
                 <td className="px-6 py-4">{user.email}</td>
                 <td className="px-6 py-4 capitalize">{user.role}</td>

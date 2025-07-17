@@ -36,7 +36,7 @@ const VerifyOtp = () => {
     }
 
     try {
-      const { data } = await axios.post("http://localhost:5001/api/auth/verify-otp", formData);
+      const { data } = await axios.post("http://localhost:5000/api/auth/verify-otp", formData);
       setNotification({ isOpen: true, title: "Success", message: data.message, type: "success" });
 
       setTimeout(() => {
@@ -54,13 +54,13 @@ const VerifyOtp = () => {
 
   return (
     <section className="flex justify-center items-center h-full w-full">
-      <div className="flex w-[800px] max-w-[90%] bg-white/10 shadow-md rounded-md text-white">
+      <div className="flex w-[800px] max-w-[90%] bg-white/10 shadow-md rounded-md text-black">
         <div className="flex-1 p-8 flex flex-col justify-center">
           <h2 className="text-center text-xl mb-5 font-bold text-teal-400">Verify Your Email</h2>
           <form onSubmit={handleSubmit}>
             <label className="mb-1 block font-bold">Email</label>
                       <input
-                          className="w-full p-3 mb-4 rounded-md bg-white/20 text-white"
+                          className="w-full p-3 mb-4 rounded-md bg-white/20 text-black"
                           type="email"
                           placeholder="Enter your email"
                           name="email"
@@ -72,7 +72,7 @@ const VerifyOtp = () => {
 
             <label className="mb-1 block font-bold">OTP Code</label>
             <input
-              className="w-full p-3 mb-4 rounded-md bg-white/20 text-white"
+              className="w-full p-3 mb-4 rounded-md bg-white/20 text-black"
               type="text"
               placeholder="Enter the OTP"
               name="otp"
@@ -84,6 +84,25 @@ const VerifyOtp = () => {
             <button
               type="submit"
               className="w-full p-3 bg-[#008080] cursor-pointer mb-4 text-sm hover:bg-[#283e3e] transition duration-300 rounded-md"
+              style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
             >
               Verify OTP
             </button>

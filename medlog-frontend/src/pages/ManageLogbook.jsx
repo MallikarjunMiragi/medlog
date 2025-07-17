@@ -18,7 +18,7 @@ const ManageLogbook = () => {
 
 const fetchCategories = async () => {
   try {
-    const response = await axios.get(`http://localhost:5001/api/category/all?email=${encodeURIComponent(userEmail)}`);
+    const response = await axios.get(`http://localhost:5000/api/category/all?email=${encodeURIComponent(userEmail)}`);
 
         setCategoryList(response.data);
       } catch (error) {
@@ -35,7 +35,7 @@ const fetchCategories = async () => {
     setNotification({ isOpen: true, title: "Info", message: `Deleting category with ID: ${id}`, type: "info" }); 
   
     try {
-      const response = await axios.delete(`http://localhost:5001/api/category/delete/${id}`);
+      const response = await axios.delete(`http://localhost:5000/api/category/delete/${id}`);
       console.log("Delete response:", response.data);
       setNotification({ isOpen: true, title: "Success", message: "Category deleted successfully!", type: "success" });
       
@@ -58,7 +58,7 @@ const fetchCategories = async () => {
     e.stopPropagation();
     try {
       const updatedName = editedCategories[id];
-      await axios.put(`http://localhost:5001/api/category/update/${id}`, { name: updatedName });
+      await axios.put(`http://localhost:5000/api/category/update/${id}`, { name: updatedName });
       setCategoryList(
         categoryList.map((category) =>
           category._id === id ? { ...category, name: updatedName } : category
@@ -70,12 +70,48 @@ const fetchCategories = async () => {
   };
 
   return (
-    <div style={styles.container} className="text-white">
-      <h2 className="font-semibold text-xl mb-4">Manage logbook categories</h2>
-      <p className="text-center mb-2 text-teal-100">
+    <div style={styles.container} className="text-black">
+      
+      <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Manage logbook categories</h2>
+      <p className="text-center mb-2 text-teal-700">
         You can change the name of a category and delete categories you no longer require.
       </p>
-      <button style={styles.addButton} className="w-full p-4 bg-[#008080] font-semibold rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={() => navigate("/add-category")}>
+      <button style={{
+    display: "block",
+    width: "100%",
+    fontWeight: "bold",
+    background: "linear-gradient(45deg, rgb(16, 137, 211) 0%, rgb(18, 177, 209) 100%)",
+    color: "white",
+    paddingBlock: "15px",
+    margin: "20px auto",
+    borderRadius: "20px",
+    boxShadow: "rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px",
+    border: "none",
+    transition: "all 0.2s ease-in-out",
+    cursor: "pointer"
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = "scale(1.03)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px";
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = "scale(1)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 20px 10px -15px";
+  }}
+  onMouseDown={(e) => {
+    e.currentTarget.style.transform = "scale(0.95)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 15px 10px -10px";
+  }}
+  onMouseUp={(e) => {
+    e.currentTarget.style.transform = "scale(1.03)";
+    e.currentTarget.style.boxShadow = "rgba(133, 189, 215, 0.8784313725) 0px 23px 10px -20px";
+  }} className="w-full p-4 bg-[#008080] font-semibold rounded-md cursor-pointer transition delay-300 hover:#015b5b" onClick={() => navigate("/add-category")}>
         Add additional category
       </button>
       <div style={styles.categoryList}>
@@ -85,7 +121,25 @@ const fetchCategories = async () => {
               type="text"
               value={editedCategories[category._id] ?? category.name}
               onChange={(e) => handleEdit(category._id, e.target.value)}
-              style={styles.input}
+              style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "10px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
             />
             <button style={{ ...styles.button, ...styles.saveButton }} onClick={(e) => handleSave(category._id, e)}>
               ✔️
@@ -126,16 +180,16 @@ const styles = {
   categoryList: {
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
+    
   },
   categoryItem: {
     position: "relative",
     display: "flex",
     alignItems: "center",
-    gap: "15px",
+    gap: "5px",
     padding: "15px",
     minWidth: "400px",
-    border: "1px solid #ccc",
+    
     borderRadius: "8px",
   },
   input: {

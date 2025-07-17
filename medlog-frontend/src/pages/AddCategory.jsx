@@ -65,7 +65,7 @@ const AddCategory = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 text-white">
+    <div className="max-w-xl mx-auto p-6 text-black">
       <Notification
         isOpen={notification.isOpen}
         onRequestClose={() => setNotification({ ...notification, isOpen: false })}
@@ -74,19 +74,45 @@ const AddCategory = () => {
         type={notification.type}
       />
 
-      <h2 className="text-lg font-semibold">Add Category</h2>
+      
+      <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Add Category</h2>
       <p className="mb-4">Logbook categories help you organize your logbook.</p>
 
       <label className="block mb-2 font-bold">Logbook category *</label>
       <select
-        className="w-full p-3 mb-4 rounded-md border border-gray-300 text-gray-300 bg-white/20"
+        className="w-full p-3 mb-4 rounded-md border border-gray-300 text-gray-900 bg-white/20"
+        style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
         value={selectedCategory}
         onChange={async (e) => {
           const category = e.target.value;
           setSelectedCategory(category);
 
           if (category) {
-            const response = await fetch(`http://localhost:5001/api/category/exists?name=${encodeURIComponent(category)}&email=${encodeURIComponent(userEmail)}`);
+            const response = await fetch(`http://localhost:5000/api/category/exists?name=${encodeURIComponent(category)}&email=${encodeURIComponent(userEmail)}`);
             const data = await response.json();
             setCategoryExists(data.exists);
           }
@@ -94,7 +120,7 @@ const AddCategory = () => {
       >
         <option value="">Select a category</option>
         {categories.map((category, index) => (
-          <option key={index} value={category} className="bg-gray-700">
+          <option key={index} value={category} className="bg-white">
             {category}
           </option>
         ))}
@@ -112,12 +138,31 @@ const AddCategory = () => {
                 placeholder="Field Name"
                 value={field.name}
                 onChange={(e) => updateField(index, "name", e.target.value)}
-                className="flex-1 p-2 rounded-md bg-white/20 text-white placeholder-gray-300"
+                className="flex-1 p-2 rounded-md bg-white/20 text-black placeholder-gray-500"
+                style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
               />
               <select
                 value={field.type}
                 onChange={(e) => updateField(index, "type", e.target.value)}
-                className="p-2 rounded-md bg-gray-800 text-gray-300 border border-gray-300"
+                className="p-2 rounded-md bg-white text-gray-500 border border-gray-300"
               >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
@@ -133,22 +178,41 @@ const AddCategory = () => {
       )}
 
       <button
-        onClick={addField}
-        className="w-full my-4 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition"
-      >
-        + Add Field
-      </button>
+  onClick={addField}
+  className=" px-36 py-3 mb-2 rounded-[20px] cursor-pointer font-semibold text-white shadow-md transition-transform duration-200"
+  style={{
+    background: "linear-gradient(45deg, rgb(16, 137, 211), rgb(18, 177, 209))",
+    boxShadow: "rgba(133, 189, 215, 0.88) 0px 10px 15px -10px",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+>
+  + Add Field
+</button>
+
 
       <div className="flex justify-between gap-2">
         <button
           onClick={() => navigate(-1)}
-          className="w-1/2 py-3 bg-gray-600 text-white rounded hover:bg-gray-700 transition"
+          className="w-1/2 py-3 bg-gray-600 text-white rounded hover:white transition"
+          style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           Cancel
         </button>
         <button
           onClick={handleSave}
           className="w-1/2 py-3 bg-teal-600 text-white rounded hover:bg-teal-700 transition"
+          style={{
+    background: "linear-gradient(45deg, #b3d9ff, #7ab8f5)", // light blue tones
+    boxShadow: "0 6px 12px rgba(122, 184, 245, 0.3)",
+  }}
+  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.03)")}
+  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
         >
           Save
         </button>

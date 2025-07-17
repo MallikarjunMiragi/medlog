@@ -16,7 +16,7 @@ import {
 import "../styles.css";
 import Notification from "../Components/Notification";
 
-const API_URL = "http://localhost:5001/api/auth";
+const API_URL = "http://localhost:5000/api/auth";
 
 const ReportsPage = () => {
   const dispatch = useDispatch();
@@ -69,7 +69,7 @@ const ReportsPage = () => {
         const formattedEmail =
           typeof userEmail === "object" ? userEmail.email : userEmail;
         const entriesResponse = await axios.get(
-          `http://localhost:5001/api/logentry/${encodeURIComponent(
+          `http://localhost:5000/api/logentry/${encodeURIComponent(
             formattedEmail
           )}`
         );
@@ -623,9 +623,16 @@ const generateDocx = () => {
 
 
   return (
-    <div className="flex text-white">
+    <div className="flex text-black">
       <div className="flex-1 p-5">
-        <h2 className="font-semibold text-lg">Create Report</h2>
+        
+        <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Create Report</h2>
         {loading ? (
           <p>Loading user details...</p>
         ) : error ? (
@@ -633,14 +640,51 @@ const generateDocx = () => {
         ) : (
           <>
             <p className="text-center text-teal-50">Download preformatted logbook reports.</p>
-            <div className="grid gap-4 [&>div]:flex [&>div]:flex-col [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:bg-gray-700">
+            <div className="grid gap-4 [&>div]:flex [&>div]:flex-col [&_label]:mb-1.5 [&_label]:font-bold [&_input]:p-3 [&_input]:mb-4 [&_input]:rounded-md [&_input]:border-0 [&_input]:bg-white/20 [&_input]:placeholder:text-gray-300 [&_select]:p-3 [&_select]:rounded-md [&_select]:border [&_select]:border-gray-300 [&_select]:text-gray-300 [&_select]:bg-white/20 [&_select]:mb-4 [&_option]:white">
               <div>
                 <label>Name *</label>
-                <input type="text" value={userData.fullName || ""} readOnly />
+                <input type="text" value={userData.fullName || ""} readOnly 
+                style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }/>
               </div>
               <div>
                 <label>Report *</label>
-                <select>
+                <select style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }>
                   <option>Logbook Report</option>
                 </select>
               </div>
@@ -651,6 +695,25 @@ const generateDocx = () => {
                   onChange={(e) =>
                     dispatch(setReportFormat(e.target.value))
                   }
+                  style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
                 >
                   <option>Summary Report</option>
                   <option>Full Disclosure Report</option>
@@ -663,6 +726,25 @@ const generateDocx = () => {
                   onChange={(e) =>
                     dispatch(setReportFileType(e.target.value))
                   }
+                  style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
                 >
                   <option>PDF (non-editable format)</option>
                   <option>Docx (editable format)</option>
@@ -673,6 +755,25 @@ const generateDocx = () => {
               <select
                 onChange={(e) => handleDateFilter(e.target.value)}
                 className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20 mb-4"
+                style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
               >
                 <option value="all">Complete Report (All Entries)</option>
                 <option value="10days">Last 10 Days</option>
@@ -692,6 +793,25 @@ const generateDocx = () => {
                     value={customFrom}
                     onChange={(e) => setCustomFrom(e.target.value)}
                     className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20"
+                    style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
                   />
                 </div>
                 <div>
@@ -701,6 +821,25 @@ const generateDocx = () => {
                     value={customTo}
                     onChange={(e) => setCustomTo(e.target.value)}
                     className="p-3 rounded-md border border-gray-300 text-gray-300 bg-white/20"
+                    style={{
+    width: "100%",
+    background: "white",
+    border: "none",
+    padding: "15px 20px",
+    borderRadius: "20px",
+    marginTop: "15px",
+    boxShadow: "#cff0ff 0px 10px 10px -5px",
+    borderInline: "2px solid transparent",
+    color: "#000",
+    outline: "none",
+    fontSize: "14px"
+  }}
+  onFocus={(e) =>
+    (e.target.style.borderInline = "2px solid #12b1d1")
+  }
+  onBlur={(e) =>
+    (e.target.style.borderInline = "2px solid transparent")
+  }
                   />
                 </div>
                 {/* Apply Button */}

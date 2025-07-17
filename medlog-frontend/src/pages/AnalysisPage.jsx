@@ -25,7 +25,7 @@ const AnalysisPage = () => {
 
     const userEmail = user.email.email || user.email;
 
-    fetch(`http://localhost:5001/api/logentry/${encodeURIComponent(userEmail)}`)
+    fetch(`http://localhost:5000/api/logentry/${encodeURIComponent(userEmail)}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("📊 Fetched log entries:", data);
@@ -96,19 +96,26 @@ const AnalysisPage = () => {
   return (
     <div className="p-5">
       <div className="text-center mb-8">
-  <h1 className="text-3xl font-bold text-white">Student Analysis</h1>
-  <p className="mt-2 text-gray-300 text-lg">Gain insights and track your progress over time</p>
+  
+  <h2 className="text-2xl font-bold text-blue-600 mb-6"
+      style={{
+    textAlign: "center",
+    fontWeight: 900,
+    fontSize: "30px",
+    color: "rgb(16, 137, 211)"
+  }}>Student Analysis</h2>
+  <p className="mt-2 text-gray-900 text-lg">Gain insights and track your progress over time</p>
 </div>
 
       {entries.length > 0 ? (
         <div className="grid grid-cols-2 gap-6 mt-10">
           <div className="p-5 rounded-lg shadow-md">
-            <h2 className="text-center text-xl font-semibold mb-5 text-white">Entries Per Category</h2>
+            <h2 className="text-center text-xl font-semibold mb-5 text-black">Entries Per Category</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={getCategoryCounts()}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="category" tick={{ fill: 'white', fontSize: 16 }} />
-                <YAxis tick={{ fill: 'white', fontSize: 16 }} />
+                <XAxis dataKey="category" tick={{ fill: 'black', fontSize: 16 }} />
+                <YAxis tick={{ fill: 'black', fontSize: 16 }} />
                 <Tooltip />
                 <Bar dataKey="entries" fill="#8884d8" />
               </BarChart>
@@ -116,12 +123,12 @@ const AnalysisPage = () => {
           </div>
 
           <div className="p-5 rounded-lg shadow-md">
-            <h2 className="text-center text-xl font-semibold mb-5 text-white">Average Score Per Category</h2>
+            <h2 className="text-center text-xl font-semibold mb-5 text-black">Average Score Per Category</h2>
             <ResponsiveContainer width="100%" height={300}>
               <RadarChart data={getAverageScores()}>
                 <PolarGrid />
-                <PolarAngleAxis dataKey="category" tick={{ fill: 'white', fontSize: 16 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: 'white', fontSize: 16 }} />
+                <PolarAngleAxis dataKey="category" tick={{ fill: 'black', fontSize: 16 }} />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: 'black', fontSize: 16 }} />
                 <Radar name="Score" dataKey="averageScore" stroke="#82ca9d" fill="#82ca9d" fillOpacity={0.6} />
                 <Tooltip />
               </RadarChart>
@@ -129,12 +136,12 @@ const AnalysisPage = () => {
           </div>
 
           <div className="p-5 rounded-lg shadow-md">
-            <h2 className="text-center text-xl font-semibold mb-5 text-white">Entries Per Month</h2>
+            <h2 className="text-center text-xl font-semibold mb-5 text-black">Entries Per Month</h2>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={getEntriesPerMonth()}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tick={{ fill: 'white', fontSize: 16 }} />
-                <YAxis tick={{ fill: 'white', fontSize: 16 }} />
+                <XAxis dataKey="month" tick={{ fill: 'black', fontSize: 16 }} />
+                <YAxis tick={{ fill: 'black', fontSize: 16 }} />
                 <Tooltip />
                 <Line type="monotone" dataKey="entries" stroke="#ff7300" strokeWidth={2} activeDot={{ r: 6 }} />
               </LineChart>
@@ -142,7 +149,7 @@ const AnalysisPage = () => {
           </div>
 
           <div className="p-5 rounded-lg shadow-md">
-            <h2 className="text-center text-xl font-semibold mb-5 text-white">Category Contribution (%)</h2>
+            <h2 className="text-center text-xl font-semibold mb-5 text-black">Category Contribution (%)</h2>
             <ResponsiveContainer width="100%" height={300}>
             <PieChart>
   <Pie
@@ -168,8 +175,8 @@ const AnalysisPage = () => {
       )}
        <hr className="my-10 border-gray-600" />
       <div className="mt-10">
-        <h2 className="text-2xl font-bold mb-4 text-white text-center">🎯 Goal Progression</h2>
-        <div className="bg-[#1f2937] p-6 rounded-lg shadow">
+        <h2 className="text-2xl font-bold mb-4 text-black text-center">🎯 Goal Progression</h2>
+        <div className="bg-white p-6 rounded-lg shadow">
   <GoalProgression />
 </div>
       </div>
